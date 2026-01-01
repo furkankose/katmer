@@ -1,0 +1,25 @@
+{
+  "endOfLine": "lf",
+  "experimentalTernaries": true,
+  "overrides": [
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
+      }
+    },
+    {
+      "files": ["*.md", "*.mdoc"],
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ],
+  "plugins": ["@prettier/plugin-oxc", "prettier-plugin-astro"],
+  "printWidth": 80,
+  "quoteProps": "as-needed",
+  "semi": false,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "none"
+}

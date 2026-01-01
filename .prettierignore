@@ -1,0 +1,9 @@
+*.md
+*.hbs
+*.min.js
+*.umd.js
+*.sql
+**/*.astro
+.astro
+libs/@plusauth/**
+docs/schema/**

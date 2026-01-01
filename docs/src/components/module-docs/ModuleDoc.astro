@@ -1,0 +1,117 @@
+---
+import MarkdocRenderer from "../MarkdocRenderer.astro"
+
+import ParamList from "./ParamList.astro"
+import ModuleConstraints from "./ModuleConstraints.astro"
+
+const { module } = Astro.props as { module: ModuleDoc }
+
+import { Code } from "@astrojs/starlight/components"
+---
+
+<div
+  class="sticky py-4 z-10"
+  style="top: var(--sl-nav-height); background: var(--sl-color-bg);"
+>
+  <a href="#_top">Overview</a>
+  <a href="#parameters">Parameters</a>
+  <a href="#returns">Returns</a>
+  <a href="#examples">Examples</a>
+</div>
+<ModuleConstraints constraints={module.constraints} />
+{
+  module.description && (
+    <MarkdocRenderer class="mb-3 text-sm" content={module.description} />
+  )
+}
+{
+  module.remarks && (
+    <MarkdocRenderer class="mb-6 text-sm" content={module.remarks} />
+  )
+}
+
+{
+  module.parameters?.length ?
+    <>
+      <h3 class="mt-8 mb-2" id="parameters">
+        Parameters
+      </h3>
+      <div class="not-prose border border-zinc-200/70 dark:border-zinc-700/60 rounded-sm">
+        <ParamList list={module.parameters} baseId="parameter" />
+      </div>
+    </>
+  : <>
+      <h3 class="mt-8 mb-2">Parameters</h3>
+      <div>No parameters.</div>
+    </>
+}
+
+{
+  module.returns?.length ?
+    <>
+      <h3 class="mt-8 mb-2" id="returns">
+        Returns
+      </h3>
+      <div class="not-prose border border-zinc-200/70 dark:border-zinc-700/60 rounded-sm">
+        <ParamList list={module.returns} baseId="return" />
+      </div>
+    </>
+  : null
+}
+
+{
+  module.examples ?
+    <>
+      <h3 class="mt-8 mb-2" id="examples">
+        Examples
+      </h3>
+      {Array.isArray(module.examples) ?
+        <ul class="space-y-4">
+          {module.examples.map(
+            (ex) =>
+              ex.content && (
+                <li>
+                  <div class="font-medium">{ex.name}</div>
+                  <Code code={ex.content} />
+                </li>
+              )
+          )}
+        </ul>
+      : module.examples && (
+          <div>
+            <Code lang="yaml" code={module.examples} />
+          </div>
+        )
+      }
+    </>
+  : null
+}
+
+<script is:inline>
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-tab-target]")
+    if (!btn) return
+    const targetVal = btn.getAttribute("data-tab-target")?.replace(/^#/, "")
+    const target = document.querySelector("#" + targetVal)
+    const scopeSel = btn.getAttribute("data-tab-scope")
+    const scope =
+      scopeSel ? document.querySelector(scopeSel) : target?.parentElement
+    if (!target || !scope) return
+    let isSelect = 1
+    if (scope.dataset["selected"] === targetVal) {
+      isSelect = 0
+      delete scope.dataset["selected"]
+    } else {
+      scope.dataset["selected"] = targetVal
+    }
+    scope.querySelectorAll('[id*="-tab-"]').forEach((p) => {
+      p.hidden = true
+      if (p.id === targetVal && isSelect) {
+        p.hidden = false
+      } else {
+        p.hidden = true
+      }
+    })
+    // toggle chosen panel (open if closed)
+  })
+</script>

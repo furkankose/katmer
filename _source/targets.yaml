@@ -1,0 +1,28 @@
+$schema: "../packages/core/schemas/katmer_config.schema.json"
+
+targets:
+
+  ungrouped:
+    hosts:
+      host_1:
+        connection: ssh
+        hostname: 192.168.1.102
+        port: 22
+        username: test
+        password: 1234
+      host_2:
+        connection: ssh
+        hostname: 192.168.1.103
+        port: 22
+        username: test1
+        password: 1234
+  east:
+    hosts:
+      host_1:
+      host_2:
+  prod:
+    children:
+      east:
+        children:
+          host_1:
+

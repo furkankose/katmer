@@ -1,0 +1,6 @@
+{
+  "framework": null,
+  "packages/ui/**": {
+    "framework": "vue"
+  }
+}

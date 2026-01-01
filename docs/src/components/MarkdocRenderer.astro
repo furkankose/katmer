@@ -1,0 +1,16 @@
+---
+import { parseMarkdoc } from "../utils/markdoc"
+
+type Props = {
+  class?: string
+  content?: string
+}
+if (!Astro.props.content) {
+  return
+}
+const { Content, headings, data } = await parseMarkdoc(Astro.props.content)
+---
+
+<div class={Astro.props.class || ""}>
+  <Content />
+</div>

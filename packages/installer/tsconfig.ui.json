@@ -1,0 +1,32 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["esnext", "dom"],
+    "noEmit": true,
+    "declaration": false,
+    "noImplicitAny": false,
+    "types": [
+      "vue",
+      "vue-router",
+      "vue-i18n",
+      "vite/client",
+      "unplugin-icons/types/vue"
+    ],
+    "useUnknownInCatchVariables": false,
+    "paths": {
+      "@common/*": ["./common/*"],
+      "@type/*": ["./types/*"],
+      "@/*": ["./ui/*"]
+    }
+  },
+  "include": [
+    "global.d.ts",
+    "config",
+    "types",
+    "common",
+    "./ui/**/*.ts",
+    "./ui/**/*.tsx",
+    "./ui/**/*.vue"
+  ]
+}

@@ -1,0 +1,45 @@
+---
+import Page from "@astrojs/starlight/components/Page.astro"
+import { getCollection } from "astro:content"
+import ModuleDoc from "../../components/module-docs/ModuleDoc.astro"
+import { attachRouteDataAndRunMiddleware } from "../../../node_modules/@astrojs/starlight/utils/routing/middleware.ts"
+import { generateStarlightPageRouteData } from "../../../node_modules/@astrojs/starlight/utils/starlight-page.ts"
+
+interface Props {
+  module: any
+}
+export async function getStaticPaths() {
+  const modules = await getCollection("modules")
+  return modules.map((mod) => {
+    return {
+      params: {
+        module_id: mod.data.name
+      },
+      props: {
+        module: mod.data
+      }
+    }
+  })
+}
+
+const { module } = Astro.props
+
+const pageProps = await generateStarlightPageRouteData({
+  props: {
+    frontmatter: { title: module.name }
+  },
+  context: Astro
+})
+pageProps.toc = undefined
+await attachRouteDataAndRunMiddleware(Astro, pageProps)
+---
+
+<Page frontmatter={{ title: module.name }} headings={[]}>
+  <ModuleDoc module={module} />
+</Page>
+
+<style>
+  :root {
+    --sl-content-width: 75rem;
+  }
+</style>

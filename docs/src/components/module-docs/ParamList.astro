@@ -1,0 +1,23 @@
+---
+import ParamItem from "./ParamItem.astro"
+
+interface Props {
+  list: Param[]
+  baseId: string
+  level?: number
+  isRoot?: boolean
+}
+
+const { list, baseId, level = 0, isRoot = false } = Astro.props as Props
+---
+
+{
+  list.map((p, idx) => (
+    <ParamItem
+      p={p}
+      id={`${baseId}-${(p.name ?? p.union?.alias ?? `param${idx + 1}`).replaceAll(".", "_").replaceAll("[", "_").replaceAll("]", "_")}`}
+      level={level}
+      isRoot={isRoot && level === 0}
+    />
+  ))
+}

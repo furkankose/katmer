@@ -1,0 +1,17 @@
+{
+  "include": ["global.d.ts", "types/**/*", "common"],
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@common/*": ["./common/*"],
+      "@type": ["./types"],
+      "@type/*": ["./types/*"]
+    }
+  },
+
+  "references": [
+    { "path": "./tsconfig.server.json" },
+    { "path": "./tsconfig.ui.json" }
+  ]
+}

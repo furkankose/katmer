@@ -1,0 +1,13 @@
+---
+import { Code } from "astro-expressive-code/components"
+
+const { ins, del, mark, content, lang, ...otherProps } = Astro.props
+const meta = `ins={${ins || ""}} del={${del || ""}} ${mark || ""}`
+---
+
+<Code
+  {...otherProps}
+  code={content}
+  meta={meta}
+  lang={Astro.props["data-language"] || lang}
+/>

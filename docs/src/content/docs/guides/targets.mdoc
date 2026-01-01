@@ -1,0 +1,293 @@
+---
+title: Targets
+sidebar:
+  order: 0
+---
+
+Katmer **targets** describe *where* tasks run: hosts, groups of hosts, and the connection settings + shared data you want applied to them. This guide covers the file shape, merge rules, selection syntax, and practical examples.
+
+---
+
+## Quick start
+
+```yaml
+# targets.yaml
+production:
+  variables:
+    env: "prod"
+    app_dir: "/opt/myapp"
+  environment:               # ← exported to the shell of commands on these hosts
+    APP_ENV: "prod"
+    JAVA_OPTS: "-Xms256m -Xmx512m"
+  settings:                  # ← connection defaults for this group
+    connection: "ssh"
+    port: 22
+  hosts:
+    web-01: { hostname: "10.0.0.11", username: "deploy" }
+    web-02: { hostname: "10.0.0.12", username: "deploy" }
+
+staging:
+  variables: { env: "staging" }
+  environment: { APP_ENV: "staging" }
+  hosts:
+    stg-01: { connection: "local" }
+
+# You can also define “ungrouped” hosts at the root:
+hosts:
+  toolbox: { connection: "local" }
+```
+
+Use the names from `targets.yaml` in your tasks:
+
+```yaml
+- name: rollout
+  targets: production
+  script: 'echo "$APP_ENV on {{ env }}"; systemctl restart myapp'
+```
+
+---
+
+## Anatomy of a target file
+
+A **target group** is an object with these optional keys:
+
+* `hosts`: map of host records
+* `settings`: defaults merged into each host (e.g., `connection`, `port`, etc.)
+* `variables`: data merged into `ctx.variables` at run time (used in templates/expressions)
+* `environment`: key/value map exported to the shell that runs your commands
+* `children`: map of *other group names* to include (inherit their hosts, then overlay this group's settings/variables/environment)
+
+You can also define an **ungrouped** section by putting `hosts`, `settings`, `variables`, and/or `environment` at the root of the file.
+
+> Reserved keys: `all`, `hosts`, `settings`, `variables`, `environment`, `children`. Don't use them as group/host names.
+
+---
+
+## Host records
+
+Each host under `hosts` is a connection config. Minimal examples:
+
+```yaml
+# SSH host
+web-01:
+  connection: ssh
+  hostname: 10.0.0.11
+  username: deploy
+  private_key: ~/.ssh/id_rsa
+
+# Local host (run on controller machine)
+localhost:
+  connection: local
+```
+
+Anything in the parent group's `settings` is merged into each host (last writer wins across overlays).
+
+---
+
+## Variables vs Environment
+
+* **`variables`** → merged into `ctx.variables`. You use them in templates/expressions:
+
+  ```yaml
+  template:
+    src: "_source/nginx.conf.twig"
+    dest: "/etc/nginx/nginx.conf"
+    variables:
+      server_name: "{{ ip }}"
+  ```
+
+* **`environment`** → exported to the command process environment on the target (SSH or local). Use them inside scripts/commands:
+
+  ```yaml
+  script: 'echo "running in $APP_ENV"; curl -H "X-Token: $API_TOKEN" https://...'
+  ```
+
+**Precedence (lowest → highest):**
+
+1. Group `variables` / `environment`
+2. Host-level `variables` / `environment`
+3. Task-level `variables` / per-module `variables` (for `template`, etc.)
+
+> Non-string env values are stringified. Prefer plain strings to avoid surprises.
+
+---
+
+## Inheritance & merging
+
+* **Within one file**: group `settings/variables/environment` are merged into their `hosts`. `children` links *pull in hosts* from other groups first, then overlay the parent's `settings/variables/environment` onto those hosts.
+* **Across multiple files**: if you load multiple target maps (e.g., base + overlay), merges are **last-wins** (later inputs override earlier ones) for `settings`, `variables`, `environment`, and host definitions.
+
+---
+
+## Selecting targets in tasks
+
+`targets:` accepts a *pattern string* supporting:
+
+* **Group or host names** directly, e.g. `targets: production` or `targets: web-01`
+* **Wildcards** with `*`, e.g. `targets: api_*`
+* **Multiple tokens** separated by `,` or `:`, e.g. `targets: edge,core`
+* **Exclude** with `!pattern`, e.g. `targets: all,!db*`
+* **Intersection** with `@pattern`, e.g. `targets: east,@host_1`
+* **All hosts** with `all` (alias for `*`)
+
+Deduplication is automatic; exclusions are applied after expansion. A few examples:
+
+```yaml
+# All hosts except cores
+- targets: all,!core*
+
+# Only api_* hosts, even if they appear via multiple groups
+- targets: web,api_*,@api_*
+
+# A single host
+- targets: web-02
+
+# Two groups, minus one noisy box
+- targets: edge,core,!edge-bad01
+```
+
+---
+
+## Examples
+
+### 1) Group defaults + per-host override
+
+```yaml
+web:
+  settings:
+    connection: ssh
+    username: deploy
+    port: 22
+  variables:
+    app_dir: "/opt/myapp"
+  environment:
+    APP_ENV: "prod"
+  hosts:
+    web-01: { hostname: "10.0.0.11" }
+    web-02:
+      hostname: "10.0.0.12"
+      username: "deployer"    # ← override group default
+```
+
+```yaml
+- name: restart web with env visible to shell
+  targets: web
+  script: 'echo "[$APP_ENV] restarting on {{ ip }}"; systemctl restart myapp'
+```
+
+### 2) Ungrouped section (quick files)
+
+```yaml
+settings: { connection: local }
+variables: { env: "tools" }
+environment: { PATH: "/usr/local/bin:/usr/bin:/bin" }
+hosts:
+  toolbox: {}           # inherits local connection
+  packer: {}
+```
+
+```yaml
+- name: verify path
+  targets: toolbox
+  script: 'echo "$PATH"'
+```
+
+### 3) Children inclusion (inherit from parent)
+
+```yaml
+region-east:
+  settings: { connection: ssh, port: 2201 }
+  hosts:
+    east-01: { hostname: "10.1.0.1", username: "ubuntu" }
+    east-02: { hostname: "10.1.0.2", username: "ubuntu" }
+
+prod:
+  variables: { env: "prod" }
+  environment: { APP_ENV: "prod", FEATURE_X: "on" }
+  children:
+    region-east: {}      # ← include hosts from region-east
+  hosts:
+    prod-orchestrator: { connection: local }
+```
+
+Effect:
+
+* `east-01/east-02` keep their region SSH settings (`port: 2201`) **and** gain prod `variables/environment`.
+
+### 4) Using `environment` with HTTP module
+
+```yaml
+production:
+  environment:
+    API_TOKEN: "s3cr3t"
+  hosts:
+    api-01: { connection: "ssh", hostname: "10.0.0.20" }
+
+# task
+- name: call API with token from env
+  targets: api-01
+  http:
+    url: "https://api.example.com/metrics"
+    headers:
+      Authorization: "Bearer $API_TOKEN"   # interpreted by shell before curl (via provider)
+```
+
+### 5) Overlaying files (last-wins)
+
+`targets.base.yaml`:
+
+```yaml
+edge:
+  settings: { connection: ssh, port: 22 }
+  environment: { APP_ENV: "prod" }
+  hosts:
+    edge-01: { hostname: "10.3.0.1" }
+```
+
+`targets.overlay.yaml`:
+
+```yaml
+edge:
+  settings: { port: 2222 }               # override
+  environment: { FEATURE_FAST: "1" }     # merged (stringified)
+  hosts:
+    edge-02: { hostname: "10.3.0.2" }
+```
+
+Result for group `edge`:
+
+* `port` becomes `2222`
+* `environment` has both `APP_ENV` and `FEATURE_FAST`
+* hosts include `edge-01` and `edge-02`
+
+---
+
+## Tips & gotchas
+
+* Prefer **`variables`** for values you reference in templates (`{{ ... }}`) or conditionals.
+  Prefer **`environment`** for values the *shell/command* should see (e.g., `$APP_ENV`).
+* If a value needs to be used *both* in templates and in shell, put it under `variables` *and* copy it into `environment`.
+* On Windows or non-POSIX filesystems, ownership changes (`owner/group`) may be ignored by modules; Katmer logs a warning and continues.
+* If you pass non-string values in `environment`, they'll be stringified—keep them simple strings where possible.
+
+---
+
+## Schema & reserved names
+
+See the JSON Schema (with `environment` support) for the complete shape of hosts and groups. Avoid using reserved keys as group/host names: `all`, `hosts`, `settings`, `variables`, `environment`, `children`.
+
+---
+
+## Troubleshooting
+
+* **“child group not found”**: you referenced a name under `children` that doesn't exist elsewhere in your targets.
+* **Environment not visible**: confirm you're reading it from the shell (`$NAME`) and not from `{{ variables }}`; they're distinct.
+* **Unexpected host set**: print the resolved list using a quick debug task:
+
+  ```yaml
+  - name: show selected hosts
+    targets: east,!east-bad01
+    debug: "host={{ name }} ip={{ hostname | default(ip) }}"
+  ```
+
+That's it! With `targets.yaml` in place, you can select the right machines, flow data cleanly into templates and commands, and keep your inventories tidy as they grow.

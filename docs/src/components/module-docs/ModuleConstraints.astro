@@ -1,0 +1,408 @@
+---
+import { Icon } from '@astrojs/starlight/components';
+
+type OsArch = "any" | "x86_64" | "arm64" | string
+
+type PackageConstraint = {
+  name: string
+  version?: string
+  range?: string
+  manager?: string | string[]
+  alternatives?: PackageConstraint[]
+  testCmd?: string
+  versionRegex?: string
+}
+type BinaryConstraint = {
+  cmd: string
+  args?: string[]
+  versionRegex?: string
+  range?: string
+  or?: BinaryConstraint[]
+}
+
+type ModulePlatformConstraint = {
+  arch?: OsArch[]
+  packages?: Array<PackageConstraint | string>
+  binaries?: BinaryConstraint[]
+  requireRoot?: boolean
+  minKernel?: string
+  minOsVersion?: string
+  distro?: Record<string, true | false | Omit<ModulePlatformConstraint, "distro">>
+}
+
+type ModuleConstraints = {
+  platform?: Record<string, true | false | ModulePlatformConstraint>
+}
+
+export interface Props {
+  constraints: ModuleConstraints | string
+  title?: string
+}
+
+const { constraints, title = "Constraints" } = Astro.props
+
+function parseConstraints(input: Props["constraints"]): ModuleConstraints {
+  try {
+    return (typeof input === "string" ? JSON.parse(input) : input) || { platform: { any: true } }
+  } catch {
+    return { platform: {} }
+  }
+}
+
+const data = parseConstraints(constraints)
+if(data.platform && data.platform.any === true){
+  return
+}
+const platforms = Object.entries(data.platform ?? {}).map(([family, val]) => {
+  if(typeof val === "object" && val.arch === undefined) {
+    val.arch = ['any']
+  } else if(val === true) {
+    return [family, {arch: ['any']}]
+  }
+  return [family, val]
+})
+
+// ---------- helpers ----------
+function normalizePkg(p: PackageConstraint | string): PackageConstraint {
+  if (typeof p !== "string") return p
+  const s = p.trim()
+  const at = s.indexOf("@")
+  if (at > 0) {
+    const name = s.slice(0, at).trim()
+    const range = s.slice(at + 1).trim()
+    return range ? { name, range } : { name }
+  }
+  const m = s.match(/^([^\s]+)\s+(.+)$/)
+  if (m) return { name: m[1], range: m[2].trim() }
+  return { name: s }
+}
+
+function renderPkgLabel(p: PackageConstraint): string {
+  if (p.version) return `${p.name} = ${p.version}`
+  if (p.range) return `${p.name} ${p.range}`
+  return p.name
+}
+
+function archLabel(a?: OsArch[]) {
+  if (!a || a.length === 0) return "any"
+  if (a.includes("any" as OsArch)) return "any"
+  return a.join(", ")
+}
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v)
+}
+---
+
+<section class="cv-root not-content" data-cv>
+  <header class="cv-header">
+    <h2 class="cv-title">{title}</h2>
+  </header>
+
+  {platforms.length === 0 ? (
+    <p class="cv-muted">No platform constraints declared.</p>
+  ) : (
+    <>
+      {/* Chip Tabs */}
+      <div class="plat-tabs" role="tablist" aria-label="Platform families">
+        {platforms.map(([family, val], i) => (
+          <button
+            class="chip chip-tab"
+            role="tab"
+            aria-selected="false"
+            aria-controls={`panel-${i}`}
+            id={`tab-${i}`}
+            data-tab={i}
+            data-family={family}
+            type="button"
+          >
+            {family}
+          </button>
+        ))}
+      </div>
+
+      {platforms.some(([_family, val]) =>  val !== false && isPlainObject(val))  &&
+      <div class="panels">
+        {platforms.map(([family, val], i) => (
+          val !== false && isPlainObject(val) && (
+          <article
+            id={`panel-${i}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${i}`}
+            class="cv-card panel"
+            data-panel={i}
+            data-family={family}
+          >
+              <div class="cv-body">
+                <div class="flex gap-6">
+                  <div class="item">
+                    <div class="k">Architecture</div>
+                    <span class="chip">{archLabel(val.arch)}</span>
+                  </div>
+
+                  {val.requireRoot !== undefined && (
+                    <div class="item">
+                      <div class="k">Root</div>
+                      { val.requireRoot === false ? <span class="badge badge-danger"><Icon name="close" /></span> : <span class="badge badge-ok"><Icon name="approve-check"/></span>}
+                    </div>
+
+                  )}
+
+
+                  {val.minKernel && (
+                    <div class="item">
+                      <div class="k">Min kernel</div>
+                      <div class="v"><code>{val.minKernel}</code></div>
+                    </div>
+                  )}
+
+                  {val.minOsVersion && (
+                    <div class="item">
+                      <div class="k">Min OS</div>
+                      <div class="v"><code>{val.minOsVersion}</code></div>
+                    </div>
+                  )}
+                </div>
+
+                {Array.isArray(val.binaries) && val.binaries.length > 0 && (
+                  <div class="block">
+                    <div class="block-title">Binaries</div>
+                    <div class="chips">
+                      {val.binaries.map((b) => (
+                        <span class="chip chip-cmd">{b.cmd}{b.range ? ` ${b.range}` : ""}</span>
+                      ))}
+                    </div>
+
+                    {val.binaries.some(b => b.or && b.or.length) && (
+                      <div class="alt">
+                        <span class="alt-label">Any of:</span>
+                        <div class="chips">
+                          {val.binaries.flatMap(b => b.or || []).map((o) => (
+                            <span class="chip chip-light">{o.cmd}{o.range ? ` ${o.range}` : ""}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {Array.isArray(val.packages) && val.packages.length > 0 && (
+                  <div class="block">
+                    <div class="block-title">Packages</div>
+                    <div class="chips">
+                      {val.packages.map((raw) => {
+                        const p = normalizePkg(raw )
+                        return <span class="chip chip-pkg">{renderPkgLabel(p)}</span>
+                      })}
+                    </div>
+
+                    {val.packages.some((raw) => {
+                      const p = normalizePkg(raw )
+                      return p.alternatives && p.alternatives.length
+                    }) && (
+                      <div class="alt">
+                        <span class="alt-label">Any of:</span>
+                        <div class="chips">
+                          {val.packages.flatMap((raw) => {
+                            const p = normalizePkg(raw )
+                            return p.alternatives || []
+                          }).map((alt) => (
+                            <span class="chip chip-light">{renderPkgLabel(alt)}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {val.distro && Object.keys(val.distro).length > 0 && (
+                  <details class="cv-acc">
+                    <summary>Per-distro</summary>
+                    <div class="distro-grid">
+                      {Object.entries(val.distro).map(([dId, dVal]) => (
+                        <div class="distro-card">
+                          <div class="distro-head">
+                            <span class="badge badge-distro">{dId}
+                              {dVal === false ? <span class="badge badge-danger"><Icon name="close" /></span> : <span class="badge badge-ok"><Icon name="approve-check"/></span>}
+                            </span>
+                          </div>
+
+                          {dVal !== true && dVal !== false && isPlainObject(dVal) && (
+                            <div class="distro-body">
+                              {dVal.arch && (
+                                <div class="mini">
+                                  <div class="k">Arch</div>
+                                  <div class="v"><span class="chip">{archLabel(dVal.arch)}</span></div>
+                                </div>
+                              )}
+
+                              {dVal.binaries && dVal.binaries.length > 0 && (
+                                <div class="mini">
+                                  <div class="k">Binaries</div>
+                                  <div class="v chips">
+                                    {dVal.binaries.map((b) => (
+                                      <span class="chip chip-cmd">{b.cmd}{b.range ? ` ${b.range}` : ""}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {dVal.packages && dVal.packages.length > 0 && (
+                                <div class="mini">
+                                  <div class="k">Packages</div>
+                                  <div class="v chips">
+                                    {dVal.packages.map((raw) => {
+                                      const p = normalizePkg(raw)
+                                      return <span class="chip chip-pkg">{renderPkgLabel(p)}</span>
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+
+                              {dVal.requireRoot !== undefined && (
+                                <span class="chip chip-warn">
+                                  Root
+                               { dVal.requireRoot === false ? <span class="badge badge-danger"><Icon name="close" /></span> : <span class="badge badge-ok"><Icon name="approve-check"/></span>}
+                                </span>
+
+                              )}
+
+                              {dVal.minKernel && (
+                                <div class="mini">
+                                  <div class="k">Kernel</div>
+                                  <div class="v"><code>{dVal.minKernel}</code></div>
+                                </div>
+                              )}
+
+                              {dVal.minOsVersion && (
+                                <div class="mini">
+                                  <div class="k">OS</div>
+                                  <div class="v"><code>{dVal.minOsVersion}</code></div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </div>
+          </article>
+          )
+        ))}
+      </div>
+      }
+      <script is:inline>
+        (() => {
+          const root = document.querySelector('[data-cv]');
+          if (!root) return;
+          const tabs = Array.from(root.querySelectorAll('.chip-tab'));
+          const panels = Array.from(root.querySelectorAll('.panel'));
+
+          function activate(ix) {
+            tabs.forEach((t, i) => {
+              const active = i === ix && !t.classList.contains('active');
+              t.classList.toggle('active', active);
+              t.setAttribute('aria-selected', active ? 'true' : 'false');
+              const panel = root.querySelector(`#panel-${i}`);
+              if (panel) panel.classList.toggle('active', active);
+            });
+          }
+
+          tabs.forEach((tab, i) => {
+            tab.addEventListener('click', () => activate(i));
+            tab.addEventListener('keydown', (e) => {
+              if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                const dir = e.key === 'ArrowRight' ? 1 : -1;
+                const next = (i + dir + tabs.length) % tabs.length;
+                tabs[next].focus();
+                activate(next);
+              }
+            });
+          });
+        })();
+      </script>
+    </>
+  )}
+</section>
+
+<hr class="mb-12"></hr>
+
+<style>
+
+  .chip { display:inline-flex; align-items:center; gap:.25rem; font-size:.78rem; border:1px solid var(--sl-color-gray-6, #d0d7de); padding:.05rem .45rem; border-radius:999px; background: var(--sl-color-bg); color: var(--sl-color-text); }
+  .chip-warn { background: var(--sl-color-orange-low, #fff7ed); border-color: var(--sl-color-orange-low, #fed7aa); color: var(--sl-color-orange, #9a3412); }
+  .chip-light { background: var(--sl-color-gray-7, #f8fafc); }
+  .chip-cmd { background: var(--sl-color-indigo-low, #eef2ff); border-color: var(--sl-color-indigo-low, #c7d2fe); color: var(--sl-color-indigo, #3730a3); }
+  .chip-pkg { background: var(--sl-color-green-low, #f0fdf4); border-color: var(--sl-color-green-low, #bbf7d0); color: var(--sl-color-green, #065f46); }
+
+  .cv-root { display:grid; gap:.75rem; }
+  .cv-header { display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+  .cv-title { font-size:1.1rem; font-weight:700; margin:0; color: var(--sl-color-text); }
+
+  /* Chip Tabs */
+  .plat-tabs { display:flex; flex-wrap:wrap; gap:.4rem; }
+  .chip-tab {
+    cursor:pointer;
+    user-select:none;
+    border-radius: 0;
+  }
+  .chip-tab.active {
+    background: var(--sl-color-indigo-low, #eef2ff);
+    border-color: var(--sl-color-indigo-low, #c7d2fe);
+    color: var(--sl-color-indigo, #3730a3);
+  }
+
+  .cv-card {
+    border: 1px solid var(--sl-color-gray-6, #d0d7de);
+    border-radius: .5rem;
+    background: var(--sl-color-bg);
+  }
+  .cv-card-head {
+    padding:.5rem .75rem;
+    border-bottom:1px solid var(--sl-color-gray-6, #d0d7de);
+    background: var(--sl-color-gray-7, rgba(0,0,0,.03));
+  }
+  .cv-badges { display:flex; gap:.4rem; align-items:center; flex-wrap:wrap; }
+
+  .panels { position: relative; }
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  .cv-body { padding:.6rem .75rem; display:grid; gap:.6rem; }
+
+  .row { display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:.5rem; }
+  .item { display:grid; grid-template-columns: 70px 1fr; gap:.4rem; align-items:center; padding:.25rem .5rem; border:1px dashed var(--sl-color-gray-6, #d0d7de); border-radius:.4rem; background: var(--sl-color-bg); }
+  .k { font-size:.8rem; color: var(--sl-color-gray-2, #6b7280); }
+  .v { display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; }
+
+  .block { display:grid; gap:.35rem; }
+  .block-title { font-weight:600; font-size:.9rem; color: var(--sl-color-text); }
+  .chips { display:flex; flex-wrap:wrap; gap:.35rem; }
+
+  .cv-acc { margin-top:.25rem; }
+  .cv-acc > summary { cursor:pointer; font-weight:600; }
+
+  .distro-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:.5rem; }
+  .distro-card { border:1px solid var(--sl-color-gray-6, #d0d7de); border-radius:.4rem; padding:.4rem .5rem; background: var(--sl-color-bg); }
+  .distro-head { display:flex; gap:.4rem; align-items:center; margin-bottom:.25rem; }
+  .distro-body { display:grid; gap:.3rem; }
+  .mini { display:grid; grid-template-columns: 56px 1fr; gap:.35rem; align-items:center; }
+
+  .badge { display:inline-flex; gap:.3rem; align-items:center; font-size:.72rem; font-weight:700; padding:.15rem .45rem; border-radius:999px; border:1px solid transparent; }
+  .badge-family { background: var(--sl-color-gray-7, #eef2ff); color: var(--sl-color-text); border-color: var(--sl-color-gray-6, #c7d2fe); }
+  .badge-ok { background: var(--sl-color-green-low, #ecfdf5); color: var(--sl-color-green, #065f46); border-color: var(--sl-color-green-low, #a7f3d0); }
+  .badge-danger { background: var(--sl-color-red-low, #fef2f2); color: var(--sl-color-red, #991b1b); border-color: var(--sl-color-red-low, #fecaca); }
+  .badge-distro { background: var(--sl-color-blue-low, #eff6ff); color: var(--sl-color-blue, #1e40af); border-color: var(--sl-color-blue-low, #bfdbfe); }
+
+  .alt { margin-top:.25rem; display:grid; gap:.25rem; }
+  .alt-label { font-size:.8rem; color: var(--sl-color-gray-2, #6b7280); }
+
+  .cv-muted { color: var(--sl-color-gray-2, #6b7280); font-style: italic; }
+
+  @media (prefers-color-scheme: dark) {
+    .cv-card { box-shadow: none; }
+  }
+</style>

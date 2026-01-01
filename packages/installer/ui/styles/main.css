@@ -1,0 +1,214 @@
+@import "./tailwind.css";
+
+:root {
+  --header-height: 48px;
+  --color-primary-50: 255 247 242;
+  --color-primary-100: 255 240 230;
+  --color-primary-200: 255 217 191;
+  --color-primary-300: 255 194 153;
+  --color-primary-400: 255 149 77;
+  --color-primary-500: 255 103 0;
+  --color-primary-600: 230 93 0;
+  --color-primary-700: 153 62 0;
+  --color-primary-800: 115 46 0;
+  --color-primary-900: 77 31 0;
+
+}
+
+html {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif,
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Segoe UI Symbol";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: normal;
+
+  /* Using DaisyUI theme variables */
+  @apply bg-base-200 text-base-content;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+#app {
+  @apply flex min-h-screen flex-col mx-auto relative max-h-screen max-w-7xl border-x;
+}
+#app main {
+  @apply w-full flex-1 flex flex-col h-full min-h-0 relative;
+}
+
+/* Tooltip styling compatible with DaisyUI */
+.p-tooltip-text {
+  @apply text-xs py-1 px-2 bg-neutral text-neutral-content rounded-lg shadow-lg;
+}
+
+/* Code blocks with DaisyUI styling */
+code {
+  @apply bg-base-300 text-base-content rounded-md px-1 py-0.5 font-mono text-sm;
+}
+
+/* For code blocks inside pre tags */
+pre code {
+  @apply bg-transparent p-0 rounded-none;
+}
+
+/* Utility classes */
+.ellipsis {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dialog headers */
+.p-dialog-header {
+  @apply border-b border-base-300 py-1 pr-1;
+}
+
+/* Toast messages */
+.p-icon.p-toast-message-icon {
+  @apply mt-1 text-base-content;
+}
+
+/* FormKit hidden fields */
+.formkit-outer:has([hidden]) {
+  @apply hidden;
+}
+
+/* Additional DaisyUI compatible utility classes */
+
+/* Loading states */
+.loading-indicator {
+  @apply loading loading-spinner loading-md text-primary;
+}
+
+/* Card enhancements */
+.card-hover {
+  @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+}
+
+/* Button variants */
+.btn-outline-primary {
+  @apply btn btn-outline btn-primary;
+}
+
+/* Badge variants */
+.badge-primary {
+  @apply badge badge-primary;
+}
+
+/* Alert variants */
+.alert-info {
+  @apply alert alert-info;
+}
+
+.alert-success {
+  @apply alert alert-success;
+}
+
+.alert-warning {
+  @apply alert alert-warning;
+}
+
+.alert-error {
+  @apply alert alert-error;
+}
+
+/* Input focus states compatible with DaisyUI */
+.input:focus,
+.select:focus,
+.textarea:focus {
+  @apply outline-none ring-2 ring-primary/20;
+}
+
+/* Custom scrollbar that works with DaisyUI themes */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--b3)) hsl(var(--b1));
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-base-200;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-base-300 rounded-lg;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-base-content/30;
+}
+
+/* Focus visible for accessibility */
+.focus-visible {
+  @apply outline outline-2 outline-offset-2 outline-primary;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Form styling */
+.form-input {
+  @apply input  w-full;
+}
+
+.form-select {
+  @apply select  w-full;
+}
+
+.form-textarea {
+  @apply textarea  w-full;
+}
+
+/* Custom component styles */
+.installer-step {
+  @apply card bg-base-100 shadow-xl border border-base-300;
+}
+
+.installer-step-header {
+  @apply card-title text-lg font-semibold mb-2;
+}
+
+.installer-step-description {
+  @apply text-base-content/70 mb-4;
+}

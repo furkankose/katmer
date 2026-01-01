@@ -1,0 +1,232 @@
+---
+title: Conditionals
+description: Run tasks only when conditions are met, or keep retrying until they are.
+---
+
+Katmer supports two complementary controls:
+
+* **`when:`** — *gate* a task: run it only if the expression is truthy.
+* **`until:`** — *retry* a task until an expression becomes truthy (with retries & delay).
+
+Both evaluate expressions against the current variable scope (`ctx.variables`), which includes target/group variables, task `variables:`, loop locals (e.g. `item`), and any previously `register`'d / `set-fact` values.
+
+If a `when` condition is false, the task is **skipped** and returns:
+
+```yaml
+changed: false
+skipped: true
+```
+
+---
+
+## `when:` — gate a task
+
+Place a boolean expression under `when:`. Expressions use Twig. 
+Anything valid in Twig is allowed (operators, filters, functions, array/object access, etc.).
+The result is evaluated for truthiness—if the final value is falsy, the task will be skipped.
+
+### Quick examples
+
+```yaml
+- name: Only on production
+  targets: all
+  when: env == "prod"
+  debug: "Deploying to prod..."
+```
+
+```yaml
+- name: Rebuild when stale AND feature flag on
+  targets: web*
+  when: cache_age > 3600 and feature_flags.rebuild_cache
+  debug: "Rebuilding cache..."
+```
+
+### Use loop variables inside `when`
+
+```yaml
+- name: Only process enabled sites
+  targets: web
+  loop:
+    for:
+      siteA: { enabled: true }
+      siteB: { enabled: false }
+  when: item.enabled
+  debug: "Enabling {{ index }}"
+```
+
+### Use `register` results with `when`
+
+```yaml
+- name: Check if service is active
+  targets: core
+  register: svc
+  shell: "systemctl is-active myapp || true"
+
+- name: Restart when inactive
+  targets: core
+  when: svc.stdout != "active"
+  shell: "systemctl restart myapp"
+```
+
+> Tip: For string values, compare with quotes. For booleans, compare directly (`flag == true`) or just `flag`.
+
+---
+
+## `until:` — retry until success
+
+Use `until:` to re-run a task until a condition becomes true. It supports:
+
+* `condition`: expression to evaluate after each run
+* `retries`: how many attempts (not counting the initial evaluation)
+* `delay`: seconds to wait between attempts
+
+> On each attempt, the latest task result is available to the expression under your `register` name (or implicitly via the task's return if your expression references it).
+
+### Basic polling
+
+```yaml
+- name: Wait until service returns 200
+  targets: web-01
+  register: probe
+  until:
+    condition: probe.status == 200
+    retries: 6
+    delay: 2
+  http:
+    url: "https://{{ ip }}/health"
+    fail_on_http_error: false
+```
+
+### Polling a command result
+
+```yaml
+- name: Wait for lock file to disappear
+  targets: db
+  register: check
+  until:
+    condition: check.rc == 0  # rc==0 means "not found" in this made-up example
+    retries: 10
+    delay: 3
+  shell: "test ! -f /var/run/migration.lock"
+```
+
+### Notes
+
+* The last attempt's result is returned. If the condition never becomes true, the task ends after `retries` attempts (and you can decide whether to fail a later step).
+* Your result will include best-effort metadata like `attempts` and `retries` when applicable.
+
+---
+
+## Combining `when` + `until`
+
+You can gate the polling itself:
+
+```yaml
+- name: Probe endpoint in prod only
+  targets: edge
+  when: env == "prod"
+  register: probe
+  until:
+    condition: probe.status == 200
+    retries: 5
+    delay: 2
+  http:
+    url: "https://{{ ip }}/health"
+    fail_on_http_error: false
+```
+
+---
+
+## Working with lists and registered arrays
+
+When a task runs in a loop and is `register`'d, the outer result contains `results[]`. Each element includes the module's return plus `item`.
+
+```yaml
+- name: Probe multiple endpoints
+  targets: edge
+  loop:
+    for:
+      - https://a.example.com/health
+      - https://b.example.com/health
+  register: probes
+  http:
+    url: "{{ item }}"
+    fail_on_http_error: false
+
+- name: Report failures
+  targets: edge
+  debug:
+    msg: |
+      Failing endpoints:
+      {{ probes.results | selectattr('status', 'ne', 200) | mapattr('url.href') | join('\n') }}
+```
+
+> Exact filters available in expressions may vary; stick to simple comparisons/select/map if unsure.
+
+---
+
+## Practical patterns
+
+### Negation and grouping
+
+```yaml
+- when: not maintenance and (env == "prod" or env == "staging")
+```
+
+### Existence / default
+
+```yaml
+- when: (port ?? 0) > 0
+```
+
+### From facts
+
+```yaml
+- name: Restart service on Debian family
+  targets: coreA
+  when: ansible_facts.os_family == "Debian"
+  shell: "systemctl restart myapp"
+```
+
+*(Replace with your own fact source if different.)*
+
+---
+
+## Troubleshooting
+
+* If your task always shows `skipped: true`, check the `when` expression and the values (use `debug` to print the variables).
+* For `until`, make sure you `register` the task you're checking and that the `condition` references the correct fields (e.g., `probe.status`).
+* Quote strings in comparisons to avoid accidental truthiness or name resolution.
+
+---
+
+## End-to-end example
+
+```yaml
+- name: Deploy & verify
+  targets: web
+
+  # 1) Only deploy in prod
+  when: env == "prod"
+
+  # 2) Perform the deploy
+  shell: "deploy_app --env {{ env }}"
+
+- name: Poll health until OK
+  targets: web
+  register: probe
+  until:
+    condition: probe.status == 200
+    retries: 8
+    delay: 2
+  http:
+    url: "https://{{ ip }}/health"
+    fail_on_http_error: false
+
+- name: Final confirmation
+  targets: web
+  when: probe.status == 200
+  debug: "Service healthy on {{ ip }}"
+```
+
+This pattern gates the deploy, polls for readiness, and confirms success—all with concise, readable conditionals.

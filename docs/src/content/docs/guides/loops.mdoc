@@ -1,0 +1,225 @@
+---
+title: Loops
+description: A guide in my new Starlight docs site.
+---
+
+Katmer supports looping a task over items/objects with a flexible `loop` control. It's conceptually similar to Ansible's loops, but tailored to Katmer's task model.
+
+---
+
+## Basics
+
+Add a `loop` key to any task. The loop can be a list, a map (object), or an expression that evaluates to either.
+
+```yaml
+- name: Create users
+  targets: "core*"
+  loop:
+    for:
+      alice: { uid: 1001 }
+      bob:   { uid: 1002 }
+  debug:
+    msg: "creating user {{ item | json }}"
+```
+
+During each iteration:
+
+* `item` (configurable via `loop_var`) holds the current value
+* `index` (configurable via `index_var`) holds the current key (for objects) or index (for arrays)
+* Optionally, `katmer_loop` is available with extra metadata (see below)
+
+---
+
+## Loop options
+
+```yaml
+loop:
+  for: <array | object | template-string>
+  loop_var: item         # default
+  index_var: index       # default
+  break_when: []         # expression(s); stop the loop if any evaluates true
+  extended: false        # expose the katmer_loop object
+  extended_allitems: true
+```
+
+* `for`
+  The data to loop over. Can be:
+
+    * an array
+    * an object (you'll get key/value pairs; the key becomes `index`)
+    * a template expression (string) that evaluates to either of the above
+* `loop_var` / `index_var`
+  Rename the loop variables if desired.
+* `break_when`
+  One or more expressions evaluated after each iteration; if any is `true`, the loop ends early.
+* `extended`
+  When `true`, exposes additional loop metadata as `katmer_loop` (see below).
+* `extended_allitems`
+  Include the full list of items in `katmer_loop.allitems`.
+
+---
+
+## Loop variables
+
+When `extended: true`, you get:
+
+```yaml
+katmer_loop.index        # 1-based index
+katmer_loop.index0       # 0-based index
+katmer_loop.revindex     # remaining count (including current)
+katmer_loop.revindex0    # remaining count (excluding current)
+katmer_loop.first        # boolean
+katmer_loop.last         # boolean
+katmer_loop.length       # total items
+katmer_loop.previtem     # previous item
+katmer_loop.nextitem     # next item
+katmer_loop.allitems     # array of all items (if extended_allitems: true)
+```
+
+---
+
+## Examples
+
+### 1) Loop a list
+
+```yaml
+- name: Make temp directories
+  targets: all
+  loop:
+    for:
+      - /tmp/app-a
+      - /tmp/app-b
+      - /tmp/app-c
+  debug:
+    msg: "mkdir -p {{ item }}"
+```
+
+### 2) Loop an object
+
+```yaml
+- name: Create service accounts
+  targets: core
+  loop:
+    for:
+      svc-api:
+        uid: 2001
+        shell: /usr/sbin/nologin
+      svc-web:
+        uid: 2002
+        shell: /usr/sbin/nologin
+  debug:
+    msg: "useradd {{ index }} (uid={{ item.uid }}, shell={{ item.shell }})"
+```
+
+> Here `index` is `svc-api`, `svc-web`, etc.
+
+### 3) Early break on a condition
+
+```yaml
+- name: Probe endpoints until one responds 200
+  targets: coreA
+  loop:
+    for:
+      - "https://api.example.com/health"
+      - "https://api-backup.example.com/health"
+    break_when:
+      - registered_result.status == 200
+  register: registered_result
+  http:
+    url: "{{ item }}"
+    method: GET
+    fail_on_http_error: false
+```
+
+### 4) Extended loop metadata
+
+```yaml
+- name: Render numbered config files
+  targets: app*
+  loop:
+    for: [app1, app2, app3, app4]
+    extended: true
+  debug:
+    msg: |
+      Writing conf for {{ item }}
+      ({{ katmer_loop.index }}/{{ katmer_loop.length }},
+       first={{ katmer_loop.first }}, last={{ katmer_loop.last }})
+```
+
+---
+
+## Loop results
+
+The overall result includes:
+
+* `changed`: `true` if any iteration changed
+* `failed`: `true` if any iteration failed
+* `skipped`: `true` if all iterations skipped (best-effort)
+* `results`: an array of each iteration's result; each result has `item` populated with the iterated value
+
+---
+
+# Retries with `until`
+
+Retry a task until an expression becomes true, with optional delay and max retries.
+
+```yaml
+- name: Wait for HTTP 200
+  targets: coreA
+  register: http_res
+  until:
+    condition: http_res.status == 200
+    retries: 5
+    delay: 2         # seconds between attempts
+  http:
+    url: "https://api.example.com/health"
+    method: GET
+    fail_on_http_error: false
+```
+
+* `condition` — expression evaluated after each attempt
+* `retries` — maximum additional attempts
+* `delay` — seconds to wait between attempts
+
+> The module's result is carried forward on each attempt; `attempts` and `retries` are populated for visibility.
+
+## More examples
+
+### 1) Retry file presence
+
+```yaml
+- name: Wait for artifact to appear
+  targets: build
+  register: stat_res
+  until:
+    condition: stat_res.exists
+    retries: 10
+    delay: 3
+  debug:
+    # Replace with a real "stat" module when available
+    msg: |
+      {{ exec("test -f /opt/app/artifact.tar.gz && echo exists || echo missing") }}
+```
+
+### 2) Retry ping until host is reachable
+
+```yaml
+- name: Ping until reachable
+  targets: app01
+  register: ping_res
+  until:
+    condition: ping_res.rc == 0
+    retries: 6
+    delay: 5
+  debug:
+    msg: "{{ exec('ping -c1 app01 >/dev/null 2>&1; echo $?') | int }}"
+```
+
+---
+
+## Tips & patterns
+
+* Prefer objects in `loop.for` when you want stable keys (`index`) and values (`item`).
+* Use `break_when` inside loops to stop early once the goal is met.
+* Combine `register` + `until` to build robust “wait-until” patterns.
+* Remember: a skipped `when` returns `{changed:false, skipped:true}` which you can test downstream.

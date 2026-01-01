@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "preserve",
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "types": [
+    ],
+    "lib": [
+      "es5"
+    ],
+    "outDir": "dist"
+  },
+  "include": [
+    "**/*.ts"
+  ]
+}

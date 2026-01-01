@@ -1,0 +1,367 @@
+---
+title: Getting Started
+sidebar:
+  order: 0
+---
+
+Katmer is a tiny, scriptable automation engine for **running tasks on hosts** (over SSH or locally). You describe *where* to run (targets), *what* to do (modules), and optional logic (conditions, loops, register). Katmer handles resolving hosts, setting up providers, evaluating templates/expressions, and running modules with a consistent result shape.
+
+---
+
+## Core concepts
+
+### Targets (inventory)
+
+Targets describe hosts and groups—plus data you want available when tasks run.
+
+* `hosts`: machines and their connection settings
+* `settings`: defaults merged into each host (e.g., `connection`, `port`)
+* `variables`: arbitrary data merged into `ctx.variables`
+* `environment`: key/value **environment variables** exported to the shell that runs commands
+* `children`: include another group's hosts, then overlay this group's settings/variables/environment
+
+```yaml
+# targets.yaml
+production:
+  settings: { connection: ssh, port: 22 }
+  variables: { env: "prod", app_dir: "/opt/myapp" }
+  environment: { APP_ENV: "prod", JAVA_OPTS: "-Xms256m -Xmx512m" }
+  hosts:
+    web-01: { hostname: "10.0.0.11", username: "deploy", private_key: "~/.ssh/id_rsa" }
+    web-02: { hostname: "10.0.0.12", username: "deploy", private_key: "~/.ssh/id_rsa" }
+
+local:
+  hosts:
+    localhost: { connection: local }
+```
+
+**Selecting targets in tasks**
+
+Use names/patterns:
+
+* `all` (alias for `*`)
+* Wildcards: `api_*`
+* Exclude: `!host_2`
+* Intersection: `@host_1`
+* Combine with `,` or `:`
+
+```yaml
+# examples
+targets: all,!core*         # everything but core*
+targets: east,@host_1       # only host_1 inside group east
+targets: api_*,web-02       # wildcard + explicit host
+```
+
+### Providers
+
+How Katmer connects to a host:
+
+* **SSH provider** – built on NodeSSH (file transfer, exec, etc.)
+* **Local provider** – runs on the controller machine
+
+### Modules
+
+A module is a unit of work. Out of the box you'll commonly use:
+
+* `copy` – copy content or files (local→remote, remote→remote; idempotent)
+* `template` – render a Twig template locally, upload if changed
+* `http` – perform HTTP(S) requests (curl or local client)
+* `script` – run an inline shell script (optionally templated)
+
+All modules return a common shape (subset shown):
+
+```ts
+{
+  changed: boolean
+  failed?: boolean
+  msg?: string
+  stdout?: string
+  stderr?: string
+  start?: string   // ISO8601
+  end?: string     // ISO8601
+  delta?: string   // "0:00:00.123"
+}
+```
+
+### Task flow (high level)
+
+```
+targets pattern
+   │
+   ▼
+Target resolver ──▶ list of hosts
+   │
+   ▼
+Provider(s) (SSH/Local) ──▶ context: exec, execSafe, variables, environment, logger
+   │
+   ▼
+Task ▶ modules:
+  check → initialize → execute → cleanup
+   │
+   └─▶ per-module result (merged with task timing fields)
+```
+
+---
+
+## Writing your first task
+
+A **task** has a name, a target selector, optional logic (`when`, `loop`, `register`), and exactly one module with its parameters.
+
+```yaml
+- name: Upload config and restart the service
+  targets: production
+  template:
+    src: "./_source/myapp.conf.twig"
+    dest: "/etc/myapp/myapp.conf"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+
+- name: Restart only on Linux
+  targets: production
+  when: os_family == "Linux"         # Twig expression; any Twig syntax is valid, evaluated for truthiness
+  script:
+    content: "systemctl restart myapp"
+    render: false                    # set true to enable templating in the script body
+```
+
+> **Conditionals:** Katmer evaluates `when` with **Twig**, not a custom mini-language. Any Twig expression is allowed; if the result is truthy, the task runs.
+
+---
+
+## Variables vs Environment
+
+* `variables` → merged into `ctx.variables` and used in **templates/expressions** (`{{ ... }}`).
+* `environment` → **exported** to the shell that runs your commands (`$APP_ENV`).
+
+```yaml
+- name: Both styles
+  targets: production
+  variables: { token: "{{ secrets.token }}" }
+  script:
+    content: 'echo "env=$APP_ENV, token={{ token | slice(0,4) }}****"'
+    render: true
+```
+
+Precedence (low → high): group → host → task/module.
+
+---
+
+## Common module examples
+
+### copy (idempotent)
+
+```yaml
+- name: Copy a file from controller
+  targets: production
+  copy:
+    src: "./dist/myapp.tar.gz"   # for SSH: controller → remote
+    dest: "/opt/myapp/myapp.tar.gz"
+    mode: "0644"
+    backup: true
+
+- name: Write inline content (templated)
+  targets: production
+  copy:
+    content: "server_name {{ domain }};"
+    dest: "/etc/nginx/sites-enabled/app.conf"
+    mode: "0644"
+```
+
+### template (render then upload)
+
+```yaml
+- name: Render config
+  targets: production
+  template:
+    src: "./_source/nginx.conf.twig"
+    dest: "/etc/nginx/nginx.conf"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+```
+
+### http
+
+```yaml
+- name: GET JSON and save headers
+  targets: production
+  http:
+    url: "https://api.example.com/meta"
+    headers: { Accept: "application/json" }
+    save_headers_to: "/tmp/meta.headers"
+    output:
+      toFile: "/tmp/meta.json"
+      captureBody: true
+    fail_on_http_error: true
+
+- name: POST with bearer token
+  targets: production
+  http:
+    url: "https://api.example.com/resources"
+    method: "POST"
+    headers: { Accept: "application/json" }
+    body: { name: "demo", enabled: true }
+    auth: { type: "bearer", token: "{{ API_TOKEN }}" }
+```
+
+### script
+
+```yaml
+- name: One-liner (no templating)
+  targets: local
+  script:
+    content: 'echo "hello $USER"'
+    render: false
+
+- name: Templated multi-line
+  targets: production
+  script:
+    render: true
+    content: |
+      set -euo pipefail
+      echo "Deploying {{ app }} to {{ app_dir }}"
+      mkdir -p "{{ app_dir }}"
+      tar -xzf "/opt/myapp/myapp.tar.gz" -C "{{ app_dir }}"
+```
+
+---
+
+## Conditions, loops, register
+
+### Conditions (`when`)
+
+Any **Twig** expression; truthy → run.
+
+```yaml
+- name: Only on production
+  targets: all
+  when: env == "prod"
+  script: { content: "echo prod only", render: false }
+```
+
+### Loops
+
+Iterate over arrays/objects. Each iteration exposes `item` (and often `index`).
+
+```yaml
+- name: Only process enabled sites
+  targets: web
+  loop:
+    for:
+      siteA: { enabled: true }
+      siteB: { enabled: false }
+  when: item.enabled
+  script: { content: 'echo "enabling {{ index }}"', render: true }
+```
+
+### Register + chaining
+
+Capture a result and use it in subsequent tasks.
+
+```yaml
+- name: Probe endpoints
+  targets: edge
+  loop:
+    for:
+      - https://a.example.com/health
+      - https://b.example.com/health
+  register: probes
+  http:
+    url: "{{ item }}"
+    fail_on_http_error: false
+
+- name: Report failures
+  targets: edge
+  script:
+    render: true
+    content: |
+      cat <<'TXT'
+      Failing endpoints:
+      {{ probes.results | selectattr('status', 'ne', 200) | mapattr('url.href') | join('\n') }}
+      TXT
+```
+
+> With loops, the outer registered value has a **`results` array**; every iteration result also carries its **`item`** so you can correlate outputs.
+
+---
+
+## Privilege escalation (`become`)
+
+Enable sudo with defaults:
+
+```yaml
+- name: Restart service as root
+  targets: production
+  become: true
+  script: { content: "systemctl restart myapp", render: false }
+```
+
+Or configure:
+
+```yaml
+become:
+  user: "root"
+  password: "{{ SUDO_PASSWORD }}"
+  prompt: "[sudo] password for"
+```
+
+---
+
+## Idempotency & safety
+
+* `copy` / `template`: compare existing content; skip if identical (`changed: false`). Support `backup`, `force`, `mode`, `owner`, `group`.
+* `http`: respects `fail_on_http_error`; can follow redirects, validate certs, retry.
+* `script`: keeps `changed: false`; `failed` reflects exit code.
+
+---
+
+## Logging & timing
+
+Each task records `start`, `end`, `delta`. Module stdout/stderr are surfaced. Use your runner's logger output to inspect details per host.
+
+---
+
+## Minimal project layout
+
+```
+.
+├─ targets.yaml
+├─ tasks/
+│  └─ deploy.yaml
+└─ _source/
+   └─ nginx.conf.twig
+```
+
+`deploy.yaml`:
+
+```yaml
+- name: Upload and restart
+  targets: production
+  copy:
+    src: "./dist/myapp.tar.gz"
+    dest: "/opt/myapp/myapp.tar.gz"
+
+- name: Render config
+  targets: production
+  template:
+    src: "./_source/nginx.conf.twig"
+    dest: "/etc/nginx/nginx.conf"
+
+- name: Restart
+  targets: production
+  script: { content: "systemctl restart nginx", render: false }
+```
+
+---
+
+## Mental model recap
+
+* Describe **targets** (hosts/groups + variables/environment).
+* Pick targets in each **task** with patterns.
+* Run one **module** per task.
+* Use **Twig** for conditionals & templating.
+* Capture and chain with **`register`**.
+* Aim for **idempotency** where possible.
+
+That's the whole loop. Once you're comfortable with copy/template/script/http and target patterns, you can build larger playbooks with clear, repeatable behavior.

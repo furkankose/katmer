@@ -1,0 +1,353 @@
+---
+title: Variables
+sidebar:
+  order: 1
+---
+
+Katmer lets you pass data into tasks and templates using simple variables. This page shows how variables are defined, where they live, how they're merged, and how you can read & manipulate them inside tasks.
+
+> **Important:** In targets, **`settings`** and **`variables`** are different:
+>
+> * **`settings`**: connection/details for hosts and defaults that shape the provider (e.g., SSH user, key). These are *not* automatically exposed as task variables.
+> * **`variables`**: plain data merged into the runtime variable scope for tasks that run against those hosts/groups.
+
+---
+
+## Where variables come from
+
+At run time, each task executes with a single dictionary called **`ctx.variables`**. It's built by merging, in order:
+
+1. **Target/group variables** – from your `targets.*` under **`variables:`** (per group and per host)
+2. **Task variables** – from the task's **`variables:`** block
+3. **Control locals** – e.g. loop locals (`item`, `index`, `katmer_loop`), `register` results, etc.
+4. **`set-fact`** – values you compute at runtime and store with the `set-fact` module
+
+Later sources override earlier ones.
+
+You can read variables in any module parameter using `{{ ... }}` expressions (same syntax as `when`, `until.condition`, and the `debug` module).
+
+---
+
+## Defining variables
+
+### In targets (per group / per host)
+
+```yaml
+# targets.yaml (or .json/.yml)
+web:
+  # Connection and provider defaults (NOT injected into ctx.variables)
+  settings:
+    username: deploy
+    private_key: ~/.ssh/id_rsa
+
+  # Variables that WILL be merged into ctx.variables for tasks targeting this group/hosts
+  variables:
+    env: prod
+    app_dir: /opt/myapp
+
+  hosts:
+    web-01:
+      connection: ssh
+      hostname: 10.0.0.11
+      # host-level variables extend/override group variables
+      variables:
+        az: a
+    web-02:
+      connection: ssh
+      hostname: 10.0.0.12
+      variables:
+        az: b
+
+db:
+  settings:
+    username: postgres
+  variables:
+    env: prod
+  hosts:
+    db-01:
+      connection: ssh
+      hostname: 10.0.1.10
+      variables:
+        pg_version: 15
+```
+
+* Use **`settings`** for provider/connection defaults (e.g., SSH username, port, key). These are not available in `{{ ... }}` unless you copy them into `variables`.
+* Use **`variables`** for anything you want accessible as `{{ var }}` inside tasks.
+
+### In a task
+
+```yaml
+- name: deploy web
+  targets: web
+  variables:
+    release: "2024-10-18"
+    health_url: "https://{{ ip }}/health"
+  debug:
+    msg: "deploying {{ env }} build {{ release }} to {{ app_dir }} ({{ health_url }}) on az={{ az }}"
+```
+
+Task-level variables override target-level variables when names collide.
+
+---
+
+## Reading variables in modules
+
+Anywhere a module accepts a string, you can interpolate variables with `{{ ... }}`:
+
+```yaml
+- name: write rendered config
+  targets: web-01
+  template:
+    src: "./_source/nginx.conf.twig"
+    dest: "/etc/nginx/nginx.conf"
+    variables:
+      server_name: "{{ ip }}"
+      root: "{{ app_dir }}/current/public"
+```
+
+The `template` module's `variables:` merges on top of the current scope **only for that render**.
+
+---
+
+## Changing/adding variables at runtime (`set-fact`)
+
+Use the `set-fact` module to compute and store values while the play runs:
+
+```yaml
+- name: compute paths and flags
+  targets: web-01
+  set-fact:
+    vars:
+      release_dir: "{{ app_dir }}/releases/{{ release }}"
+      is_prod: "{{ env == 'prod' }}"
+    render: true
+    deep: true
+
+- debug: "release_dir={{ release_dir }} is_prod={{ is_prod }}"
+```
+
+Shorthand (same as `vars: {...}`):
+
+```yaml
+- set-fact:
+    BUILD_ID: "42"
+    url: "https://example.com/{{ BUILD_ID }}"
+```
+
+---
+
+## Conditionals with variables
+
+Both `when` and `until.condition` evaluate against the same scope:
+
+```yaml
+- name: only on production
+  targets: web
+  when: env == "prod"
+  debug: "running prod-only task"
+```
+
+```yaml
+- name: wait until service returns 200
+  targets: web-01
+  register: probe
+  until:
+    condition: probe.status == 200
+    retries: 6
+    delay: 2
+  http:
+    url: "https://{{ ip }}/health"
+    fail_on_http_error: false
+```
+
+---
+
+## Loop variables
+
+When you add a `loop`, Katmer injects handy locals:
+
+* `item`: current value (rename via `loop.loop_var`)
+* `index`: key or 0-based index (rename via `loop.index_var`)
+* `katmer_loop`: optional metadata (enable with `loop.extended: true`)
+
+```yaml
+- name: enable sites
+  targets: web
+  loop:
+    for:
+      - blog
+      - shop
+    extended: true
+  debug:
+    msg: "site={{ item }} ({{ katmer_loop.index }}/{{ katmer_loop.length }})"
+```
+
+---
+
+## Registering results
+
+Use `register: name` to save a module's return for later tasks:
+
+```yaml
+- name: fetch version
+  targets: api
+  register: meta
+  http:
+    url: "https://api.example.com/meta"
+    headers: { Accept: "application/json" }
+    output: { captureBody: true }
+
+- name: log version
+  targets: api
+  debug:
+    msg: "status={{ meta.status }} body={{ meta.body }}"
+```
+
+With loops, the outer result contains a `results` array; each iteration result also carries its `item`.
+
+```yaml {% process=false %}
+
+- name: Probe multiple endpoints
+  targets: edge
+  loop:
+    for:
+      - https://a.example.com/health
+      - https://b.example.com/health
+      - https://c.example.com/health
+  register: probes
+  http:
+    url: "{{ item }}"
+    fail_on_http_error: false
+
+- name: Inspect the aggregated loop result
+  targets: edge
+  debug:
+    label: "probes.results (one entry per iteration)"
+    var: [ "probes.results" ]
+
+- name: Report only failures (reads each iteration's item)
+  targets: edge
+  debug:
+    msg: |
+      Failing endpoints:
+      {% for r in probes.results %}
+      {% if r.status != 200 %}- {{ r.item }} (status={{ r.status|default('n/a') }}){% endif %}
+      {% endfor %}
+
+```
+
+---
+
+## Common patterns
+
+### Fallbacks / defaults
+
+```yaml
+- name: pick port with default
+  targets: api
+  variables:
+    port: "{{ port ?? 8080 }}"
+  debug: "listening on {{ port }}"
+```
+
+### Building paths
+
+```yaml
+- name: runtime dirs
+  targets: web
+  variables:
+    run_dir: "/run/{{ env }}/{{ app }}"
+  debug: "mkdir -p {{ run_dir }}"
+```
+
+### Combining target & task variables
+
+```yaml
+- name: deploy artifact
+  targets: web
+  variables:
+    artifact: "myapp-{{ release }}.tar.gz"
+    dest: "{{ app_dir }}/releases/{{ release }}/"
+  debug:
+    msg: "copy {{ artifact }} -> {{ dest }}"
+```
+
+---
+
+## Good to know
+
+* **Precedence**: target/group `variables` → task `variables` → loop/register/set-fact (latest wins).
+* **`settings` vs `variables`**: `settings` configure providers/hosts and are not injected into `ctx.variables`. If you need a setting inside templates, mirror it under `variables`.
+* **Visibility**: `register` and `set-fact` outputs are visible to subsequent tasks.
+* **Per-task overrides**: Modules like `template` can take their own `variables:` to override just for that action.
+
+---
+
+## End-to-end example
+
+```yaml
+# targets.yaml
+web:
+  settings:
+    username: deploy
+    private_key: ~/.ssh/id_rsa
+  variables:
+    env: prod
+    app_dir: /opt/myapp
+  hosts:
+    web-01:
+      connection: ssh
+      hostname: 10.0.0.11
+      variables:
+        az: a
+    web-02:
+      connection: ssh
+      hostname: 10.0.0.12
+      variables:
+        az: b
+
+# playbook.yaml
+tasks:
+  - name: task-scope vars
+    targets: web
+    variables:
+      release: "2024-10-18"
+      artifact: "myapp-{{ release }}.tar.gz"
+
+  - name: compute derived values
+    targets: web
+    set-fact:
+      vars:
+        release_dir: "{{ app_dir }}/releases/{{ release }}"
+        health_url: "https://{{ ip }}/health"
+      render: true
+
+  - debug:
+      label: "Vars"
+      var: [ env, app_dir, artifact, release_dir, health_url, az ]
+
+  - template:
+      src: "_source/nginx.conf.twig"
+      dest: "/etc/nginx/nginx.conf"
+      variables:
+        server_name: "{{ ip }}"
+        root: "{{ app_dir }}/current/public"
+
+  - loop:
+      for:
+        - "{{ health_url }}"
+      extended: true
+    register: probe
+    until:
+      condition: probe.status == 200
+      retries: 5
+      delay: 2
+    http:
+      url: "{{ item }}"
+      fail_on_http_error: false
+
+  - debug:
+      msg: "Host {{ ip }} OK (status={{ probe.status }})"
+```
+
+This flow shows: group/host `variables` supply base values (`env`, `app_dir`, `az`), task `variables` refine them (`release`, `artifact`), `set-fact` computes derived values (`release_dir`, `health_url`), and controls (`loop`, `register`, `until`) build logic around them.

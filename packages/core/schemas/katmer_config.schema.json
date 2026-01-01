@@ -1,0 +1,358 @@
+{
+  "$id": "https://katmer.dev/schemas/katmer-config.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Katmer Configuration Schema",
+  "description": "Defines the structure of a Katmer configuration file used to describe hosts, groups, and logging settings.",
+  "type": "object",
+  "required": ["targets"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional JSON Schema identifier to explicitly declare the schema version or custom dialect used by this configuration.",
+      "examples": [
+        "https://json-schema.org/draft/2020-12/schema",
+        "https://katmer.dev/schemas/katmer-config.schema.json"
+      ]
+    },
+    "$id": {
+      "type": "string",
+      "description": "Optional unique identifier (URI) for this configuration instance, useful for referencing or composition.",
+      "examples": [
+        "https://example.com/envs/prod.json",
+        "file:///etc/katmer/katmer.config.json"
+      ]
+    },
+    "cwd": {
+      "type": "string",
+      "description": "Working directory in which Katmer operations will be executed. Defaults to the current directory if omitted.",
+      "examples": ["./deploy", "/opt/katmer", "/home/admin/katmer-tasks"]
+    },
+    "logging": {
+      "type": "object",
+      "description": "Configuration options for logging.",
+      "properties": {
+        "dir": {
+          "type": "string",
+          "description": "Directory path where log files should be stored.",
+          "examples": ["./logs", "/var/log/katmer"]
+        },
+        "level": {
+          "type": "string",
+          "enum": ["trace", "debug", "info", "warn", "error", "silent"],
+          "description": "Defines the verbosity level of logs.",
+          "examples": ["info", "debug"]
+        }
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "dir": "./logs",
+          "level": "debug"
+        }
+      ]
+    },
+    "include": {
+      "description": "An optional file or remote URL to include additional configuration from.",
+      "anyOf": [
+        {
+          "type": "string",
+          "description": "A local or remote file path to another Katmer configuration.",
+          "examples": ["./common.yml", "https://katmer.dev/configs/base.json"]
+        },
+        {
+          "type": "object",
+          "required": ["url"],
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "URL pointing to an external Katmer configuration file.",
+              "examples": ["https://katmer.dev/configs/shared.json"]
+            }
+          },
+          "examples": [{ "url": "https://katmer.dev/configs/base.json" }]
+        }
+      ]
+    },
+    "targets": {
+      "description": "Top-level mapping of named target groups. Each target defines one or more host groups.",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "hosts": {
+              "$ref": "#/$defs/KatmerHostsDefinition",
+              "description": "Map of host definitions belonging to this group."
+            },
+            "variables": {
+              "type": "object",
+              "description": "Arbitrary data variables merged into ctx.variables for all hosts in this (root) group.",
+              "additionalProperties": true,
+              "examples": [{ "env": "prod", "app_dir": "/opt/myapp" }]
+            },
+            "environment": {
+              "type": "object",
+              "description": "Key/value pairs exported as environment variables for all hosts in this (root) group.",
+              "additionalProperties": {
+                "type": ["string", "number", "boolean"]
+              },
+              "examples": [
+                { "NODE_ENV": "production", "HTTP_PROXY": "http://proxy:8080" }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9_.:-]+$": { "$ref": "#/$defs/KatmerHostGroup" }
+          },
+          "description": "Named target groups, where each key corresponds to a group identifier."
+        }
+      ],
+      "examples": [
+        {
+          "production": {
+            "variables": {
+              "env": "prod",
+              "app_dir": "/opt/myapp",
+              "release": "2024-10-18"
+            },
+            "environment": {
+              "NODE_ENV": "production",
+              "HTTP_PROXY": "http://proxy.internal:8080"
+            },
+            "hosts": {
+              "app-server-1": {
+                "connection": "ssh",
+                "hostname": "10.0.0.11",
+                "username": "deploy",
+                "private_key": "~/.ssh/id_rsa"
+              },
+              "app-server-2": {
+                "connection": "ssh",
+                "hostname": "10.0.0.12",
+                "username": "deploy",
+                "private_key": "~/.ssh/id_rsa"
+              }
+            },
+            "children": {
+              "db": {
+                "variables": { "pg_version": 15 },
+                "environment": { "PGTZ": "UTC" },
+                "hosts": {
+                  "db1": {
+                    "connection": "ssh",
+                    "hostname": "10.0.0.20",
+                    "username": "postgres",
+                    "private_key": "~/.ssh/id_rsa"
+                  }
+                }
+              }
+            }
+          },
+          "local": {
+            "hosts": {
+              "localhost": { "connection": "local" }
+            }
+          }
+        }
+      ]
+    }
+  },
+
+  "$defs": {
+    "KatmerHostGroup": {
+      "type": "object",
+      "description": "A collection of hosts and/or nested child groups. Groups can inherit settings from parent groups.",
+      "properties": {
+        "hosts": {
+          "$ref": "#/$defs/KatmerHostsDefinition",
+          "description": "Map of host definitions belonging to this group."
+        },
+        "variables": {
+          "type": "object",
+          "description": "Arbitrary data variables merged into ctx.variables for all hosts in this group.",
+          "additionalProperties": true,
+          "examples": [{ "env": "prod", "app_dir": "/opt/myapp" }]
+        },
+        "environment": {
+          "type": "object",
+          "description": "Key/value pairs exported as environment variables for all hosts in this group.",
+          "additionalProperties": { "type": ["string", "number", "boolean"] },
+          "examples": [
+            { "NODE_ENV": "production", "NO_PROXY": "localhost,127.0.0.1" }
+          ]
+        },
+        "children": {
+          "type": "object",
+          "description": "Nested child groups within this host group. Each child can be a group or null (for disabling inheritance).",
+          "patternProperties": {
+            "^[a-zA-Z0-9_.:-]+$": {
+              "oneOf": [
+                { "$ref": "#/$defs/KatmerHostGroup" },
+                { "type": "null" }
+              ]
+            }
+          },
+          "examples": [
+            {
+              "backend": {
+                "hosts": {
+                  "api1": {
+                    "connection": "ssh",
+                    "hostname": "192.168.10.12",
+                    "username": "ubuntu"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "examples": [
+        {
+          "variables": { "env": "staging" },
+          "environment": { "NODE_ENV": "staging" },
+          "hosts": {
+            "node1": { "connection": "ssh", "hostname": "10.0.1.1" },
+            "node2": { "connection": "ssh", "hostname": "10.0.1.2" }
+          }
+        }
+      ]
+    },
+
+    "KatmerHostsDefinition": {
+      "type": "object",
+      "description": "Mapping of host identifiers to their configuration objects.",
+      "patternProperties": {
+        "^[a-zA-Z0-9_.:-]+$": {
+          "oneOf": [
+            { "$ref": "#/$defs/KatmerHostConfig" },
+            {
+              "type": "null",
+              "description": "Explicitly disabled or undefined host entry."
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "web1": {
+            "connection": "ssh",
+            "hostname": "10.1.0.5",
+            "username": "root"
+          },
+          "web2": null
+        }
+      ]
+    },
+
+    "KatmerHostConfig": {
+      "type": "object",
+      "description": "Connection configuration for an individual host.",
+      "required": ["connection"],
+      "properties": {
+        "connection": {
+          "type": "string",
+          "enum": ["ssh", "local"],
+          "description": "Connection type used for the host. Can be 'ssh' for remote or 'local' for local execution.",
+          "examples": ["ssh", "local"]
+        },
+        "hostname": {
+          "type": "string",
+          "description": "Host or IP address for SSH connections.",
+          "examples": ["192.168.0.10", "server.local"]
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Port number used for SSH connections. Defaults to 22 if omitted.",
+          "examples": [22, 2222]
+        },
+        "username": {
+          "type": "string",
+          "description": "Username for authentication.",
+          "examples": ["root", "deploy", "ubuntu"]
+        },
+        "password": {
+          "type": ["string", "number", "null"],
+          "description": "Password or token for authentication. May be null if using key-based authentication.",
+          "examples": ["supersecret", null]
+        },
+        "private_key": {
+          "type": "string",
+          "description": "Path to a private key file for SSH authentication.",
+          "examples": ["~/.ssh/id_rsa", "/etc/keys/deploy.pem"]
+        },
+        "private_key_password": {
+          "type": "string",
+          "description": "Optional password for the private key file.",
+          "examples": ["keypass123"]
+        }
+      },
+      "additionalProperties": false,
+      "examples": [
+        {
+          "connection": "ssh",
+          "hostname": "10.0.0.11",
+          "port": 22,
+          "username": "deploy",
+          "private_key": "~/.ssh/id_rsa"
+        },
+        { "connection": "local" }
+      ]
+    }
+  },
+
+  "examples": [
+    {
+      "cwd": "./deploy",
+      "logging": { "dir": "./logs", "level": "info" },
+      "include": "https://katmer.dev/configs/shared.json",
+      "targets": {
+        "production": {
+          "variables": {
+            "env": "prod",
+            "app_dir": "/opt/myapp",
+            "release": "2024-10-18"
+          },
+          "environment": {
+            "NODE_ENV": "production",
+            "HTTP_PROXY": "http://proxy.internal:8080"
+          },
+          "hosts": {
+            "frontend": {
+              "connection": "ssh",
+              "hostname": "10.0.0.10",
+              "username": "deployer",
+              "private_key": "~/.ssh/id_rsa"
+            }
+          },
+          "children": {
+            "database": {
+              "variables": { "pg_version": 15 },
+              "environment": { "PGTZ": "UTC" },
+              "hosts": {
+                "db1": {
+                  "connection": "ssh",
+                  "hostname": "10.0.0.15",
+                  "username": "postgres",
+                  "private_key": "~/.ssh/id_rsa"
+                }
+              }
+            }
+          }
+        },
+        "local": {
+          "hosts": {
+            "localhost": { "connection": "local" }
+          }
+        }
+      }
+    }
+  ]
+}
