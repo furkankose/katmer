@@ -19,7 +19,7 @@
     "lint:oxlint": "oxlint . --fix --fix-suggestions --fix-dangerously -c .oxlintrc.json --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
     "lint": "bun run lint:format && bun run lint:oxlint && bun run lint:eslint",
-    "prepare": "husky"
+    "prepare": "bun .husky/install.mjs || true"
   },
   "dependencies": {
     "fs-extra": "^11.3.3"
@@ -51,7 +51,7 @@
     "vitest": "^4.0.16"
   },
   "lint-staged": {
-    "*": "prettier --ignore-unknown --write",
+    "*": "prettier --ignore-unknown --write --log-level error",
     "*.{js,jsx,ts,tsx,md,html,css,vue,astro}": [
       "oxlint -c .oxlintrc.json --ignore-path .gitignore",
       "eslint --fix --max-warnings=0 --no-warn-ignored"
