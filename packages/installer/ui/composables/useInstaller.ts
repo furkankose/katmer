@@ -4,7 +4,7 @@ import type {
   InstallerSnapshot,
   InstallerEvent,
   InteractionRequest
-} from "@common/engine/installer_engine.types"
+} from "@common/installer_engine.types"
 import { WSMessage } from "@common/utils/ws.utils"
 
 type InstallerState = InstallerSnapshot | null

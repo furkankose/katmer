@@ -14,17 +14,25 @@ import type {
   FlowStepId,
   FlowStepResult,
   Logger
-} from "./installer_engine.types"
+} from "@common/installer_engine.types"
 import type { InstallerConfig } from "@type/installer"
+import { createSourceManager } from "./sources/mod"
+import { createCredentialManager } from "./credentials/mod"
+import { SourceManager } from "./sources/source.manager"
+import { CredentialManager } from "./credentials/credential.resolver"
 /**
  * State machine responsible for orchestrating the installer flow.
  * It executes steps sequentially and suspends when user interaction
  * is required, allowing the state to be persisted and restored.
  */
-export class InstallerEngine {
-  private status: InstallerStatus = "idle"
-  private context: InstallerContext
-  private readonly env: InstallerEnvironment
+export abstract class InstallerEngine {
+  workspaceRoot!: string
+  context: InstallerContext
+  status: InstallerStatus = "idle"
+
+  credentialManager!: CredentialManager
+  sourceManager!: SourceManager
+
   private readonly flow: FlowDefinition
   private currentStepIndex = 0
   private pendingInteraction?: InteractionRequest
@@ -34,17 +42,10 @@ export class InstallerEngine {
    * Creates a new engine instance.
    *
    * @param config Static installer configuration.
-   * @param env Environment implementation providing side effects.
    * @param flow Flow definition describing the sequence of steps.
    * @param logger Logger interface for emitting events.
    */
-  constructor(
-    config: InstallerConfig,
-    env: InstallerEnvironment,
-    flow: FlowDefinition,
-    logger: Logger
-  ) {
-    this.env = env
+  constructor(config: InstallerConfig, flow: FlowDefinition, logger: Logger) {
     this.flow = flow
     this.context = {
       logger,
@@ -57,25 +58,44 @@ export class InstallerEngine {
     }
   }
 
-  /**
-   * Restores an engine from a serialized snapshot.
-   * The provided config and flow should match the ones used when the
-   * snapshot was originally produced.
-   */
-  static fromSerialized(
-    snapshot: SerializedInstallerState,
-    config: InstallerConfig,
-    env: InstallerEnvironment,
-    flow: FlowDefinition,
-    logger: Logger
-  ): InstallerEngine {
-    const engine = new InstallerEngine(config, env, flow, logger)
-    engine.status = snapshot.status
-    engine.context = snapshot.context
-    engine.currentStepIndex = snapshot.currentStepIndex
-    engine.pendingInteraction = snapshot.pendingInteraction
-    return engine
+  async initialize() {
+    this.sourceManager = await createSourceManager(this, this.context.config)
+    this.credentialManager = await createCredentialManager(
+      this,
+      this.context.config
+    )
   }
+
+  /**
+   * Executes or progresses a single step in the flow.
+   *
+   * When called without input, the step may either complete or request
+   * interaction. When called with input, the step should resume from the
+   * last suspension point.
+   */
+  abstract runStep(
+    step: FlowStepDefinition,
+    input?: StepInput
+  ): Promise<FlowStepResult>
+  // /**
+  //  * Restores an engine from a serialized snapshot.
+  //  * The provided config and flow should match the ones used when the
+  //  * snapshot was originally produced.
+  //  */
+  // static fromSerialized(
+  //   snapshot: SerializedInstallerState,
+  //   config: InstallerConfig,
+  //   env: InstallerEnvironment,
+  //   flow: FlowDefinition,
+  //   logger: Logger
+  // ): InstallerEngine {
+  //   const engine = new InstallerEngine(config, env, flow, logger)
+  //   engine.status = snapshot.status
+  //   engine.context = snapshot.context
+  //   engine.currentStepIndex = snapshot.currentStepIndex
+  //   engine.pendingInteraction = snapshot.pendingInteraction
+  //   return engine
+  // }
 
   /**
    * Registers a listener that is called on every transition.
@@ -216,7 +236,7 @@ export class InstallerEngine {
       const step = steps[this.currentStepIndex]
 
       try {
-        const result = await this.env.runStep(step, this.context)
+        const result = await this.runStep(step)
         this.applyStepResult(result)
         if (this.status !== "running") {
           return
@@ -240,7 +260,7 @@ export class InstallerEngine {
     const step = this.flow.steps[this.currentStepIndex]
 
     try {
-      const result = await this.env.runStep(step, this.context, input)
+      const result = await this.runStep(step, input)
       this.applyStepResult(result)
     } catch (err: any) {
       this.failWithError(err)
@@ -309,5 +329,23 @@ export class InstallerEngine {
       this.pendingInteraction?.stepId === stepId &&
       this.pendingInteraction.kind === kind
     )
+  }
+
+  wait(
+    interaction: InteractionRequest,
+    patch?: Partial<InstallerContext>
+  ): FlowStepResult {
+    return {
+      type: "wait",
+      interaction,
+      contextPatch: patch
+    }
+  }
+
+  done(patch?: Partial<InstallerContext>): FlowStepResult {
+    return {
+      type: "done",
+      contextPatch: patch
+    }
   }
 }

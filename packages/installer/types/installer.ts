@@ -1,6 +1,6 @@
 import { Type, type Static } from "typebox"
 import { StepConfigSchema } from "./forms"
-import { CredentialConfigSchema } from "./credentials"
+import { CredentialConfigSchema, CredentialSourceSchema } from "./credentials"
 import { DistributionConfigSchema } from "./distribution"
 import { BuildConfigSchema } from "./build"
 import { InstallerHooksConfigSchema } from "./hooks"
@@ -71,6 +71,7 @@ export const InstallerConfigSchema = Type.Object(
      */
     credentials: Type.Optional(Type.Array(CredentialConfigSchema)),
 
+    credentialSources: Type.Optional(Type.Array(CredentialSourceSchema)),
     /**
      * Distribution / artifact config.
      */

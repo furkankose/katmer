@@ -1,25 +1,23 @@
-import { BaseInstallerAdapter } from "../base_installer.adapter"
 import type {
   FlowStepDefinition,
   FlowStepResult,
-  InstallerContext,
   StepInput
-} from "@common/engine/installer_engine.types"
+} from "@common/installer_engine.types"
+import { InstallerEngine } from "../../installer_engine"
 
-export class KatmerInstallerAdapter extends BaseInstallerAdapter {
+export class KatmerInstallerEngine extends InstallerEngine {
   async runStep(
     step: FlowStepDefinition,
-    context: InstallerContext,
     input?: StepInput
   ): Promise<FlowStepResult> {
     switch (step.id) {
       case "resolveCredentials": {
         if (!input) {
-          const configured = Object.keys(context.config.credentials ?? {})
-          const already = Object.keys(context.credentials ?? {})
+          const configured = Object.keys(this.context.config.credentials ?? {})
+          const already = Object.keys(this.context.credentials ?? {})
           const missing_ids =
-            context.pendingCredentialIds.length > 0 ?
-              context.pendingCredentialIds
+            this.context.pendingCredentialIds.length > 0 ?
+              this.context.pendingCredentialIds
             : configured.filter((id) => !already.includes(id))
 
           if (missing_ids.length === 0) {
@@ -36,7 +34,7 @@ export class KatmerInstallerAdapter extends BaseInstallerAdapter {
         if (input.kind === "credentials" && input.data) {
           const credentials = input.data as Record<string, string>
           return this.done({
-            credentials: { ...context.credentials, ...credentials },
+            credentials: { ...this.context.credentials, ...credentials },
             pendingCredentialIds: []
           })
         }
@@ -45,8 +43,8 @@ export class KatmerInstallerAdapter extends BaseInstallerAdapter {
       }
 
       case "planDistribution": {
-        const version = context.config.version ?? "0.0.0"
-        const source = context.config.distribution?.sources?.[0]
+        const version = this.context.config.version ?? "0.0.0"
+        const source = this.context.config.distribution?.sources?.[0]
 
         const plan = {
           mode: "install" as const,
@@ -68,9 +66,9 @@ export class KatmerInstallerAdapter extends BaseInstallerAdapter {
       }
 
       case "collectInput": {
-        const stepsCount = context.config.steps?.length ?? 0
+        const stepsCount = this.context.config.steps?.length ?? 0
 
-        context.logger.log(
+        this.context.logger.log(
           "info",
           "Collecting input for " + stepsCount + " steps"
         )
@@ -80,7 +78,7 @@ export class KatmerInstallerAdapter extends BaseInstallerAdapter {
             stepId: step.id,
             kind: "form",
             payload: {
-              steps: context.config.steps ?? []
+              steps: this.context.config.steps ?? []
             }
           })
         }
@@ -96,7 +94,7 @@ export class KatmerInstallerAdapter extends BaseInstallerAdapter {
           }
 
           const mergedValues: Record<string, unknown> = {
-            ...(context.values ?? {}),
+            ...(this.context.values ?? {}),
             ...(values ?? {})
           }
 
@@ -110,7 +108,7 @@ export class KatmerInstallerAdapter extends BaseInstallerAdapter {
                 stepId: step.id,
                 kind: "form",
                 payload: {
-                  steps: context.config.steps ?? []
+                  steps: this.context.config.steps ?? []
                 }
               },
               {
@@ -133,8 +131,8 @@ export class KatmerInstallerAdapter extends BaseInstallerAdapter {
       }
 
       case "executeInstall": {
-        context.logger.log("info", "Executing install steps")
-        console.log(context)
+        this.context.logger.log("info", "Executing install steps")
+        console.log(this.context)
         // placeholder for runtime execution (katmer / entrypoint)
         return this.done()
       }

@@ -1,26 +1,24 @@
 import { InstallerConfigSchema, type InstallerConfig } from "../types/installer"
 import { Value } from "typebox/value"
+import { safeImportDynamic } from "@common/utils/import.utils"
 
-let config: InstallerConfig
-try {
-  const mod: any = await import("../config/schema")
-  config = mod.default ? mod.default : mod.config || mod
-  config.steps = [
-    ...(config.steps ?? []),
-    ...(!config.ui?.hideSummary ?
-      [
-        {
-          name: "$summary",
-          label: "summary"
-        }
-      ]
-    : [])
-  ]
-} catch (e) {
-  throw new Error(
-    "Failed to load config. Make sure the config file is valid, accessible and has named export 'config' or a default export."
-  )
-}
+const config: InstallerConfig = await safeImportDynamic(
+  "config",
+  "../config/schema",
+  "config"
+)
+config.steps = [
+  ...(config.steps ?? []),
+  ...(!config.ui?.hideSummary ?
+    [
+      {
+        name: "$summary",
+        label: "summary"
+      }
+    ]
+  : [])
+]
+
 const errors = Value.Errors(InstallerConfigSchema, config)
 if (errors.length) {
   const err = new Error(`Invalid config`) as any

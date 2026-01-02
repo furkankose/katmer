@@ -5,7 +5,7 @@ export const BuiltinSourceDriverSchema = Type.Union([
   Type.Literal("file"),
   Type.Literal("http"),
   Type.Literal("git"),
-  Type.Literal("s3"),
+  Type.Literal("s3")
 ])
 export type BuiltinSourceDriver = Static<typeof BuiltinSourceDriverSchema>
 
@@ -17,7 +17,8 @@ export type BuiltinSourceDriver = Static<typeof BuiltinSourceDriverSchema>
  * so this is modeled as a string with documentation of built-ins.
  */
 export const SourceDriverIdSchema = Type.String({
-  description: 'Source driver id. Built-ins: "file" | "http" | "git" | "s3" (plus custom plugin ids).',
+  description:
+    'Source driver id. Built-ins: "file" | "http" | "git" | "s3" (plus custom plugin ids).'
 })
 export type SourceDriverId = Static<typeof SourceDriverIdSchema>
 
@@ -30,7 +31,11 @@ export const SourceVersionMetadataConfigSchema = Type.Object(
     /**
      * Data format of metadata.
      */
-    format: Type.Optional(Type.String({ description: 'Known values: "json", "yaml", "toml", or a custom id.' })),
+    format: Type.Optional(
+      Type.String({
+        description: 'Known values: "json", "yaml", "toml", or a custom id.'
+      })
+    ),
     /**
      * Dot-path / JSON pointer to the version string inside metadata.
      */
@@ -38,11 +43,13 @@ export const SourceVersionMetadataConfigSchema = Type.Object(
     /**
      * Optional dot-path / JSON pointer to migrations array in metadata.
      */
-    migrationsField: Type.Optional(Type.String()),
+    migrationsField: Type.Optional(Type.String())
   },
   { additionalProperties: false }
 )
-export type SourceVersionMetadataConfig = Static<typeof SourceVersionMetadataConfigSchema>
+export type SourceVersionMetadataConfig = Static<
+  typeof SourceVersionMetadataConfigSchema
+>
 
 export const SourceUpdatePolicySchema = Type.Object(
   {
@@ -54,13 +61,13 @@ export const SourceUpdatePolicySchema = Type.Object(
         Type.Literal("never"),
         Type.Literal("check"),
         Type.Literal("check-and-ask"),
-        Type.Literal("force-latest"),
+        Type.Literal("force-latest")
       ])
     ),
     /**
      * How to read latest version info (and migrations pointer) from this source.
      */
-    metadata: Type.Optional(SourceVersionMetadataConfigSchema),
+    metadata: Type.Optional(SourceVersionMetadataConfigSchema)
   },
   { additionalProperties: false }
 )
@@ -89,7 +96,7 @@ export const SourceConfigBaseSchema = Type.Object(
     /**
      * Driver-specific free-form options (mainly for plugins).
      */
-    options: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+    options: Type.Optional(Type.Record(Type.String(), Type.Unknown()))
   },
   { additionalProperties: true }
 )
@@ -104,10 +111,10 @@ export const FileSourceConfigSchema = Type.Intersect(
         /**
          * Root directory on disk where payload lives (e.g. build artifacts).
          */
-        root: Type.String(),
+        root: Type.String()
       },
       { additionalProperties: false }
-    ),
+    )
   ],
   { additionalProperties: false }
 )
@@ -123,10 +130,10 @@ export const HttpSourceConfigSchema = Type.Intersect(
          * Base URL for artifacts & metadata.
          */
         baseUrl: Type.String(),
-        headers: Type.Optional(Type.Record(Type.String(), Type.String())),
+        headers: Type.Optional(Type.Record(Type.String(), Type.String()))
       },
       { additionalProperties: false }
-    ),
+    )
   ],
   { additionalProperties: false }
 )
@@ -143,10 +150,10 @@ export const GitSourceConfigSchema = Type.Intersect(
         /**
          * Optional path inside repo where installer files live.
          */
-        path: Type.Optional(Type.String()),
+        path: Type.Optional(Type.String())
       },
       { additionalProperties: false }
-    ),
+    )
   ],
   { additionalProperties: false }
 )
@@ -160,16 +167,16 @@ export const S3SourceConfigSchema = Type.Intersect(
         driver: Type.Literal("s3"),
         bucket: Type.String(),
         prefix: Type.Optional(Type.String()),
-        region: Type.Optional(Type.String()),
+        region: Type.Optional(Type.String())
       },
       { additionalProperties: false }
-    ),
+    )
   ],
   { additionalProperties: false }
 )
 export type S3SourceConfig = Static<typeof S3SourceConfigSchema>
 
-export const PluginSourceConfigSchema = Type.Intersect(
+export const CustomSourceConfigSchema = Type.Intersect(
   [
     SourceConfigBaseSchema,
     Type.Object(
@@ -178,16 +185,25 @@ export const PluginSourceConfigSchema = Type.Intersect(
          * Plugin-provided driver id, e.g. "myAppCustomDriver".
          */
         driver: Type.String(),
+        path: Type.String({ description: "Source adapter file's path" })
       },
       { additionalProperties: true }
-    ),
+    )
   ],
   { additionalProperties: true }
 )
-export type PluginSourceConfig = Static<typeof PluginSourceConfigSchema>
+export type CustomSourceConfig = Static<typeof CustomSourceConfigSchema>
 
 export const InstallerSourceConfigSchema = Type.Union(
-  [FileSourceConfigSchema, HttpSourceConfigSchema, GitSourceConfigSchema, S3SourceConfigSchema, PluginSourceConfigSchema],
-  { description: "Sources that can provide installer payloads and/or metadata." }
+  [
+    FileSourceConfigSchema,
+    HttpSourceConfigSchema,
+    GitSourceConfigSchema,
+    S3SourceConfigSchema,
+    CustomSourceConfigSchema
+  ],
+  {
+    description: "Sources that can provide installer payloads and/or metadata."
+  }
 )
 export type InstallerSourceConfig = Static<typeof InstallerSourceConfigSchema>

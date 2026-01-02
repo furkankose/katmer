@@ -627,6 +627,7 @@ const MAX_DEPTH = 6
 function objectTypeFields(
   type: ts.Type,
   checker: ts.TypeChecker,
+  // oxlint-disable-next-line only-used-in-recursion
   seen: Set<string>,
   pathHint?: string,
   depth = 0

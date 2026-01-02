@@ -2,13 +2,9 @@
 import { computed, ref, toValue, useTemplateRef, watch } from "vue"
 import { useInstaller } from "@/composables/useInstaller"
 import { useConfig } from "@common/useConfig"
-import FormStep from "@/components/ui/FormStep.vue"
-import type { StepConfig } from "@type/forms"
-import type { InteractionRequest } from "@common/engine/installer_engine.types"
+import type { InteractionRequest } from "@common/installer_engine.types"
 import Card from "@/components/ui/Card.vue"
 import { useI18n } from "vue-i18n"
-import { deepMerge } from "./utils/object.utils"
-import { FormKit } from "@formkit/vue"
 import Configuration from "@/components/Configuration.vue"
 
 const { t } = useI18n()

@@ -8,13 +8,13 @@ import type {
   InstallerEnvironment,
   InstallerEvent,
   InstallerSnapshot
-} from "@common/engine/installer_engine.types"
-import { InstallerEngine } from "@common/engine/installer_engine"
+} from "@common/installer_engine.types"
+import { InstallerEngine } from "../installer_engine"
 import type { InstallerConfig } from "@type/installer"
 
 import ui_html from "../../index.html"
 import favicon from "../assets/favicon.svg" with { type: "text" }
-import { DEFAULT_FLOW } from "@common/engine/installer_engine.types"
+import { DEFAULT_FLOW } from "@common/installer_engine.types"
 import type { CliRuntimeOptions } from "@type/cli"
 import { resolveInstaller } from "../installers/resolve_installer"
 
@@ -40,18 +40,14 @@ export async function start_web_runner(
   const sessions = new Map<string, session>()
   const log_clients: ServerWebSocket<any>[] = []
 
-  const engine = new InstallerEngine(
-    installerConfig,
-    resolveInstaller(installerConfig.engine),
-    DEFAULT_FLOW,
-    {
-      log(level: string, message: string) {
-        for (const logClient of log_clients) {
-          logClient.send(new WSMessage("installer:log", { level, message }))
-        }
+  const engine = resolveInstaller(installerConfig, DEFAULT_FLOW, {
+    log(level: string, message: string) {
+      for (const logClient of log_clients) {
+        logClient.send(new WSMessage("installer:log", { level, message }))
       }
     }
-  )
+  })
+  await engine.initialize()
 
   function create_session(
     id: string,

@@ -1,6 +1,6 @@
 import type { CliRuntimeOptions } from "@type/cli"
-import { InstallerEngine } from "@common/engine/installer_engine"
-import { DEFAULT_FLOW } from "@common/engine/installer_engine.types"
+import { InstallerEngine } from "../installer_engine"
+import { DEFAULT_FLOW } from "@common/installer_engine.types"
 import type { InstallerConfig } from "@type/installer"
 import { resolveInstaller } from "../installers/resolve_installer"
 
@@ -8,16 +8,12 @@ export async function start_cli_runner(
   installerConfig: InstallerConfig,
   opts: CliRuntimeOptions
 ): Promise<number> {
-  const engine = new InstallerEngine(
-    installerConfig,
-    resolveInstaller(installerConfig.engine),
-    DEFAULT_FLOW,
-    {
-      log(level: string, message: string) {
-        console.log(message)
-      }
+  const engine = resolveInstaller(installerConfig, DEFAULT_FLOW, {
+    log(level: string, message: string) {
+      console.log(message)
     }
-  )
+  })
+  await engine.initialize()
 
   engine.onTransition(({ status, context }) => {
     if (opts.logging === "stdout" || opts.logging === "both") {

@@ -1,0 +1,1957 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plusauth.dev/schemas/installer.json",
+  "title": "KatmerInstallConfig",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "appLogo": {
+      "type": "string"
+    },
+    "appTitle": {
+      "type": "string"
+    },
+    "landing": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "locales": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "form": {
+            "type": "object",
+            "required": ["schema"],
+            "properties": {
+              "schema": {
+                "description": "FormKit schema definition (opaque to JSON Schema)."
+              }
+            },
+            "additionalProperties": false
+          },
+          "hooks": {
+            "type": "object",
+            "properties": {
+              "before": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["run"],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "run": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ]
+                    },
+                    "cwd": {
+                      "type": "string"
+                    },
+                    "env": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^.*$": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "kind": {
+                      "type": "string",
+                      "description": "Hook kind identifier. Known values: \"shell\", \"bun\", \"node\"."
+                    },
+                    "when": {
+                      "type": "string"
+                    },
+                    "continueOnError": {
+                      "type": "boolean"
+                    },
+                    "timeoutSeconds": {
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "after": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["run"],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "run": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      ]
+                    },
+                    "cwd": {
+                      "type": "string"
+                    },
+                    "env": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^.*$": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "kind": {
+                      "type": "string",
+                      "description": "Hook kind identifier. Known values: \"shell\", \"bun\", \"node\"."
+                    },
+                    "when": {
+                      "type": "string"
+                    },
+                    "continueOnError": {
+                      "type": "boolean"
+                    },
+                    "timeoutSeconds": {
+                      "type": "number"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "cli": {
+      "type": "object",
+      "properties": {
+        "allowNonInteractive": {
+          "type": "boolean"
+        },
+        "defaults": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {}
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "credentials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "sources"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "required": ["kind"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "description": "Credential source kind. Known values: \"env\", \"prompt\", \"secureStore\", \"field\", \"file\", \"inline\"."
+                        },
+                        "priority": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "required": ["kind", "envVar"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "env"
+                        },
+                        "envVar": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "required": ["kind"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "description": "Credential source kind. Known values: \"env\", \"prompt\", \"secureStore\", \"field\", \"file\", \"inline\"."
+                        },
+                        "priority": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "required": ["kind"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "prompt"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "help": {
+                          "type": "string"
+                        },
+                        "secret": {
+                          "type": "boolean"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "required": ["kind"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "description": "Credential source kind. Known values: \"env\", \"prompt\", \"secureStore\", \"field\", \"file\", \"inline\"."
+                        },
+                        "priority": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "required": ["kind", "store"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "secureStore"
+                        },
+                        "store": {
+                          "type": "object",
+                          "required": ["service"],
+                          "properties": {
+                            "provider": {
+                              "type": "string",
+                              "description": "Secure store provider identifier. Known values: \"system\", \"keychain\", \"credentialManager\", \"secretService\"."
+                            },
+                            "service": {
+                              "type": "string"
+                            },
+                            "account": {
+                              "type": "string"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "required": ["kind"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "description": "Credential source kind. Known values: \"env\", \"prompt\", \"secureStore\", \"field\", \"file\", \"inline\"."
+                        },
+                        "priority": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "required": ["kind", "fieldPath"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "field"
+                        },
+                        "fieldPath": {
+                          "type": "string",
+                          "description": "Path-like name for a field. Examples: \"app.domain\", \"app.admin.email\"."
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "required": ["kind"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "description": "Credential source kind. Known values: \"env\", \"prompt\", \"secureStore\", \"field\", \"file\", \"inline\"."
+                        },
+                        "priority": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "required": ["kind", "path"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "file"
+                        },
+                        "path": {
+                          "type": "string"
+                        },
+                        "encoding": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "required": ["kind"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "description": "Credential source kind. Known values: \"env\", \"prompt\", \"secureStore\", \"field\", \"file\", \"inline\"."
+                        },
+                        "priority": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "required": ["kind", "value"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "inline"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "required": ["kind"],
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "description": "Credential source kind. Known values: \"env\", \"prompt\", \"secureStore\", \"field\", \"file\", \"inline\"."
+                        },
+                        "priority": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    {
+                      "type": "object",
+                      "patternProperties": {
+                        "^.*$": {}
+                      }
+                    }
+                  ],
+                  "additionalProperties": true
+                }
+              ],
+              "description": "Union of supported credential sources."
+            }
+          },
+          "persistToSecureStore": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object",
+                "required": ["service"],
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "description": "Secure store provider identifier. Known values: \"system\", \"keychain\", \"credentialManager\", \"secretService\"."
+                  },
+                  "service": {
+                    "type": "string"
+                  },
+                  "account": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": ["id"],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "disabled": {
+                        "type": "boolean"
+                      },
+                      "priority": {
+                        "type": "number"
+                      },
+                      "update": {
+                        "type": "object",
+                        "properties": {
+                          "mode": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "never"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check-and-ask"
+                              },
+                              {
+                                "type": "string",
+                                "const": "force-latest"
+                              }
+                            ]
+                          },
+                          "metadata": {
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "type": "string",
+                                "description": "Known values: \"json\", \"yaml\", \"toml\", or a custom id."
+                              },
+                              "versionField": {
+                                "type": "string"
+                              },
+                              "migrationsField": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "auth": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "description": "Auth kind. Known values: \"none\", \"basic\", \"bearer\", \"header\", \"query\", \"aws\", \"git\"."
+                          },
+                          "credentialId": {
+                            "type": "string"
+                          },
+                          "usernameCredentialId": {
+                            "type": "string"
+                          },
+                          "passwordCredentialId": {
+                            "type": "string"
+                          },
+                          "tokenCredentialId": {
+                            "type": "string"
+                          },
+                          "headerName": {
+                            "type": "string"
+                          },
+                          "queryParamName": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "options": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        }
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": ["driver", "root"],
+                    "properties": {
+                      "driver": {
+                        "type": "string",
+                        "const": "file"
+                      },
+                      "root": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ],
+                "additionalProperties": false
+              },
+              {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": ["id"],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "disabled": {
+                        "type": "boolean"
+                      },
+                      "priority": {
+                        "type": "number"
+                      },
+                      "update": {
+                        "type": "object",
+                        "properties": {
+                          "mode": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "never"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check-and-ask"
+                              },
+                              {
+                                "type": "string",
+                                "const": "force-latest"
+                              }
+                            ]
+                          },
+                          "metadata": {
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "type": "string",
+                                "description": "Known values: \"json\", \"yaml\", \"toml\", or a custom id."
+                              },
+                              "versionField": {
+                                "type": "string"
+                              },
+                              "migrationsField": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "auth": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "description": "Auth kind. Known values: \"none\", \"basic\", \"bearer\", \"header\", \"query\", \"aws\", \"git\"."
+                          },
+                          "credentialId": {
+                            "type": "string"
+                          },
+                          "usernameCredentialId": {
+                            "type": "string"
+                          },
+                          "passwordCredentialId": {
+                            "type": "string"
+                          },
+                          "tokenCredentialId": {
+                            "type": "string"
+                          },
+                          "headerName": {
+                            "type": "string"
+                          },
+                          "queryParamName": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "options": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        }
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": ["driver", "baseUrl"],
+                    "properties": {
+                      "driver": {
+                        "type": "string",
+                        "const": "http"
+                      },
+                      "baseUrl": {
+                        "type": "string"
+                      },
+                      "headers": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ],
+                "additionalProperties": false
+              },
+              {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": ["id"],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "disabled": {
+                        "type": "boolean"
+                      },
+                      "priority": {
+                        "type": "number"
+                      },
+                      "update": {
+                        "type": "object",
+                        "properties": {
+                          "mode": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "never"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check-and-ask"
+                              },
+                              {
+                                "type": "string",
+                                "const": "force-latest"
+                              }
+                            ]
+                          },
+                          "metadata": {
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "type": "string",
+                                "description": "Known values: \"json\", \"yaml\", \"toml\", or a custom id."
+                              },
+                              "versionField": {
+                                "type": "string"
+                              },
+                              "migrationsField": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "auth": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "description": "Auth kind. Known values: \"none\", \"basic\", \"bearer\", \"header\", \"query\", \"aws\", \"git\"."
+                          },
+                          "credentialId": {
+                            "type": "string"
+                          },
+                          "usernameCredentialId": {
+                            "type": "string"
+                          },
+                          "passwordCredentialId": {
+                            "type": "string"
+                          },
+                          "tokenCredentialId": {
+                            "type": "string"
+                          },
+                          "headerName": {
+                            "type": "string"
+                          },
+                          "queryParamName": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "options": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        }
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": ["driver", "repo"],
+                    "properties": {
+                      "driver": {
+                        "type": "string",
+                        "const": "git"
+                      },
+                      "repo": {
+                        "type": "string"
+                      },
+                      "ref": {
+                        "type": "string"
+                      },
+                      "path": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ],
+                "additionalProperties": false
+              },
+              {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": ["id"],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "disabled": {
+                        "type": "boolean"
+                      },
+                      "priority": {
+                        "type": "number"
+                      },
+                      "update": {
+                        "type": "object",
+                        "properties": {
+                          "mode": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "never"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check-and-ask"
+                              },
+                              {
+                                "type": "string",
+                                "const": "force-latest"
+                              }
+                            ]
+                          },
+                          "metadata": {
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "type": "string",
+                                "description": "Known values: \"json\", \"yaml\", \"toml\", or a custom id."
+                              },
+                              "versionField": {
+                                "type": "string"
+                              },
+                              "migrationsField": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "auth": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "description": "Auth kind. Known values: \"none\", \"basic\", \"bearer\", \"header\", \"query\", \"aws\", \"git\"."
+                          },
+                          "credentialId": {
+                            "type": "string"
+                          },
+                          "usernameCredentialId": {
+                            "type": "string"
+                          },
+                          "passwordCredentialId": {
+                            "type": "string"
+                          },
+                          "tokenCredentialId": {
+                            "type": "string"
+                          },
+                          "headerName": {
+                            "type": "string"
+                          },
+                          "queryParamName": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "options": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        }
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": ["driver", "bucket"],
+                    "properties": {
+                      "driver": {
+                        "type": "string",
+                        "const": "s3"
+                      },
+                      "bucket": {
+                        "type": "string"
+                      },
+                      "prefix": {
+                        "type": "string"
+                      },
+                      "region": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ],
+                "additionalProperties": false
+              },
+              {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": ["id"],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "disabled": {
+                        "type": "boolean"
+                      },
+                      "priority": {
+                        "type": "number"
+                      },
+                      "update": {
+                        "type": "object",
+                        "properties": {
+                          "mode": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "const": "never"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check"
+                              },
+                              {
+                                "type": "string",
+                                "const": "check-and-ask"
+                              },
+                              {
+                                "type": "string",
+                                "const": "force-latest"
+                              }
+                            ]
+                          },
+                          "metadata": {
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "type": "string",
+                                "description": "Known values: \"json\", \"yaml\", \"toml\", or a custom id."
+                              },
+                              "versionField": {
+                                "type": "string"
+                              },
+                              "migrationsField": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "auth": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "description": "Auth kind. Known values: \"none\", \"basic\", \"bearer\", \"header\", \"query\", \"aws\", \"git\"."
+                          },
+                          "credentialId": {
+                            "type": "string"
+                          },
+                          "usernameCredentialId": {
+                            "type": "string"
+                          },
+                          "passwordCredentialId": {
+                            "type": "string"
+                          },
+                          "tokenCredentialId": {
+                            "type": "string"
+                          },
+                          "headerName": {
+                            "type": "string"
+                          },
+                          "queryParamName": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "options": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        }
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  {
+                    "type": "object",
+                    "required": ["driver"],
+                    "properties": {
+                      "driver": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": true
+                  }
+                ],
+                "additionalProperties": true
+              }
+            ],
+            "description": "Sources that can provide installer payloads and/or metadata."
+          }
+        },
+        "installed": {
+          "type": "object",
+          "properties": {
+            "probes": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": ["id", "driver"],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "driver": {
+                            "type": "string",
+                            "description": "Installed probe driver. Known values: \"file\", \"http\", \"command\", \"docker\"."
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "disabled": {
+                            "type": "boolean"
+                          },
+                          "priority": {
+                            "type": "number"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      {
+                        "type": "object",
+                        "required": ["driver", "path"],
+                        "properties": {
+                          "driver": {
+                            "type": "string",
+                            "const": "file"
+                          },
+                          "path": {
+                            "type": "string"
+                          },
+                          "format": {
+                            "type": "string",
+                            "description": "Known values: \"text\", \"json\", \"yaml\", \"toml\", or a custom format id."
+                          },
+                          "versionField": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": ["id", "driver"],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "driver": {
+                            "type": "string",
+                            "description": "Installed probe driver. Known values: \"file\", \"http\", \"command\", \"docker\"."
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "disabled": {
+                            "type": "boolean"
+                          },
+                          "priority": {
+                            "type": "number"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      {
+                        "type": "object",
+                        "required": ["driver", "url"],
+                        "properties": {
+                          "driver": {
+                            "type": "string",
+                            "const": "http"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "method": {
+                            "type": "string"
+                          },
+                          "headers": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "body": {},
+                          "format": {
+                            "type": "string",
+                            "description": "Known values: \"json\", \"text\", or a custom id."
+                          },
+                          "versionField": {
+                            "type": "string"
+                          },
+                          "auth": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "description": "Auth kind. Known values: \"none\", \"basic\", \"bearer\", \"header\", \"query\", \"aws\", \"git\"."
+                              },
+                              "credentialId": {
+                                "type": "string"
+                              },
+                              "usernameCredentialId": {
+                                "type": "string"
+                              },
+                              "passwordCredentialId": {
+                                "type": "string"
+                              },
+                              "tokenCredentialId": {
+                                "type": "string"
+                              },
+                              "headerName": {
+                                "type": "string"
+                              },
+                              "queryParamName": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "patternProperties": {
+                                  "^.*$": {}
+                                }
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": ["id", "driver"],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "driver": {
+                            "type": "string",
+                            "description": "Installed probe driver. Known values: \"file\", \"http\", \"command\", \"docker\"."
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "disabled": {
+                            "type": "boolean"
+                          },
+                          "priority": {
+                            "type": "number"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      {
+                        "type": "object",
+                        "required": ["driver", "run"],
+                        "properties": {
+                          "driver": {
+                            "type": "string",
+                            "const": "command"
+                          },
+                          "run": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            ]
+                          },
+                          "cwd": {
+                            "type": "string"
+                          },
+                          "env": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "timeoutSeconds": {
+                            "type": "number"
+                          },
+                          "parse": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "description": "Known values: \"regex\", \"jsonField\", \"line\", or a custom id."
+                              },
+                              "pattern": {
+                                "type": "string"
+                              },
+                              "field": {
+                                "type": "string"
+                              },
+                              "line": {
+                                "type": "number"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": ["id", "driver"],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "driver": {
+                            "type": "string",
+                            "description": "Installed probe driver. Known values: \"file\", \"http\", \"command\", \"docker\"."
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "disabled": {
+                            "type": "boolean"
+                          },
+                          "priority": {
+                            "type": "number"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      {
+                        "type": "object",
+                        "required": ["driver"],
+                        "properties": {
+                          "driver": {
+                            "type": "string",
+                            "const": "docker"
+                          },
+                          "image": {
+                            "type": "string"
+                          },
+                          "containerName": {
+                            "type": "string"
+                          },
+                          "versionSource": {
+                            "type": "string",
+                            "description": "Known values: \"imageTag\", \"label\", \"env\", \"command\", or a custom id."
+                          },
+                          "labelKey": {
+                            "type": "string"
+                          },
+                          "envKey": {
+                            "type": "string"
+                          },
+                          "command": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            ]
+                          },
+                          "auth": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "description": "Auth kind. Known values: \"none\", \"basic\", \"bearer\", \"header\", \"query\", \"aws\", \"git\"."
+                              },
+                              "credentialId": {
+                                "type": "string"
+                              },
+                              "usernameCredentialId": {
+                                "type": "string"
+                              },
+                              "passwordCredentialId": {
+                                "type": "string"
+                              },
+                              "tokenCredentialId": {
+                                "type": "string"
+                              },
+                              "headerName": {
+                                "type": "string"
+                              },
+                              "queryParamName": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "patternProperties": {
+                                  "^.*$": {}
+                                }
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": ["id", "driver"],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "driver": {
+                            "type": "string",
+                            "description": "Installed probe driver. Known values: \"file\", \"http\", \"command\", \"docker\"."
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "disabled": {
+                            "type": "boolean"
+                          },
+                          "priority": {
+                            "type": "number"
+                          },
+                          "options": {
+                            "type": "object",
+                            "patternProperties": {
+                              "^.*$": {}
+                            }
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      {
+                        "type": "object",
+                        "patternProperties": {
+                          "^.*$": {}
+                        }
+                      }
+                    ],
+                    "additionalProperties": true
+                  }
+                ],
+                "description": "Union of supported installed-version probes."
+              }
+            },
+            "defaultProbeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "versioning": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "description": "Versioning strategy kind. Known values: \"semver\", \"numeric\", \"lexicographic\", or a custom id."
+            },
+            "ascending": {
+              "type": "boolean"
+            },
+            "normalizePattern": {
+              "type": "string"
+            },
+            "customComparatorId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "build": {
+      "type": "object",
+      "properties": {
+        "payloads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["sourceId"],
+            "properties": {
+              "sourceId": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "include": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "exclude": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "destination": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "targetVersion": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "hooks": {
+      "type": "object",
+      "properties": {
+        "build": {
+          "type": "object",
+          "properties": {
+            "before": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["run"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "run": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "cwd": {
+                    "type": "string"
+                  },
+                  "env": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^.*$": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "kind": {
+                    "type": "string",
+                    "description": "Hook kind identifier. Known values: \"shell\", \"bun\", \"node\"."
+                  },
+                  "when": {
+                    "type": "string"
+                  },
+                  "continueOnError": {
+                    "type": "boolean"
+                  },
+                  "timeoutSeconds": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "after": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["run"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "run": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "cwd": {
+                    "type": "string"
+                  },
+                  "env": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^.*$": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "kind": {
+                    "type": "string",
+                    "description": "Hook kind identifier. Known values: \"shell\", \"bun\", \"node\"."
+                  },
+                  "when": {
+                    "type": "string"
+                  },
+                  "continueOnError": {
+                    "type": "boolean"
+                  },
+                  "timeoutSeconds": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "install": {
+          "type": "object",
+          "properties": {
+            "before": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["run"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "run": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "cwd": {
+                    "type": "string"
+                  },
+                  "env": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^.*$": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "kind": {
+                    "type": "string",
+                    "description": "Hook kind identifier. Known values: \"shell\", \"bun\", \"node\"."
+                  },
+                  "when": {
+                    "type": "string"
+                  },
+                  "continueOnError": {
+                    "type": "boolean"
+                  },
+                  "timeoutSeconds": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "after": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["run"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "run": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "cwd": {
+                    "type": "string"
+                  },
+                  "env": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^.*$": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "kind": {
+                    "type": "string",
+                    "description": "Hook kind identifier. Known values: \"shell\", \"bun\", \"node\"."
+                  },
+                  "when": {
+                    "type": "string"
+                  },
+                  "continueOnError": {
+                    "type": "boolean"
+                  },
+                  "timeoutSeconds": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "update": {
+          "type": "object",
+          "properties": {
+            "before": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["run"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "run": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "cwd": {
+                    "type": "string"
+                  },
+                  "env": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^.*$": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "kind": {
+                    "type": "string",
+                    "description": "Hook kind identifier. Known values: \"shell\", \"bun\", \"node\"."
+                  },
+                  "when": {
+                    "type": "string"
+                  },
+                  "continueOnError": {
+                    "type": "boolean"
+                  },
+                  "timeoutSeconds": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "after": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["run"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "run": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "cwd": {
+                    "type": "string"
+                  },
+                  "env": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^.*$": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "kind": {
+                    "type": "string",
+                    "description": "Hook kind identifier. Known values: \"shell\", \"bun\", \"node\"."
+                  },
+                  "when": {
+                    "type": "string"
+                  },
+                  "continueOnError": {
+                    "type": "boolean"
+                  },
+                  "timeoutSeconds": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
