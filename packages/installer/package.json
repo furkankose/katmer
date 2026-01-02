@@ -29,7 +29,7 @@
     "isomorphic-git": "^1.36.1",
     "json5": "^2.2.3",
     "jsrsasign": "^11.1.0",
-    "systeminformation": "^5.28.8",
+    "systeminformation": "^5.28.9",
     "typebox": "^1.0.71",
     "uint8array-extras": "^1.5.0",
     "validator": "^13.15.26",

@@ -109,7 +109,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "selection:text-neutral-700": true,
     "group-data-[has-overlay]:selection:!text-transparent": true,
     "font-bold": true,
-    rounded: true,
+    "rounded-xs": true,
     "outline-none": true,
     flex: true,
     "!text-sm": true,
@@ -267,7 +267,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "w-full": true,
     "py-2": true,
     "px-3": true,
-    rounded: true,
+    "rounded-xs": true,
     border: true,
     // "group-data-[type=number]:max-w-24": true,
     "border-neutral-400": true,
@@ -347,7 +347,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "bg-white": true,
     border: true,
     "border-neutral-400": true,
-    rounded: true,
+    "rounded-xs": true,
     "group-data-[is-multiline]:!rounded": true,
     "focus-within:ring-1": true,
     "focus-within:!ring-primary-500": true,
@@ -468,7 +468,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "dark:text-neutral-300": true
   },
   "family:dropdown__dropdownWrapper": {
-    rounded: true,
+    "rounded-xs": true,
     "shadow-lg": true,
     "mt-1": true,
     "overflow-clip": true,
@@ -502,7 +502,7 @@ export const classes: Record<string, Record<string, boolean>> = {
   },
   "family:dropdown__listbox": {
     "bg-white": true,
-    rounded: true,
+    "rounded-xs": true,
     "empty:hidden": true,
     "dark:bg-neutral-800": true,
     "group-data-[overscroll]:shadow-lg": true,
@@ -646,7 +646,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "dark:hover:bg-primary-50/5": true
   },
   checkbox__decorator: {
-    rounded: true
+    "rounded-xs": true
   },
   checkbox__decoratorIcon: {
     "max-w-[66.66%]": true
@@ -657,61 +657,6 @@ export const classes: Record<string, Record<string, boolean>> = {
   alert__outer: {
     "sm:max-w-[20em]": false,
     "mb-4": true
-  },
-  color__inner: {
-    "!w-auto": true,
-    "!p-1.5": true,
-    "!inline-flex": true,
-    "group-data-[prefix-icon]:border": true,
-    "group-data-[prefix-icon]:border-neutral-400": true,
-    "group-data-[suffix-icon]:border": true,
-    "group-data-[suffix-icon]:border-neutral-400": true,
-    "dark:group-data-[prefix-icon]:border-neutral-500": true,
-    "dark:group-data-[suffix-icon]:border-neutral-500": true
-  },
-  color__input: {
-    "appearance-none": true,
-    "[color-scheme:light]": true,
-    "dark:[color-scheme:dark]": true,
-    "selection:bg-primary-100": true,
-    "selection:text-neutral-700": true,
-    "group-data-[has-overlay]:selection:!text-transparent": true,
-    "!w-14": true,
-    "bg-transparent": true,
-    "cursor-pointer": true,
-    rounded: true,
-    "overflow-clip": true,
-    "[&::-webkit-color-swatch-wrapper]:p-0": true,
-    "[&::-webkit-color-swatch]:border-none": true,
-    "[&::-moz-color-swatch]:border-none": true,
-    "group-data-[prefix-icon]:mx-2": true,
-    "group-data-[suffix-icon]:mx-2": true
-  },
-  color__prefixIcon: {
-    flex: true,
-    "items-center": true,
-    "-ml-1": true,
-    "mr-2": true,
-    "text-base": true,
-    "h-[1em]": true,
-    "w-[1em]": true,
-    "shrink-0": true,
-    "[&>svg]:w-full": true,
-    "group-data-[prefix-icon]:m-1.5": true,
-    "group-data-[prefix-icon]:mr-0": true
-  },
-  color__suffixIcon: {
-    flex: true,
-    "items-center": true,
-    "-mr-1": true,
-    "ml-2": true,
-    "text-base": true,
-    "h-[1em]": true,
-    "w-[1em]": true,
-    "shrink-0": true,
-    "[&>svg]:w-full": true,
-    "group-data-[suffix-icon]:m-1.5": true,
-    "group-data-[prefix-icon]:ml-0": true
   },
   date__input: {
     "appearance-none": true,
@@ -771,7 +716,7 @@ export const classes: Record<string, Record<string, boolean>> = {
   file__fileRemove: {
     "right-2": true,
     "ring-primary-500": true,
-    rounded: true,
+    "rounded-xs": true,
     "z-20": true,
     flex: true,
     "appearance-none": true,
@@ -843,7 +788,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     border: true,
     "border-neutral-400": true,
     "bg-white": true,
-    rounded: true,
+    "rounded-xs": true,
     "py-2": true,
     "px-3": true,
     shadow: true,
@@ -954,7 +899,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "bg-white": true,
     border: true,
     "border-neutral-400": true,
-    rounded: true,
+    "rounded-xs": true,
     "focus-within:ring-1": true,
     "focus-within:!ring-primary-500": true,
     "focus-within:!border-primary-500": true,
@@ -1141,7 +1086,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "bg-white": true,
     border: true,
     "border-neutral-400": true,
-    rounded: true,
+    "rounded-xs": true,
     "focus-within:ring-1": true,
     "focus-within:!ring-primary-500": true,
     "focus-within:!border-primary-500": true,
@@ -1245,7 +1190,7 @@ export const classes: Record<string, Record<string, boolean>> = {
   },
   autocomplete__selectionWrapper: {
     "bg-neutral-100": true,
-    rounded: true,
+    "rounded-xs": true,
     "group-data-[multiple]:border": true,
     "group-data-[multiple]:border-neutral-300": true,
     "group-data-[multiple]:mb-1.5": true,
@@ -1260,408 +1205,11 @@ export const classes: Record<string, Record<string, boolean>> = {
     "[&.formkit-longTouch]:opacity-25": true
   },
   autocomplete__selection: {
-    rounded: true,
+    "rounded-xs": true,
     just: true,
     "pl-2": true,
     "[&>*]:ml-0": true,
     "dark:text-neutral-200": true
-  },
-  colorpicker__outer: {
-    group: true,
-    "sm:max-w-[20em]": true,
-    "min-w-0": true,
-    grow: true,
-    "mb-4": true,
-    "data-[disabled]:select-none": true,
-    "data-[disabled]:opacity-50": true,
-    "text-base": true,
-    "data-[disabled]:cursor-not-allowed": true,
-    "data-[disabled]:pointer-events-none": true
-  },
-  colorpicker__help: {
-    "text-neutral-500": true,
-    "text-xs": true,
-    "dark:text-neutral-400": true,
-    "group-data-[inline]:-mt-1": true,
-    "group-data-[inline]:mb-2": true
-  },
-  colorpicker__inner: {
-    relative: true,
-    "inline-flex": true,
-    "!w-auto": true,
-    "pl-2": true,
-    "group-data-[inline]:border-none": true,
-    "group-data-[inline]:shadow-none": true,
-    "group-data-[inline]:p-0": true,
-    "group-data-[inline]:bg-transparent": true,
-    "group-data-[inline]:outline-none": true,
-    "group-data-[inline]:!ring-0": true,
-    "group-data-[inline]:!w-full": true,
-    "group-data-[inline]:rounded": true
-  },
-  colorpicker__swatchPreview: {
-    "w-full": true,
-    flex: true,
-    "justify-start": true,
-    "items-center": true,
-    rounded: true,
-    "text-sm": true,
-    "cursor-pointer": true,
-    "outline-none": true
-  },
-  colorpicker__canvasSwatchPreviewWrapper: {
-    relative: true,
-    "before:content-['']": true,
-    "before:absolute": true,
-    "before:inset-0": true,
-    "before:rounded": true,
-    "before:shadow-[inset_0_0_0_1px_rgba(0,0,0,0.2)]": true,
-    "before:z-[2]": true
-  },
-  colorpicker__canvasSwatchPreview: {
-    "text-base": true,
-    rounded: true,
-    "aspect-[1/1]": true,
-    "shrink-0": true,
-    grow: true,
-    "!w-[1.5em]": true
-  },
-  colorpicker__valueString: {
-    "text-base": true,
-    "text-neutral-700": true,
-    "selection:bg-primary-100": true,
-    "font-mono": true,
-    "inline-block": true,
-    "ml-2": true,
-    "mr-1.5": true,
-    "dark:text-neutral-300": true,
-    "dark:selection:text-neutral-700": true
-  },
-  colorpicker__panel: {
-    absolute: true,
-    "left-0": true,
-    "top-full": true,
-    "z-[99]": true,
-    flex: true,
-    "w-[100vw]": true,
-    "max-w-[18.5em]": true,
-    "touch-manipulation": true,
-    "flex-col": true,
-    rounded: true,
-    border: true,
-    "bg-white": true,
-    "p-2": true,
-    "shadow-md": true,
-    "group-data-[inline]:static": true,
-    "group-data-[inline]:max-w-none": true,
-    "border-neutral-400": true,
-    "group-data-[inline]:z-auto": true,
-    "group-data-[inline]:w-full": true,
-    "group-data-[inline]:shadow": true,
-    "group-data-[inline]:group-data-[disabled]:!cursor-not-allowed": true,
-    "group-data-[inline]:group-data-[disabled]:!pointer-events-none": true,
-    "group-data-[inline]:[&:has([id^=swatches]:first-child:last-child)]:w-auto": true,
-    "group-data-[inline]:[&:has([id^=swatches]:first-child:last-child)_[id^=swatches]>div]:w-[1.5em]": true,
-    "dark:bg-neutral-800": true,
-    "dark:border-neutral-500": true,
-    "dark:group-data-[inline]:bg-transparent": true,
-    "[@media(max-width:431px)_and_(hover:none)]:group-[&:not([data-inline])]:!fixed": true,
-    "[@media(max-width:431px)_and_(hover:none)]:group-[&:not([data-inline])]:top-auto": true,
-    "[@media(max-width:431px)_and_(hover:none)]:group-[&:not([data-inline])]:max-w-none": true,
-    "[@media(max-width:431px)_and_(hover:none)]:group-[&:not([data-inline])]:bottom-0": true,
-    "[@media(max-width:431px)_and_(hover:none)]:group-[&:not([data-inline])]:left-0": true,
-    "[@media(max-width:431px)_and_(hover:none)]:group-[&:not([data-inline])]:rounded-none": true
-  },
-  colorpicker__panelClose: {
-    flex: true,
-    "justify-end": true,
-    "items-center": true,
-    "text-neutral-600": true,
-    "mb-1.5": true,
-    "-mt-1": true,
-    "border-none": true,
-    "bg-none": true,
-    "border-b": true,
-    "border-neutral-300": true,
-    "w-[calc(100%+1rem)]": true,
-    "-ml-2": true,
-    "pt-0": true,
-    "pr-2": true,
-    "pb-1.5": true,
-    "pl-2": true,
-    "dark:border-neutral-600": true
-  },
-  colorpicker__closeIcon: {
-    "w-[2rem]": true,
-    "aspect-[1/1]": true,
-    "p-1": true,
-    rounded: true,
-    border: true,
-    "[&>svg]:w-full": true,
-    "[&>svg]:aspect-[1/1]": true,
-    "[&>svg]:max-w-none": true,
-    "[&>svg]:max-h-none": true
-  },
-  colorpicker__controlGroup: {
-    grid: true,
-    "[grid-template-areas:'a_a_a'_'b_c_e'_'b_d_e']": true,
-    "mb-2": true
-  },
-  colorpicker__LS: {
-    "[grid-area:a]": true,
-    relative: true,
-    "mb-2": true
-  },
-  colorpicker__canvas: {
-    block: true,
-    "w-full": true
-  },
-  colorpicker__canvasLS: {
-    "aspect-[2/1]": true,
-    "cursor-pointer": true,
-    "rounded-none": true
-  },
-  colorpicker__canvasHue: {
-    "rounded-none": true
-  },
-  colorpicker__canvasAlpha: {
-    "rounded-none": true
-  },
-  colorpicker__preview: {
-    rounded: true,
-    "after:rounded": true,
-    relative: true,
-    "inline-flex": true,
-    "aspect-[1/1]": true,
-    "overflow-hidden": true,
-    "[grid-area:b]": true,
-    "mr-2": true,
-    "after:absolute": true,
-    "after:left-0": true,
-    "after:top-0": true,
-    "after:h-full": true,
-    "after:w-full": true,
-    "after:shadow-[inset_0_0_0_1px_rgba(0,0,0,0.2)]": true,
-    "after:content-['']": true,
-    "w-[2em]": true,
-    "dark:after:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.25)]": true
-  },
-  colorpicker__hue: {
-    "[grid-area:c]": true,
-    relative: true,
-    "inline-flex": true,
-    "h-3/4": true
-  },
-  colorpicker__alpha: {
-    "[grid-area:d]": true,
-    relative: true,
-    "inline-flex": true,
-    "h-3/4": true
-  },
-  colorpicker__eyeDropper: {
-    "[grid-area:e]": true,
-    "w-[2em]": true,
-    "ml-2": true,
-    "inline-flex": true,
-    "self-center": true,
-    "justify-center": true,
-    "justify-self-center": true,
-    "aspect-[1/1]": true,
-    rounded: true,
-    border: true,
-    "border-neutral-300": true,
-    "cursor-pointer": true,
-    "content-center": true,
-    "items-center": true,
-    "text-neutral-600": true,
-    "dark:border-neutral-600": true
-  },
-  colorpicker__eyeDropperIcon: {
-    "w-auto": true,
-    "[&>svg]:w-[1em]": true,
-    "dark:text-neutral-400": true
-  },
-  colorpicker__control: {
-    absolute: true,
-    "bg-white": true,
-    "shadow-[0_0_0_2px_rgba(255,255,255,1),0_0_0_3px_rgba(0,0,0,0.2)]": true,
-    "-translate-y-1/2": true,
-    "-translate-x-1/2": true,
-    "pointer-events-none": true,
-    "data-[prevent-focus-style]:shadow-[0_0_0_2px_rgba(255,255,255,1),0_0_0_3px_rgba(0,0,0,0.2)]": true,
-    "focus-visible:outline-none": true,
-    "focus-visible:ring-2": true,
-    "focus-visible:ring-offset-2": true,
-    "focus-visible:ring-primary-500": true
-  },
-  colorpicker__controlLS: {
-    "w-[10px]": true,
-    "h-[10px]": true,
-    "rounded-full": true
-  },
-  colorpicker__controlHue: {
-    "w-[4px]": true,
-    "h-[calc(100%-2px)]": true,
-    "top-1/2": true,
-    rounded: true
-  },
-  colorpicker__controlAlpha: {
-    "w-[4px]": true,
-    "h-[calc(100%-2px)]": true,
-    "top-1/2": true,
-    rounded: true
-  },
-  colorpicker__formatField: {
-    flex: true,
-    "items-center": true,
-    "justify-center": true,
-    grow: true
-  },
-  colorpicker__colorField: {
-    "bg-transparent": true,
-    "text-neutral-700": true,
-    border: true,
-    "border-neutral-300": true,
-    "dark:border-neutral-600": true,
-    "dark:text-neutral-300": true,
-    "dark:selection:text-neutral-700": true
-  },
-  colorpicker__colorInputGroup: {
-    flex: true,
-    "items-center": true,
-    "justify-center": true,
-    grow: true
-  },
-  colorpicker__fieldGroup: {
-    flex: true,
-    "flex-col": true,
-    "items-center": true,
-    "justify-center": true,
-    "w-full": true,
-    "mr-1": true,
-    "[&>input]:p-1": true,
-    "[&>input]:text-sm": true,
-    "[&>input]:text-neutral-700": true,
-    "[&>input]:selection:bg-primary-100": true,
-    "[&>input]:m-0": true,
-    "[&>input]:grow": true,
-    "[&>input]:shrink": true,
-    "[&>input]:w-full": true,
-    "[&>input]:border": true,
-    "[&>input]:border-neutral-300": true,
-    "[&>input]:rounded": true,
-    "[&>input]:text-center": true,
-    "[&>input]:appearance-none": true,
-    "[&>input::-webkit-outer-spin-button]:appearance-none": true,
-    "[&>input::-webkit-inner-spin-button]:appearance-none": true,
-    "[&>input::-webkit-inner-spin-button]:m-0": true,
-    "[&>input:focus]:outline-none": true,
-    "[&>input:focus]:ring-1": true,
-    "[&>input:focus]:ring-primary-600": true,
-    "[&>input:focus]:border-primary-600": true,
-    "max-[431px]:[&>input]:text-base": true
-  },
-  colorpicker__fieldLabel: {
-    "text-xs": true,
-    "text-neutral-500": true,
-    "mt-1.5": true,
-    "dark:text-neutral-400": true
-  },
-  colorpicker__formatSwitcher: {
-    flex: true,
-    "justify-end": true,
-    "self-start": true,
-    uppercase: true,
-    "shrink-0": true,
-    "p-1": true,
-    "mt-0.5": true,
-    "text-neutral-600": true,
-    rounded: true,
-    "select-none": true,
-    "dark:text-neutral-400": true
-  },
-  colorpicker__switchIcon: {
-    "[&>svg]:w-3": true
-  },
-  colorpicker__swatches: {
-    "inline-flex": true,
-    "flex-wrap": true,
-    "w-full": true,
-    "justify-self-center": true,
-    "min-w-0": true,
-    "mx-auto": true,
-    "px-[1px]": true,
-    "pt-2": true,
-    "pb-2": true,
-    "mt-2": true,
-    "-mb-2": true,
-    "border-t": true,
-    "border-neutral-300": true,
-    "overflow-auto": true,
-    "max-h-[200px]": true,
-    "select-none": true,
-    "first:-mt-[3px]": true,
-    "first:last:-mb-[3px]": true,
-    "first:last:pb-[2px]": true,
-    "first:pt-px": true,
-    "first:border-t-0": true,
-    "dark:border-neutral-600": true
-  },
-  colorpicker__swatchGroup: {
-    flex: true,
-    "flex-wrap": true,
-    "w-full": true,
-    "mb-2": true,
-    "last:mb-0": true
-  },
-  colorpicker__swatchGroupLabel: {
-    "ml-1": true,
-    block: true,
-    "w-full": true,
-    "text-sm": true,
-    "text-neutral-500": true,
-    "dark:text-neutral-400": true
-  },
-  colorpicker__swatch: {
-    relative: true,
-    "text-base": true,
-    "w-[calc((100%/10)-0.5em)]": true,
-    "max-w-[22px]": true,
-    "m-[0.16em]": true,
-    "cursor-pointer": true,
-    "before:content-['']": true,
-    "before:absolute": true,
-    "before:inset-0": true,
-    "before:rounded-full": true,
-    "before:shadow-[inset_0_0_0_1px_rgba(0,0,0,0.2)]": true,
-    "before:pointer-events-none": true,
-    "before:z-[2]": true,
-    "dark:before:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.25)]": true,
-    "data-[active=true]:after:content-['']": true,
-    "data-[active=true]:after:block": true,
-    "data-[active=true]:after:absolute": true,
-    "data-[active=true]:after:w-1.5": true,
-    "data-[active=true]:after:h-1.5": true,
-    "data-[active=true]:after:top-1/2": true,
-    "data-[active=true]:after:left-1/2": true,
-    "data-[active=true]:after:pointer-events-none": true,
-    "data-[active=true]:after:rounded-full": true,
-    "data-[active=true]:after:-translate-x-1/2": true,
-    "data-[active=true]:after:-translate-y-1/2": true,
-    "data-[active=true]:after:bg-white": true,
-    "data-[active=true]:after:z-[2]": true,
-    "data-[active=true]:after:ring-1": true,
-    "data-[active=true]:after:ring-[rgba(0,0,0,0.33)]": true,
-    "[&>canvas]:block": true,
-    "[&>canvas]:w-full": true,
-    "[&>canvas]:aspect-[1/1]": true,
-    "[&>canvas]:rounded-full": true,
-    "[&>canvas:focus-visible]:outline-none": true,
-    "[&>canvas:focus-visible]:ring-2": true,
-    "[&>canvas:focus-visible]:ring-primary-500": true,
-    "[&>canvas:focus-visible]:ring-offset-2": true,
-    "[&>canvas:focus-visible]:ring-offset-white": true,
-    "dark:[&>canvas:focus-visible]:ring-offset-neutral-700": true
   },
   datepicker__inner: {
     relative: true
@@ -1688,7 +1236,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "top-[calc(100%_+_0.5em)]": true,
     "left-0": true,
     "shadow-[0_0_1.25em_rgba(0,0,0,.25)]": true,
-    rounded: true,
+    "rounded-xs": true,
     "p-4": true,
     "bg-white": true,
     "z-10": true,
@@ -1719,7 +1267,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "aspect-[1/1]": true,
     border: true,
     "border-neutral-300": true,
-    rounded: true,
+    "rounded-xs": true,
     flex: true,
     "items-center": true,
     "justify-center": true,
@@ -1767,7 +1315,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "p-1.5": true,
     "text-center": true,
     "text-neutral-700": true,
-    rounded: true,
+    "rounded-xs": true,
     "bg-neutral-200": true,
     "aria-selected:!bg-primary-600": true,
     "aria-selected:!text-white": true,
@@ -1805,7 +1353,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "items-center": true,
     "m-1.5": true,
     "p-1.5": true,
-    rounded: true,
+    "rounded-xs": true,
     "bg-neutral-200": true,
     "aria-selected:!bg-primary-600": true,
     "aria-selected:!text-white": true,
@@ -1829,7 +1377,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "w-[2.25em]": true,
     "text-neutral-700": true,
     "m-1.5": true,
-    rounded: true,
+    "rounded-xs": true,
     "font-medium": true,
     lowercase: true,
     "dark:text-neutral-500": true
@@ -1854,7 +1402,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "h-[2.25em]": true,
     "m-1": true,
     "p-2": true,
-    rounded: true,
+    "rounded-xs": true,
     "bg-neutral-200": true,
     "aria-selected:bg-primary-600": true,
     "aria-selected:text-white": true,
@@ -1882,7 +1430,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "dark:[color-scheme:dark]": true,
     "text-neutral-700": true,
     "border-neutral-300": true,
-    rounded: true,
+    "rounded-xs": true,
     "p-1.5": true,
     "my-2.5": true,
     "focus-visible:outline-primary-600": true,
@@ -1900,7 +1448,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "px-2.5": true,
     "py-0.5": true,
     "hover:bg-neutral-100": true,
-    rounded: true,
+    "rounded-xs": true,
     "col-start-1": true,
     "col-end-1": true,
     "focus-visible:outline-none": true,
@@ -1927,7 +1475,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "py-0.5": true,
     "border-2": true,
     "border-neutral-300": true,
-    rounded: true,
+    "rounded-xs": true,
     "mx-1": true,
     "hover:border-primary-600": true,
     "focus-visible:outline-none": true,
@@ -1946,7 +1494,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "py-0.5": true,
     "border-2": true,
     "border-neutral-300": true,
-    rounded: true,
+    "rounded-xs": true,
     "mx-1": true,
     "hover:border-primary-600": true,
     "focus-visible:outline-none": true,
@@ -1965,7 +1513,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "py-0.5": true,
     "border-2": true,
     "border-neutral-300": true,
-    rounded: true,
+    "rounded-xs": true,
     "mx-1": true,
     "hover:border-primary-600": true,
     "focus-visible:outline-none": true,
@@ -1980,7 +1528,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "ml-auto": true,
     "px-2.5": true,
     "py-0.5": true,
-    rounded: true,
+    "rounded-xs": true,
     "hover:bg-neutral-100": true,
     "hover:rounded": true,
     "col-start-3": true,
@@ -2080,7 +1628,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "items-center": true,
     "justify-center": true,
     "h-[1.5em]": true,
-    rounded: true,
+    "rounded-xs": true,
     "bg-neutral-400": true,
     "text-white": true,
     "whitespace-nowrap": true,
@@ -2105,72 +1653,6 @@ export const classes: Record<string, Record<string, boolean>> = {
     "group-data-[has-overlay]:selection:!text-transparent": true,
     "group-data-[has-overlay]:!caret-neutral-700": true,
     "dark:group-data-[has-overlay]:!caret-neutral-300": true
-  },
-  rating__inner: {
-    "text-neutral-300": true
-  },
-  rating__itemsWrapper: {
-    relative: true,
-    "inline-flex": true,
-    "focus:border-primary-600": true
-  },
-  rating__onItemRow: {
-    "h-full": true,
-    "w-full": true
-  },
-  rating__offItemRow: {
-    "h-full": true,
-    "w-full": true
-  },
-  rating__onItemWrapper: {
-    "[&>*]:w-full": true,
-    "[&>*]:h-full": true,
-    "w-full": true,
-    "h-full": true,
-    "text-yellow-400": true
-  },
-  rating__offItemWrapper: {
-    "text-neutral-400": true,
-    "w-full": true,
-    "h-full": true,
-    "[&>*]:w-full": true,
-    "[&>*]:h-full": true,
-    "dark:text-neutral-500": true
-  },
-  rating__ratingItem: {
-    relative: true,
-    "focus-within:outline": true,
-    "focus-within:outline-primary-600": true,
-    "w-[1.5em]": true,
-    "h-[1.5em]": true
-  },
-  rating__itemLabelInner: {
-    "h-px": true,
-    "w-px": true,
-    "overflow-hidden": true,
-    absolute: true,
-    "white-space-nowrap": true
-  },
-  rating__itemLabel: {
-    absolute: true,
-    "h-full": true
-  },
-  rating__ratingIcon: {
-    "w-[1.5em]": true,
-    "h-[1.5em]": true,
-    flex: true
-  },
-  rating__input: {
-    "appearance-none": true,
-    "[color-scheme:light]": true,
-    "dark:[color-scheme:dark]": true,
-    "selection:bg-primary-100": true,
-    "selection:text-neutral-700": true,
-    "group-data-[has-overlay]:selection:!text-transparent": true,
-    "outline-none": true
-  },
-  rating__messages: {
-    "mt-1.5": true
   },
   repeater__outer: {
     "min-w-0": true,
@@ -2226,7 +1708,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "selection:text-neutral-700": true,
     "group-data-[has-overlay]:selection:!text-transparent": true,
     "font-bold": true,
-    rounded: true,
+    "rounded-xs": true,
     "gap-3": true,
     "outline-none": true,
     flex: true,
@@ -2262,7 +1744,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "p-2": true,
     "[&>li]:aspect-[1/1]": true,
     "dark:bg-neutral-800": true,
-    rounded: true,
+    "rounded-xs": true,
     "rounded-tl-none": true,
     "rounded-bl-none": true
   },
@@ -2314,7 +1796,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "mb-2": true,
     border: true,
     "border-neutral-300": true,
-    rounded: true,
+    "rounded-xs": true,
     shadow: true,
     "dark:border-neutral-600": true,
     "dark:bg-transparent": true,
@@ -2492,7 +1974,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "text-xs": true,
     "leading-none": true,
     "whitespace-nowrap": true,
-    rounded: true,
+    "rounded-xs": true,
     "opacity-0": true,
     "pointer-events-none": true,
     "transition-opacity": true,
@@ -2792,7 +2274,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "h-[350px]": true,
     border: true,
     "border-neutral-300": true,
-    rounded: true,
+    "rounded-xs": true,
     "overflow-hidden": true,
     "select-none": true,
     "[&:has(:focus-visible)]:ring-1": true,
@@ -2896,7 +2378,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     "sm:my-auto": true,
     "mx-auto": true,
     "sm:mx-2": true,
-    rounded: true,
+    "rounded-xs": true,
     "overflow-clip": true,
     "shadow-none": true,
     "group-[]/repeater:shadow-none": true,
@@ -2943,7 +2425,7 @@ export const classes: Record<string, Record<string, boolean>> = {
     flex: true,
     border: true,
     "border-neutral-300": true,
-    rounded: true,
+    "rounded-xs": true,
     "items-center": true,
     "text-neutral-700": true,
     "selection:bg-primary-100": true,
@@ -3062,113 +2544,6 @@ export const classes: Record<string, Record<string, boolean>> = {
   transferlist__messages: {
     "mt-2": true
   },
-  barcode__barcodeIcon: {
-    "w-[1.5em]": true,
-    "text-neutral-700": true,
-    "cursor-pointer": true,
-    "dark:text-neutral-300": true
-  },
-  barcode__dialog: {
-    "border-none": true,
-    "outline-none": true,
-    "overflow-clip": true,
-    "p-0": true,
-    "bg-black": true,
-    rounded: true,
-    "w-[100%-2rem]": true,
-    "max-w-[30rem]": true,
-    "[&::backdrop]:bg-neutral-800/50": true
-  },
-  barcode__video: {
-    "w-full": true,
-    "aspect-[1/1]": true,
-    "object-cover": true,
-    block: true,
-    "pointer-events-none": true
-  },
-  barcode__closeIcon: {
-    "cursor-pointer": true,
-    absolute: true,
-    "bg-white": true,
-    "color-neutral-700": true,
-    "w-[1.5em]": true,
-    "h-[1.5em]": true,
-    rounded: true,
-    flex: true,
-    "top-2": true,
-    "right-2": true,
-    "z-20": true,
-    "[&>svg]:w-[1.25em]": true,
-    "[&>svg]:h-[1.25em]": true,
-    "[&>svg]:m-auto": true
-  },
-  barcode__overlay: {
-    "text-neutral-700": true,
-    "dark:text-neutral-300": true,
-    absolute: true,
-    "top-1/2": true,
-    "left-1/2": true,
-    "w-[min(20em,75%)]": true,
-    "aspect-[1/1]": true,
-    "-translate-x-1/2": true,
-    "-translate-y-1/2": true,
-    rounded: true,
-    "pointer-events-none": true,
-    "shadow-[0_0_0_999em_rgba(0,0,0,0.5)]": true
-  },
-  barcode__overlayDecorators: {
-    absolute: true,
-    "inset-0": true,
-    "z-10": true
-  },
-  barcode__overlayDecoratorTopLeft: {
-    absolute: true,
-    "w-[1.5rem]": true,
-    "h-[1.5rem]": true,
-    rounded: true,
-    "top-0": true,
-    "left-0": true,
-    "border-l-4": true,
-    "border-t-4": true,
-    "rounded-tr-none": true,
-    "rounded-bl-none": true
-  },
-  barcode__overlayDecoratorTopRight: {
-    absolute: true,
-    "w-[1.5rem]": true,
-    "h-[1.5rem]": true,
-    rounded: true,
-    "top-0": true,
-    "right-0": true,
-    "border-r-4": true,
-    "border-t-4": true,
-    "rounded-tl-none": true,
-    "rounded-br-none": true
-  },
-  barcode__overlayDecoratorBottomRight: {
-    absolute: true,
-    "w-[1.5rem]": true,
-    "h-[1.5rem]": true,
-    rounded: true,
-    "bottom-0": true,
-    "right-0": true,
-    "border-r-4": true,
-    "border-b-4": true,
-    "rounded-tr-none": true,
-    "rounded-bl-none": true
-  },
-  barcode__overlayDecoratorBottomLeft: {
-    absolute: true,
-    "w-[1.5rem]": true,
-    "h-[1.5rem]": true,
-    rounded: true,
-    "bottom-0": true,
-    "left-0": true,
-    "border-l-4": true,
-    "border-b-4": true,
-    "rounded-tl-none": true,
-    "rounded-br-none": true
-  },
   step__outer: {
     flex: true,
     "flex-col": true,
@@ -3191,18 +2566,15 @@ export const classes: Record<string, Record<string, boolean>> = {
     "px-6": true,
     "py-4": true
   },
-
   step__title: {
     "text-xl": true,
     "font-semibold": true,
     "mb-2": true
   },
-
   step__description: {
     "text-sm": true,
     "mb-4": true
   },
-
   /* ACTION BAR */
   step__actions: {
     flex: true,
@@ -3212,15 +2584,12 @@ export const classes: Record<string, Record<string, boolean>> = {
     "px-6": true,
     "py-4": true
   },
-
   step__stepPrevious: {
     "mr-1.5": true
   },
-
   step__stepNext: {
     "ml-auto": true
   },
-
   step__stepCancel: {
     "text-error": true
   }
