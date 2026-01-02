@@ -1,14 +1,13 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="Katmer Logo" width="400"/>
-  <h1>Katmer</h1>
-  <p><strong>Manage your infrastructure with ease</strong></p>
+  <img src="assets/logo.svg" alt="Katmer Logo" />
+  <h3><strong>Manage your infrastructure with ease</strong></h3>
 </div>
 
 ---
 
-## What is Katmer?
+## What is katmer?
 
-Katmer is a modular infrastructure management framework designed to simplify the deployment and configuration of software across diverse environments. Built with a plugin-based architecture, Katmer enables you to define, provision, and manage infrastructure through reusable modules that adapt to different platforms, architectures, and operating systems.
+katmer is a modular infrastructure management framework designed to simplify the deployment and configuration of software across diverse environments. Built with a plugin-based architecture, Katmer enables you to define, provision, and manage infrastructure through reusable modules that adapt to different platforms, architectures, and operating systems.
 
 ## Features
 

@@ -1,58 +1,36 @@
-<svg width="700" height="250" viewBox="0 0 700 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 24 320 72" fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <!-- Pistachio Surface -->
-        <linearGradient id="pistachio_top" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#92D14F" />
-            <stop offset="100%" stop-color="#609628" />
+        <linearGradient id="pistachio" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#92D14F"/>
+            <stop offset="100%" stop-color="#609628"/>
         </linearGradient>
-
-        <!-- Dough Layers -->
-        <linearGradient id="dough_layer" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#F2E3A1" />
-            <stop offset="100%" stop-color="#D4A34D" />
-        </linearGradient>
-
-        <!-- Hard-sided Cream Prisms -->
-        <linearGradient id="cream_top" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#FFFFFF" />
-            <stop offset="100%" stop-color="#F2F2F2" />
+        <linearGradient id="dough" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#F2E3A1"/>
+            <stop offset="100%" stop-color="#D4A34D"/>
         </linearGradient>
     </defs>
-
-    <!-- 7-Layer Architectural Stack -->
-    <!-- Bottom to Top -->
-    <path d="M40 185 L105 155 L170 185 L105 215 Z" fill="url(#dough_layer)" opacity="0.4" />
-    <path d="M40 177 L105 147 L170 177 L105 207 Z" fill="url(#dough_layer)" opacity="0.5" />
-    <path d="M40 169 L105 139 L170 169 L105 199 Z" fill="url(#dough_layer)" opacity="0.6" />
-    <path d="M40 161 L105 131 L170 161 L105 191 Z" fill="url(#dough_layer)" opacity="0.7" />
-    <path d="M40 153 L105 123 L170 153 L105 183 Z" fill="url(#dough_layer)" opacity="0.9" />
-    <path d="M40 145 L105 115 L170 145 L105 175 Z" fill="#7CB342" />
-    <!-- Top Layer (Pistachio) -->
-    <path d="M40 137 L105 107 L170 137 L105 167 Z" fill="url(#pistachio_top)" />
-
-    <!-- Hard-Sided Cream Blocks (Geometric Prisms) -->
-    <!-- Positioned to stay on top without overflowing -->
-
-    <!-- Back Cream Block -->
-    <g transform="translate(95, 115)">
-        <path d="M0 6 L10 0 L20 6 L10 12 Z" fill="white" />
-        <path d="M0 6 L10 12 L10 18 L0 12 Z" fill="#EBEBEB" />
-        <path d="M10 12 L20 6 L20 12 L10 18 Z" fill="#D9D9D9" />
+    <path d="M10 65 L50 48 L90 65 L50 82 Z" fill="url(#dough)" opacity="0.4"/>
+    <path d="M10 60 L50 43 L90 60 L50 77 Z" fill="url(#dough)" opacity="0.6"/>
+    <path d="M10 55 L50 38 L90 55 L50 72 Z" fill="url(#dough)" opacity="0.8"/>
+    <path d="M10 50 L50 33 L90 50 L50 67 Z" fill="url(#dough)"/>
+    <path d="M10 45 L50 28 L90 45 L50 62 Z" fill="url(#pistachio)"/>
+    <g transform="translate(44,31.5)">
+        <path d="M0 3 L6 0 L12 3 L6 6 Z" fill="#FFFFFF"/>
+        <path d="M0 3 L6 6 L6 11 L0 8 Z" fill="#F2F2F2"/>
+        <path d="M6 6 L12 3 L12 8 L6 11 Z" fill="#D9D9D9"/>
     </g>
-
-    <!-- Front Left Cream Block -->
-    <g transform="translate(75, 130)">
-        <path d="M0 6 L10 0 L20 6 L10 12 Z" fill="white" />
-        <path d="M0 6 L10 12 L10 18 L0 12 Z" fill="#EBEBEB" />
-        <path d="M10 12 L20 6 L20 12 L10 18 Z" fill="#D9D9D9" />
+    <g transform="translate(32,40.5)">
+        <path d="M0 3 L6 0 L12 3 L6 6 Z" fill="#FFFFFF"/>
+        <path d="M0 3 L6 6 L6 11 L0 8 Z" fill="#F2F2F2"/>
+        <path d="M6 6 L12 3 L12 8 L6 11 Z" fill="#D9D9D9"/>
     </g>
-
-    <!-- Front Right Cream Block -->
-    <g transform="translate(115, 130)">
-        <path d="M0 6 L10 0 L20 6 L10 12 Z" fill="white" />
-        <path d="M0 6 L10 12 L10 18 L0 12 Z" fill="#EBEBEB" />
-        <path d="M10 12 L20 6 L20 12 L10 18 Z" fill="#D9D9D9" />
+    <g transform="translate(56,40.5)">
+        <path d="M0 3 L6 0 L12 3 L6 6 Z" fill="#FFFFFF"/>
+        <path d="M0 3 L6 6 L6 11 L0 8 Z" fill="#F2F2F2"/>
+        <path d="M6 6 L12 3 L12 8 L6 11 Z" fill="#D9D9D9"/>
     </g>
-
-    <text x="200" y="200" fill="#213310" style="font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; font-weight: 500; font-size: 100px; letter-spacing: -4px;">katmer</text>
+    <text x="100" y="80" fill="#213310"
+          style="font-family:Inter,'Segoe UI',Roboto,sans-serif;font-weight:500;font-size:70px;letter-spacing:-4px">
+        katmer
+    </text>
 </svg>
