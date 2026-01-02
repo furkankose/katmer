@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="Katmer Logo" />
+  <img src="assets/logo.svg" alt="Katmer Logo" style="margin-top: 24px;" />
   <h3><strong>Manage your infrastructure with ease</strong></h3>
 </div>
 
