@@ -3,14 +3,11 @@ import process from "node:process"
 import { Command } from "commander"
 
 import type { CliMode, CliRuntimeOptions, LogLevel, LogTarget } from "@type/cli"
-import type { InstallerConfig } from "@type/installer"
 
 import { start_cli_runner } from "../server/runner/cli_runner"
 import { start_web_runner } from "../server/runner/web_runner"
 
-import { useConfig } from "@common/useConfig"
-
-const installer_config = useConfig()
+import $CFG from "../config"
 
 const program = new Command()
 
@@ -20,7 +17,7 @@ try {
   program
     .name("katmer-installer")
     .description("Katmer installer")
-    .version(installer_config.version ?? "0.0.0")
+    .version($CFG.version ?? "0.0.0")
 
   program
     .option(
@@ -96,7 +93,7 @@ try {
   }
 
   await (runtime_opts.mode === "cli" ? start_cli_runner : start_web_runner)(
-    installer_config,
+    $CFG,
     runtime_opts
   )
 } catch (err) {

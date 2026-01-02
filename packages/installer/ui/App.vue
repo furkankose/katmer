@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, toValue, useTemplateRef, watch } from "vue"
 import { useInstaller } from "@/composables/useInstaller"
-import { useConfig } from "@common/useConfig"
 import type { InteractionRequest } from "@common/installer_engine.types"
 import Card from "@/components/ui/Card.vue"
 import { useI18n } from "vue-i18n"
 import Configuration from "@/components/Configuration.vue"
 
 const { t } = useI18n()
-const config = useConfig()
 
 const {
   snapshot,

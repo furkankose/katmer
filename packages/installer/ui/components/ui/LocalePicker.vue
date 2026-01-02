@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n"
 import { FormKitIcon } from "@formkit/vue"
-import { useConfig } from "@common/useConfig"
+import config from "@app/config"
 
 const i18n = useI18n()
-const config = useConfig()
 const availableLocales = (config.i18n?.locales ||
   i18n.availableLocales ||
   []) as (string | Record<string, any>)[]
@@ -26,7 +25,6 @@ function handleLocaleChange(value) {
       control: '$reset flex hover:border-primary rounded-full'
     }"
     validation="required"
-    @input="handleLocaleChange"
     :options="
       availableLocales.map((locale) =>
         typeof locale === 'string' ?
@@ -40,14 +38,14 @@ function handleLocaleChange(value) {
     variant="primary"
     size="md"
     :full-width="false"
+    @input="handleLocaleChange"
   >
     <template #activator="activatorProps">
       <FormKitIcon
         icon="i-ph-globe-stand-duotone"
         v-bind="activatorProps"
         class="w-5 h-5 block"
-      >
-      </FormKitIcon>
+      />
     </template>
   </FormKit>
 </template>

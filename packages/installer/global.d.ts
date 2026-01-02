@@ -20,4 +20,11 @@ declare module "*.vue" {
   export default Vue
 }
 
+declare module "@app/config" {
+  import type { InstallerConfig } from "@type/installer"
+
+  const config: InstallerConfig
+  export default config
+}
+
 type States = "init" | "check" | "configure" | "install" | "verify" | "done"

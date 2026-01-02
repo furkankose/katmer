@@ -1,5 +1,6 @@
-import { FormKitInputs } from "@formkit/inputs"
-import { FormKitNodeType } from "@formkit/core"
+import type { FormKitInputs } from "@formkit/inputs"
+import type { FormKitNodeType } from "@formkit/core"
+import type { InstallerConfig } from "@type/installer"
 
 declare module "vue" {
   export interface ComponentCustomProperties {
@@ -36,6 +37,11 @@ declare module "@formkit/inputs" {
 declare module "*.vue" {
   import Vue from "vue"
   export default Vue
+}
+
+declare module "@app/config" {
+  const config: InstallerConfig
+  export default config
 }
 
 export {}

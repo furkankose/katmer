@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import Button from "../ui/Button.vue"
 import { useInstaller } from "@/composables/useInstaller"
-import { useConfig } from "@common/useConfig"
+import config from "@app/config"
+
 import { computed, ref, watch } from "vue"
 
 const currentTheme = ref(document.documentElement.dataset.theme || "light")
@@ -12,8 +13,6 @@ watch(currentTheme, (v) => {
 const emits = defineEmits(["logoClick"])
 
 const { connectionStatus: status } = useInstaller()
-
-const config = useConfig()
 </script>
 
 <template>

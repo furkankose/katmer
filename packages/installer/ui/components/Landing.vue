@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import { useConfig } from "@common/useConfig"
+import config from "@app/config"
+
 import { useI18n } from "vue-i18n"
 import { useInstaller } from "@/composables/useInstaller"
 import Card from "@/components/ui/Card.vue"
-
-const config = useConfig()
 
 const { t } = useI18n()
 const { isConnected, isConnecting, start } = useInstaller()

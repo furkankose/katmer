@@ -11,14 +11,13 @@ import {
 import { FormKit, useFormKitContext } from "@formkit/vue"
 import FormStep from "@/components/ui/FormStep.vue"
 import { deepMerge } from "@/utils/object.utils"
-import { useConfig } from "@common/useConfig"
+import config from "@app/config"
 import { useI18n } from "vue-i18n"
 import { useInstaller } from "@/composables/useInstaller"
 import { createMessage, type FormKitNode } from "@formkit/core"
 import { isEmpty } from "es-toolkit/compat"
 
 const { t } = useI18n()
-const config = useConfig()
 
 const { snapshot, provideFormInput, pendingInteraction, status } =
   useInstaller()
