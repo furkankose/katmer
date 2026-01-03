@@ -3,7 +3,6 @@
   <h2><strong>Manage your infrastructure with ease</strong></h2>
 </div>
 
----
 
 ## What is katmer?
 
@@ -18,5 +17,3 @@ katmer is a modular infrastructure management framework designed to simplify the
 - **Remote Management**: Built-in SSH and remote execution capabilities
 - **Extensible**: Plugin system for custom functionality
 
-
----
