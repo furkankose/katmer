@@ -21,6 +21,7 @@ export default defineConfig({
         "./src/styles/global.css"
       ],
       components: {
+        SiteTitle: "./src/components/SiteTitle.astro",
         MarkdownContent: "./src/components/MarkdownContent.astro"
       },
       title: "katmer",
@@ -28,7 +29,7 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/withastro/starlight"
+          href: "https://github.com/katmer-io/katmer"
         }
       ],
       sidebar: [

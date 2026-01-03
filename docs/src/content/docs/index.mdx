@@ -1,36 +1,43 @@
 ---
-title: Katmer
-description: Get started building your docs site with Starlight.
+title: katmer
+description: Manage your infrastructure with ease using a modular, type-safe framework.
 template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  tagline: Modular infrastructure management framework designed to simplify deployment and configuration
   image:
-    file: ../../assets/houston.webp
+    file: ../../assets/logo.svg
   actions:
     - text: Get Started
       link: /katmer/getting-started
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
+    - text: View Modules
+      link: /katmer/modules/apt
+      icon: open-book
       variant: minimal
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components"
 
-## Next steps
+## Features
 
 <CardGrid stagger>
-  <Card title="Update content" icon="pencil">
-    Edit `src/content/docs/index.mdx` to see this page change.
+  <Card title="Modular Design" icon="puzzle">
+    Compose infrastructure from reusable, versioned modules that adapt to your
+    needs.
   </Card>
-  <Card title="Add new content" icon="add-document">
-    Add Markdown or MDX files to `src/content/docs` to create new pages.
+  <Card title="Multi-Platform" icon="rocket">
+    Support for various operating systems and architectures out of the box.
   </Card>
-  <Card title="Configure your site" icon="setting">
-    Edit your `sidebar` and other config in `astro.config.mjs`.
+  <Card title="Type-Safe Configuration" icon="approve-check">
+    Strong typing with runtime validation ensures configuration correctness.
   </Card>
-  <Card title="Read the docs" icon="open-book">
-    Learn more in [the Starlight Docs](https://starlight.astro.build/).
+  <Card title="Beautiful UI" icon="star">
+    Auto-generated installation UI from configuration schemas.
+  </Card>
+  <Card title="Remote Management" icon="laptop">
+    Built-in SSH and remote execution capabilities for managing infrastructure.
+  </Card>
+  <Card title="Extensible" icon="add-document">
+    Plugin system allows you to create custom functionality and modules.
   </Card>
 </CardGrid>
