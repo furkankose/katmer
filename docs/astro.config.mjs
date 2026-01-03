@@ -6,8 +6,14 @@ import markdoc from "@astrojs/markdoc"
 
 import tailwindcss from "@tailwindcss/vite"
 
-// https://astro.build/config
+const isProd = process.env.NODE_ENV === "production"
 export default defineConfig({
+  ...(isProd ?
+    {
+      site: "https://katmer-io.github.io",
+      base: "/katmer"
+    }
+  : {}),
   integrations: [
     starlight({
       customCss: [
