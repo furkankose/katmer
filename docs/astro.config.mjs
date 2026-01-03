@@ -10,10 +10,10 @@ const isProd = process.env.NODE_ENV === "production"
 export default defineConfig({
   ...(isProd ?
     {
-      site: "https://katmer-io.github.io",
-      base: "/katmer"
+      site: "https://katmer-io.github.io"
     }
   : {}),
+  base: "/katmer",
   integrations: [
     starlight({
       customCss: [
