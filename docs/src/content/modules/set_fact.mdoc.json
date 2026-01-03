@@ -1,0 +1,116 @@
+{
+  "name": "set_fact",
+  "constraints": {
+    "platform": {
+      "any": true
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/set_fact.module.ts",
+  "description": "Compute and set variables (facts) on the task context.",
+  "remarks": "- Values are merged into `ctx.variables`.\n- `changed` is true when a value is added or changed.\n- When `render=true`, string values that contain `{{ ... }}` are evaluated via `evalExpr`\n  with `ctx.variables` as scope. Set `deep=true` to render nested strings as well.",
+  "parameters": [
+    {
+      "name": "SetFactModuleOptions",
+      "type": "SetFactModuleOptions",
+      "optional": false,
+      "description": "Options for the set_fact module.\n\nYou can pass either:\n- a plain object of key/value pairs, or\n- `{ vars, render, deep }` for more control\n\nWhen `render` is true, string values that contain templates like `{{ ... }}` are\nevaluated using the current `ctx.variables` scope. When `deep` is true, objects\nand arrays are traversed and any string leaves are evaluated similarly.",
+      "union": {
+        "alias": "",
+        "branches": [
+          {
+            "label": "object",
+            "fields": [
+              {
+                "name": "vars",
+                "type": "object",
+                "optional": false,
+                "description": "Key/value pairs to set on `ctx.variables`."
+              },
+              {
+                "name": "render",
+                "type": "boolean",
+                "optional": true,
+                "description": "Evaluate string templates with `evalExpr`.\nOnly strings that look like templates are evaluated."
+              },
+              {
+                "name": "deep",
+                "type": "boolean",
+                "optional": true,
+                "description": "Recursively render nested objects/arrays.\nOnly impacts rendering when `render=true`."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "examples": "\n- name: compute derived paths and flags\n  set_fact:\n    vars:\n      app_dir: /opt/myapp\n      release: \"2025-01-01\"\n      release_dir: \"{{ app_dir }}/releases/{{ release }}\"\n      is_prod: \"{{ env == 'prod' }}\"\n      nested:\n        a: \"value\"\n        b: \"{{ app_dir }}/current\"\n    render: true\n    deep: true\n\n- name: shorthand object (equivalent to vars: {...})\n  set_fact:\n    BUILD_ID: \"42\"\n    url: \"https://example.com/{{ BUILD_ID }}\"\n    # with render=true (default), url becomes \"https://example.com/42\"\n",
+  "returns": [
+    {
+      "name": "facts",
+      "type": "object",
+      "optional": false,
+      "description": "The facts that were set (post-render)."
+    },
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether this module changed anything on the target."
+    },
+    {
+      "name": "failed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the module failed (non-zero exit code, validation failure, etc.)."
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "optional": true,
+      "description": "Human-readable message describing the outcome or error."
+    },
+    {
+      "name": "stdout",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard output, if available."
+    },
+    {
+      "name": "stderr",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard error, if available."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution started (best-effort)."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution ended (best-effort)."
+    },
+    {
+      "name": "delta",
+      "type": "string",
+      "optional": true,
+      "description": "Duration string, e.g., \"0:00:00.123\" (best-effort)."
+    },
+    {
+      "name": "attempts",
+      "type": "number",
+      "optional": true,
+      "description": "Number of attempts performed so far (e.g., by `until`).\nTypically increments from 1 upwards."
+    },
+    {
+      "name": "retries",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum retries allowed for this operation (e.g., by `until`).\nThis reflects the configured ceiling, not the attempts taken."
+    }
+  ]
+}

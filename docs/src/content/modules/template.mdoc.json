@@ -1,0 +1,154 @@
+{
+  "name": "template",
+  "constraints": {
+    "platform": {
+      "any": true
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/template.module.ts",
+  "description": "Render a Twig template locally and deploy the result to a file (remote for SSH, local for Local).",
+  "remarks": "- Renders with the merged context of `ctx.variables` + per-call `variables`.\n- If [diff_check](#parameter-diff_check) is `true` (default), content is compared to avoid needless writes.\n- On **SSH**:\n  - Ensures parent directory via shell (`mkdir -p`).\n  - Writes through a temporary file and installs atomically (`install -m … -D` or `mv` fallback).\n  - Applies `chmod`/`chown` when requested.\n- On **Local**:\n  - Uses pure Node.js (`fs.mkdir`, `fs.readFile`, `fs.writeFile`, `fs.rename`, `fs.chmod`, `fs.chown`).\n  - `owner`/`group` must be numeric (`uid`/`gid`).",
+  "parameters": [
+    {
+      "name": "content",
+      "type": "string",
+      "optional": true,
+      "description": "Inline template string (Twig syntax supported).\nOne of [content](#parameter-content) or [src](#parameter-src) is required."
+    },
+    {
+      "name": "src",
+      "type": "string",
+      "optional": true,
+      "description": "Local file path to read the template from (Twig syntax supported).\nOne of [src](#parameter-src) or [content](#parameter-content) is required."
+    },
+    {
+      "name": "dest",
+      "type": "string",
+      "optional": false,
+      "description": "Destination path to write the rendered output into.\n- **SSH**: remote absolute path on the target host.\n- **Local**: local filesystem path."
+    },
+    {
+      "name": "variables",
+      "type": "object",
+      "optional": true,
+      "description": "Extra variables merged **on top of** `ctx.variables` for this render only.\nTask/target variables remain intact; these act as per-render overrides."
+    },
+    {
+      "name": "mode",
+      "type": "string | number",
+      "optional": true,
+      "description": "File permissions to apply on `dest`.\nAccepts octal number (e.g., `0o644`) or string (e.g., `\"0644\"`)."
+    },
+    {
+      "name": "owner",
+      "type": "string",
+      "optional": true,
+      "description": "File owner to apply on `dest`.\n- **SSH**: accepts a username (e.g., `\"root\"`).\n- **Local**: must be **numeric uid**; otherwise the chown attempt is skipped and a warning is logged."
+    },
+    {
+      "name": "group",
+      "type": "string",
+      "optional": true,
+      "description": "File group to apply on `dest`.\n- **SSH**: accepts a group name (e.g., `\"www-data\"`).\n- **Local**: must be **numeric gid**; otherwise the chown attempt is skipped and a warning is logged."
+    },
+    {
+      "name": "dry_run",
+      "type": "boolean",
+      "optional": true,
+      "description": "If `true`, do not write anything; returns the rendered content in [stdout](#return-stdout)."
+    },
+    {
+      "name": "diff_check",
+      "type": "boolean",
+      "optional": true,
+      "description": "If `true`, compares the existing file content with the newly rendered result.\nWhen identical, the module returns `changed=false` without writing."
+    }
+  ],
+  "examples": "\n- name: Render inline text template\n  template:\n    content: |\n      server_name {{ domain }};\n      listen {{ port }};\n    dest: \"/etc/myapp/config.conf\"\n    mode: \"0644\"\n    owner: \"root\"\n    group: \"root\"\n    variables:\n      domain: \"example.com\"\n      port: 8080\n\n- name: Read template from local file\n  template:\n    src: \"./_source/metadata.yaml.twig\"\n    dest: \"/etc/myapp/metadata.yaml\"\n    variables:\n      app: \"demo\"\n\n- name: Dry run (only preview rendered content)\n  template:\n    src: \"./_source/site.conf.twig\"\n    dest: \"/etc/nginx/sites-available/site.conf\"\n    dry_run: true\n\n\n",
+  "returns": [
+    {
+      "name": "dest",
+      "type": "string",
+      "optional": true,
+      "description": "Destination path that was written (or examined)."
+    },
+    {
+      "name": "mode",
+      "type": "string",
+      "optional": true,
+      "description": "File mode applied to `dest` (octal string, e.g. `\"0644\"`)."
+    },
+    {
+      "name": "owner",
+      "type": "string",
+      "optional": true,
+      "description": "File owner applied to `dest`."
+    },
+    {
+      "name": "group",
+      "type": "string",
+      "optional": true,
+      "description": "File group applied to `dest`."
+    },
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether this module changed anything on the target."
+    },
+    {
+      "name": "failed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the module failed (non-zero exit code, validation failure, etc.)."
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "optional": true,
+      "description": "Human-readable message describing the outcome or error."
+    },
+    {
+      "name": "stdout",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard output, if available."
+    },
+    {
+      "name": "stderr",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard error, if available."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution started (best-effort)."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution ended (best-effort)."
+    },
+    {
+      "name": "delta",
+      "type": "string",
+      "optional": true,
+      "description": "Duration string, e.g., \"0:00:00.123\" (best-effort)."
+    },
+    {
+      "name": "attempts",
+      "type": "number",
+      "optional": true,
+      "description": "Number of attempts performed so far (e.g., by `until`).\nTypically increments from 1 upwards."
+    },
+    {
+      "name": "retries",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum retries allowed for this operation (e.g., by `until`).\nThis reflects the configured ceiling, not the attempts taken."
+    }
+  ]
+}

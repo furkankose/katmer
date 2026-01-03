@@ -1,0 +1,124 @@
+{
+  "name": "debug",
+  "constraints": {
+    "platform": {
+      "any": true
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/debug.module.ts",
+  "description": "Print messages and/or variable values for troubleshooting.",
+  "remarks": "- Accepts either a **string shorthand** (printed as a message) or a **full options object**.\n- `msg` entries support template expressions rendered against `ctx.variables` (via `evalExpr`).\n- When `var` is provided, values are looked up from `ctx.variables` using dot-paths (e.g. `\"app.version\"`).\n- If nothing is provided, prints a default `\"ok\"` line.",
+  "parameters": [
+    {
+      "name": "msg",
+      "type": "string | string[]",
+      "optional": false,
+      "description": "Text to print. Accepts a single string or an array of strings.\nEntries support expression syntax."
+    },
+    {
+      "name": "var",
+      "type": "string | string[]",
+      "optional": true,
+      "description": "Variable name or list of names to print from variables.\nDot-paths are supported, e.g. `\"app.version\"`."
+    },
+    {
+      "name": "vars",
+      "type": "object",
+      "optional": true,
+      "description": "Inline values to include in the output. Printed as JSON (pretty by default)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "description": "Optional header line prepended to the output."
+    },
+    {
+      "name": "pretty",
+      "type": "boolean",
+      "optional": true,
+      "description": "Pretty-print JSON output for objects/maps."
+    },
+    {
+      "name": "level",
+      "type": "\"fatal\" | \"error\" | \"warn\" | \"info\" | \"debug\" | \"trace\"",
+      "optional": true,
+      "description": "Log level."
+    },
+    {
+      "name": "quiet",
+      "type": "boolean",
+      "optional": true,
+      "description": "If `true`, do not log—only return the output."
+    },
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Force the returned `changed` flag in the result."
+    }
+  ],
+  "examples": "\n# String shorthand\n- name: quick debug\n  debug: \"Hello from Katmer 🎉\"\n\n# Multiple messages with expression evaluation\n- name: deployment banner\n  debug:\n    msg:\n      - \"deploying {{ app.name }}\"\n      - \"version {{ app.version }}\"\n\n# Show specific variables (dot-paths allowed)\n- name: print variables\n  debug:\n    label: \"context\"\n    var:\n      - \"app.name\"\n      - \"env.stage\"\n\n# Inline values and compact output\n- name: inline map (no pretty)\n  debug:\n    pretty: false\n    vars:\n      region: \"eu-east\"\n      replicas: 3\n\n# Quiet mode (no logger output, result only)\n- name: return only (no logs)\n  debug:\n    msg: \"this is silent\"\n    quiet: true\n",
+  "returns": [
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether this module changed anything on the target."
+    },
+    {
+      "name": "failed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the module failed (non-zero exit code, validation failure, etc.)."
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "optional": true,
+      "description": "Human-readable message describing the outcome or error."
+    },
+    {
+      "name": "stdout",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard output, if available."
+    },
+    {
+      "name": "stderr",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard error, if available."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution started (best-effort)."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution ended (best-effort)."
+    },
+    {
+      "name": "delta",
+      "type": "string",
+      "optional": true,
+      "description": "Duration string, e.g., \"0:00:00.123\" (best-effort)."
+    },
+    {
+      "name": "attempts",
+      "type": "number",
+      "optional": true,
+      "description": "Number of attempts performed so far (e.g., by `until`).\nTypically increments from 1 upwards."
+    },
+    {
+      "name": "retries",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum retries allowed for this operation (e.g., by `until`).\nThis reflects the configured ceiling, not the attempts taken."
+    }
+  ]
+}

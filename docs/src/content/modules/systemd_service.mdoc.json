@@ -1,0 +1,164 @@
+{
+  "name": "systemd_service",
+  "constraints": {
+    "platform": {
+      "linux": {
+        "requireRoot": true,
+        "binaries": [
+          {
+            "cmd": "systemctl",
+            "args": ["--version"],
+            "versionRegex": "/systemd\\s+(\\d+)/",
+            "range": ">=219"
+          }
+        ],
+        "packages": ["systemd@>=219"],
+        "distro": {
+          "alpine": false
+        }
+      }
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/systemd_service.module.ts",
+  "description": "Manage systemd units (start/stop/restart/reload/enable/disable/mask/unmask/daemon-reload).",
+  "remarks": "- Requires systemd on the target (systemctl must be available).\n- Operations are idempotent where feasible by checking current unit state.",
+  "parameters": [
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "description": "Unit name, e.g., \"nginx.service\" (\".service\" suffix optional)."
+    },
+    {
+      "name": "state",
+      "type": "\"started\" | \"stopped\" | \"restarted\" | \"reloaded\" | \"paused\" | \"unpaused\"",
+      "optional": true,
+      "description": "Desired unit state."
+    },
+    {
+      "name": "enabled",
+      "type": "boolean",
+      "optional": true,
+      "description": "Enable or disable unit at boot."
+    },
+    {
+      "name": "masked",
+      "type": "boolean",
+      "optional": true,
+      "description": "Mask or unmask the unit."
+    },
+    {
+      "name": "daemon_reload",
+      "type": "boolean",
+      "optional": true,
+      "description": "Run `systemctl daemon-reload` before actions."
+    },
+    {
+      "name": "scope",
+      "type": "\"system\" | \"user\"",
+      "optional": true,
+      "description": "Target scope (system/user). Default: system."
+    },
+    {
+      "name": "no_block",
+      "type": "boolean",
+      "optional": true,
+      "description": "Use --no-block for start/stop/restart/reload/enable/disable/mask/unmask."
+    }
+  ],
+  "examples": "\n- name: Start and enable a service\n  systemd_service:\n    name: nginx\n    state: started\n    enabled: true\n\n- name: Restart with daemon-reload\n  systemd_service:\n    name: myapp.service\n    daemon_reload: true\n    state: restarted\n\n- name: Stop and disable a timer\n  systemd_service:\n    name: myjob.timer\n    state: stopped\n    enabled: false\n",
+  "returns": [
+    {
+      "name": "status",
+      "type": "object",
+      "optional": false,
+      "children": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "enabled",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "masked",
+          "type": "boolean",
+          "optional": false
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "optional": false
+        }
+      ]
+    },
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether this module changed anything on the target."
+    },
+    {
+      "name": "failed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the module failed (non-zero exit code, validation failure, etc.)."
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "optional": true,
+      "description": "Human-readable message describing the outcome or error."
+    },
+    {
+      "name": "stdout",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard output, if available."
+    },
+    {
+      "name": "stderr",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard error, if available."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution started (best-effort)."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution ended (best-effort)."
+    },
+    {
+      "name": "delta",
+      "type": "string",
+      "optional": true,
+      "description": "Duration string, e.g., \"0:00:00.123\" (best-effort)."
+    },
+    {
+      "name": "attempts",
+      "type": "number",
+      "optional": true,
+      "description": "Number of attempts performed so far (e.g., by `until`).\nTypically increments from 1 upwards."
+    },
+    {
+      "name": "retries",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum retries allowed for this operation (e.g., by `until`).\nThis reflects the configured ceiling, not the attempts taken."
+    }
+  ]
+}

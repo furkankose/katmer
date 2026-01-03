@@ -1,0 +1,166 @@
+{
+  "name": "copy",
+  "constraints": {
+    "platform": {
+      "any": true
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/copy.module.ts",
+  "description": "Copy files or inline content to a destination, with idempotency, optional validation,\nand metadata management (mode/owner/group).",
+  "remarks": "**Behavior by provider**\n- **SSH**:\n  - Ensures parent directory with `mkdir -p` when `parents: true`.\n  - Stages to a remote temp file (upload or `cp` for remote_src), validates, then moves into place atomically.\n  - Applies `chmod`/`chown` via shell when requested.\n  - Computes SHA-256 using `sha256sum`/`shasum -a 256` if available.\n- **Local**:\n  - Uses pure Node.js (`fs.ensureDir`, `fs.move`, `fs.chmod`, `fs.chown`).\n  - Owner/group resolution reads `/etc/passwd` and `/etc/group` (POSIX).\n  - Computes SHA-256 by streaming the file via Node crypto.\n\n**Idempotency**\n- When `force: false` (default), compares the incoming staged file hash with the current `dest` hash.\n  If equal, the write is skipped and `changed=false`.\n\n**Validation**\n- If [`validate`](#parameter-validate) is defined, the command runs against the staged file.\n  Only a zero exit code allows the replacement to proceed.",
+  "parameters": [
+    {
+      "name": "src",
+      "type": "string",
+      "optional": true,
+      "description": "Source path.\n- **SSH** (default): controller → remote upload (uses NodeSSH).\n- **SSH + `remote_src: true`**: remote → remote via shell (`cp`).\n- **Local**: local → local."
+    },
+    {
+      "name": "content",
+      "type": "string | object",
+      "optional": true,
+      "description": "Inline content to write (templated).\nIf a `string`, it is rendered using Twig; if a `Uint8Array`, it is written raw.\nMutually exclusive with [`src`](#parameter-src)."
+    },
+    {
+      "name": "dest",
+      "type": "string",
+      "optional": false,
+      "description": "Destination path (absolute recommended).\n- **SSH**: path on the target host.\n- **Local**: local filesystem path."
+    },
+    {
+      "name": "parents",
+      "type": "boolean",
+      "optional": true,
+      "description": "Ensure parent directories exist before writing.\n- **SSH**: `mkdir -p`\n- **Local**: `fs.ensureDir`"
+    },
+    {
+      "name": "remote_src",
+      "type": "boolean",
+      "optional": true,
+      "description": "Treat [`src`](#parameter-src) as a **remote** path and perform remote→remote copy.\nOnly valid for **SSH** provider."
+    },
+    {
+      "name": "force",
+      "type": "boolean",
+      "optional": true,
+      "description": "If `true`, overwrite even when content is identical (still creates backup if requested).\nWhen `false`, the module is idempotent and avoids rewriting unchanged files."
+    },
+    {
+      "name": "backup",
+      "type": "boolean",
+      "optional": true,
+      "description": "When `true`, saves a timestamped backup of the existing `dest` before overwrite.\nThe resulting path is returned in [`backup_file`](#return-backup_file)."
+    },
+    {
+      "name": "validate",
+      "type": "string",
+      "optional": true,
+      "description": "Validate the **staged temporary file** before placing it.\nThe command is executed against the staged file:\n- If the template contains `%s`, it is replaced with the temp filename.\n- Otherwise the temp filename is appended as the last argument.\n\nOnly after a **zero exit code** will the temp file be moved to `dest`."
+    },
+    {
+      "name": "mode",
+      "type": "string | number",
+      "optional": true,
+      "description": "File mode for `dest`. Accepts octal `string` (e.g. `\"0644\"`) or number (e.g. `0o644`).\n- **SSH**: applied via `chmod`.\n- **Local**: applied via `fs.chmod`."
+    },
+    {
+      "name": "owner",
+      "type": "string",
+      "optional": true,
+      "description": "File owner for `dest` (`chown owner[:group]`).\n- **SSH**: may be a name (e.g. `\"root\"`).\n- **Local**: POSIX only; names are resolved via `/etc/passwd`, otherwise numeric `uid` is expected."
+    },
+    {
+      "name": "group",
+      "type": "string",
+      "optional": true,
+      "description": "File group for `dest` (`chown :group`).\n- **SSH**: may be a name (e.g. `\"www-data\"`).\n- **Local**: POSIX only; names are resolved via `/etc/group`, otherwise numeric `gid` is expected."
+    }
+  ],
+  "examples": "\n- name: Copy a local file to remote, idempotent, set permissions\n  copy:\n    src: ./conf/app.conf\n    dest: /etc/myapp/app.conf\n    mode: \"0644\"\n    owner: root\n    group: root\n\n- name: Render robots.txt\n  copy:\n    content: |\n      User-agent: *\n      Disallow: {{ disallow ? '/' : '' }}\n    dest: /var/www/robots.txt\n\n- name: Copy generated file on remote host\n  copy:\n    src: /tmp/generated.cfg\n    dest: /etc/myapp/generated.cfg\n    remote_src: true\n\n\n",
+  "returns": [
+    {
+      "name": "dest",
+      "type": "string",
+      "optional": false,
+      "description": "Destination path written/examined."
+    },
+    {
+      "name": "checksum",
+      "type": "string",
+      "optional": true,
+      "description": "SHA-256 hex digest of the final file, when determinable."
+    },
+    {
+      "name": "backup_file",
+      "type": "string",
+      "optional": true,
+      "description": "Backup file path when `backup: true` and an overwrite occurred."
+    },
+    {
+      "name": "validated",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the `validate` command was executed and passed."
+    },
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether this module changed anything on the target."
+    },
+    {
+      "name": "failed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the module failed (non-zero exit code, validation failure, etc.)."
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "optional": true,
+      "description": "Human-readable message describing the outcome or error."
+    },
+    {
+      "name": "stdout",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard output, if available."
+    },
+    {
+      "name": "stderr",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard error, if available."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution started (best-effort)."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution ended (best-effort)."
+    },
+    {
+      "name": "delta",
+      "type": "string",
+      "optional": true,
+      "description": "Duration string, e.g., \"0:00:00.123\" (best-effort)."
+    },
+    {
+      "name": "attempts",
+      "type": "number",
+      "optional": true,
+      "description": "Number of attempts performed so far (e.g., by `until`).\nTypically increments from 1 upwards."
+    },
+    {
+      "name": "retries",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum retries allowed for this operation (e.g., by `until`).\nThis reflects the configured ceiling, not the attempts taken."
+    }
+  ]
+}

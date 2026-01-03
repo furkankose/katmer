@@ -1,0 +1,23 @@
+{
+  "name": "katmer-docs",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/markdoc": "^0.15.10",
+    "@astrojs/starlight": "^0.37.1",
+    "@astrojs/starlight-markdoc": "^0.5.1",
+    "@astrojs/starlight-tailwind": "^4.0.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.16.6",
+    "gray-matter": "^4.0.3",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4.1.18"
+  }
+}

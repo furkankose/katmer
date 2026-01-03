@@ -1,0 +1,222 @@
+{
+  "name": "cron",
+  "constraints": {
+    "platform": {
+      "linux": {
+        "binaries": [
+          {
+            "cmd": "sh"
+          }
+        ],
+        "packages": [
+          {
+            "name": "cron",
+            "range": ">=3.0",
+            "alternatives": [
+              {
+                "name": "cronie",
+                "range": ">=1.5"
+              },
+              {
+                "name": "dcron",
+                "range": ">=4.5"
+              }
+            ]
+          }
+        ],
+        "distro": {
+          "alpine": {
+            "packages": [
+              {
+                "name": "dcron",
+                "range": ">=4.5"
+              }
+            ]
+          },
+          "arch": {
+            "packages": [
+              {
+                "name": "cronie",
+                "range": ">=1.6"
+              }
+            ]
+          }
+        }
+      },
+      "darwin": {
+        "binaries": [
+          {
+            "cmd": "crontab"
+          }
+        ]
+      },
+      "windows": {
+        "binaries": [
+          {
+            "cmd": "powershell",
+            "versionRegex": "/([\\d.]+)/",
+            "range": ">=5.1"
+          }
+        ]
+      }
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/cron.module.ts",
+  "description": "Manage scheduled jobs cross-platform.",
+  "remarks": "- **POSIX (Linux/macOS/BSD)**: edits the per-user crontab using `crontab -l/-`.\n- **Windows**: manages a Scheduled Task using `schtasks`.\n- Idempotent by tracking named blocks (`# KATMER_CRON_START:<name>` / `# KATMER_CRON_END:<name>`) on POSIX.\n- Supports adding/updating/removing a single job (by `name`) or clearing all jobs with `state: \"absent\"` and no `name` (dangerous).",
+  "parameters": [
+    {
+      "name": "name",
+      "type": "string",
+      "optional": true,
+      "description": "Unique job identifier.\n- POSIX: used to mark/update the block in crontab.\n- Windows: used as the Scheduled Task name."
+    },
+    {
+      "name": "job",
+      "type": "string",
+      "optional": true,
+      "description": "Command to execute.\n- Required when `state: \"present\"`."
+    },
+    {
+      "name": "user",
+      "type": "string",
+      "optional": true,
+      "description": "Target user whose crontab/task is managed.\n- POSIX: affects which user's crontab is edited (via `sudo -u`).\n- Windows: used as `/RU` when provided."
+    },
+    {
+      "name": "state",
+      "type": "\"present\" | \"absent\"",
+      "optional": true,
+      "description": "Desired presence."
+    },
+    {
+      "name": "special_time",
+      "type": "\"reboot\" | \"yearly\" | \"annually\" | \"monthly\" | \"weekly\" | \"daily\" | \"hourly\"",
+      "optional": true,
+      "description": "One of: `yearly`, `annually`, `monthly`, `weekly`, `daily`, `hourly`, `reboot`.\nMutually exclusive with `minute/hour/day/month/weekday`."
+    },
+    {
+      "name": "minute",
+      "type": "string",
+      "optional": true,
+      "description": "Cron minute field. Ignored when `special_time` is set."
+    },
+    {
+      "name": "hour",
+      "type": "string",
+      "optional": true,
+      "description": "Cron hour field. Ignored when `special_time` is set."
+    },
+    {
+      "name": "day",
+      "type": "string",
+      "optional": true,
+      "description": "Cron day-of-month field. Ignored when `special_time` is set."
+    },
+    {
+      "name": "month",
+      "type": "string",
+      "optional": true,
+      "description": "Cron month field. Ignored when `special_time` is set."
+    },
+    {
+      "name": "weekday",
+      "type": "string",
+      "optional": true,
+      "description": "Cron day-of-week field. Ignored when `special_time` is set."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "description": "Comment out (disable) the job but keep it in crontab (POSIX)."
+    },
+    {
+      "name": "env",
+      "type": "object",
+      "optional": true,
+      "description": "Environment variables to prepend to the job block (POSIX)."
+    },
+    {
+      "name": "backup",
+      "type": "boolean",
+      "optional": true,
+      "description": "If `true`, saves the existing crontab to `/tmp` before modifying (POSIX)."
+    },
+    {
+      "name": "at",
+      "type": "string",
+      "optional": true,
+      "description": "Time for `schtasks` in 24-hour `HH:mm` format.\nIf omitted, it is derived from `minute`/`hour` when both are numeric."
+    },
+    {
+      "name": "frequency",
+      "type": "\"MINUTE\" | \"HOURLY\" | \"DAILY\" | \"WEEKLY\" | \"MONTHLY\" | \"ONCE\"",
+      "optional": true,
+      "description": "`schtasks` frequency."
+    }
+  ],
+  "examples": "\n- name: Add Nightly backup (POSIX)\n  cron:\n    name: \"nightly-backup\"\n    minute: \"0\"\n    hour: \"3\"\n    job: \"/usr/local/bin/backup.sh >> /var/log/backup.log 2>&1\"\n    user: \"root\"\n\n- name: Remove nightly backup (POSIX)\n  cron:\n    name: \"nightly-backup\"\n    state: absent\n    user: \"root\"\n\n- name: Re-index daily (Windows)\n  cron:\n    name: \"reindex\"\n    job: \"C:\\\\Program Files\\\\MyApp\\\\reindex.exe\"\n    at: \"02:00\"\n    frequency: DAILY\n\n\n",
+  "returns": [
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether this module changed anything on the target."
+    },
+    {
+      "name": "failed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the module failed (non-zero exit code, validation failure, etc.)."
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "optional": true,
+      "description": "Human-readable message describing the outcome or error."
+    },
+    {
+      "name": "stdout",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard output, if available."
+    },
+    {
+      "name": "stderr",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard error, if available."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution started (best-effort)."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution ended (best-effort)."
+    },
+    {
+      "name": "delta",
+      "type": "string",
+      "optional": true,
+      "description": "Duration string, e.g., \"0:00:00.123\" (best-effort)."
+    },
+    {
+      "name": "attempts",
+      "type": "number",
+      "optional": true,
+      "description": "Number of attempts performed so far (e.g., by `until`).\nTypically increments from 1 upwards."
+    },
+    {
+      "name": "retries",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum retries allowed for this operation (e.g., by `until`).\nThis reflects the configured ceiling, not the attempts taken."
+    }
+  ]
+}

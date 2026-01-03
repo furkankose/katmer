@@ -1,0 +1,115 @@
+{
+  "name": "hostname",
+  "constraints": {
+    "platform": {
+      "linux": true,
+      "darwin": true,
+      "windows": true
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/hostname.module.ts",
+  "description": "Get or set the system hostname.",
+  "remarks": "- When no options are provided, the module gathers the current hostname facts and returns them as JSON.\n- When \"name\" is provided, the module sets the transient hostname (runtime) and optionally persists it to the appropriate config\n  (e.g., /etc/hostname for most Linux distros or hostnamectl if available).\n- The module attempts to be idempotent: if the current hostname already matches the desired one, changed=false.",
+  "parameters": [
+    {
+      "name": "name",
+      "type": "string",
+      "optional": true,
+      "description": "Desired hostname. If omitted, module only gathers current hostname facts."
+    },
+    {
+      "name": "persist",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether to persist the hostname to system config (e.g., /etc/hostname)."
+    }
+  ],
+  "examples": "\n- name: Get hostname facts\n  hostname: {}\n\n- name: Set runtime hostname only\n  hostname:\n    name: \"app-node-01\"\n\n- name: Set and persist hostname\n  hostname:\n    name: \"app-node-01\"\n    persist: true\n",
+  "returns": [
+    {
+      "name": "facts",
+      "type": "object",
+      "optional": true,
+      "children": [
+        {
+          "name": "short",
+          "type": "string",
+          "optional": false,
+          "description": "Short host name (without domain)."
+        },
+        {
+          "name": "fqdn",
+          "type": "string",
+          "optional": false,
+          "description": "Fully-qualified domain name if resolvable, otherwise the plain hostname."
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "optional": false,
+          "description": "Derived domain part from FQDN (empty if not applicable)."
+        }
+      ]
+    },
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether this module changed anything on the target."
+    },
+    {
+      "name": "failed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the module failed (non-zero exit code, validation failure, etc.)."
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "optional": true,
+      "description": "Human-readable message describing the outcome or error."
+    },
+    {
+      "name": "stdout",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard output, if available."
+    },
+    {
+      "name": "stderr",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard error, if available."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution started (best-effort)."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution ended (best-effort)."
+    },
+    {
+      "name": "delta",
+      "type": "string",
+      "optional": true,
+      "description": "Duration string, e.g., \"0:00:00.123\" (best-effort)."
+    },
+    {
+      "name": "attempts",
+      "type": "number",
+      "optional": true,
+      "description": "Number of attempts performed so far (e.g., by `until`).\nTypically increments from 1 upwards."
+    },
+    {
+      "name": "retries",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum retries allowed for this operation (e.g., by `until`).\nThis reflects the configured ceiling, not the attempts taken."
+    }
+  ]
+}

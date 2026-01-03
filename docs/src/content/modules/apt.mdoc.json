@@ -1,0 +1,198 @@
+{
+  "name": "apt",
+  "constraints": {
+    "platform": {
+      "linux": {
+        "packages": ["apt"]
+      }
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/apt.module.ts",
+  "description": "APT package manager: install, remove, and upgrade packages on Debian/Ubuntu.",
+  "remarks": "- Uses `apt-get` with noninteractive, idempotent flags where possible.\n- Can optionally refresh the cache (`apt-get update`) with retries/backoff.\n- Supports installing from package names or local `.deb` files.\n- When `upgrade` is set, a system-wide upgrade action runs before package\n  state changes (e.g. `full-upgrade`), then requested package operations.",
+  "parameters": [
+    {
+      "name": "name",
+      "type": "string | string[]",
+      "optional": true,
+      "description": "Name(s) of packages to manage.\nAccepts a single name or a list.\n\nIgnored if only [deb](#parameter-deb) is provided."
+    },
+    {
+      "name": "state",
+      "type": "\"present\" | \"absent\" | \"latest\" | \"build-dep\"",
+      "optional": true,
+      "description": "Desired package state.\n- `present`: ensure installed (default).\n- `absent`: ensure removed (optionally `purge` config files).\n- `latest`: ensure installed at newest available version.\n- `build-dep`: install build-dependencies for the named source package(s)."
+    },
+    {
+      "name": "update_cache",
+      "type": "boolean",
+      "optional": true,
+      "description": "Run `apt-get update` before making changes.\n\nHonors [cache_valid_time](#parameter-cache_valid_time) to skip\nthe update if the package lists are fresh."
+    },
+    {
+      "name": "upgrade",
+      "type": "\"no\" | \"yes\" | \"safe\" | \"full\" | \"dist\"",
+      "optional": true,
+      "description": "Perform a system-wide upgrade action before package operations.\n- `no`: skip upgrade\n- `yes`/`safe`: `apt-get upgrade`\n- `full`: `apt-get full-upgrade`\n- `dist`: `apt-get dist-upgrade`"
+    },
+    {
+      "name": "purge",
+      "type": "boolean",
+      "optional": true,
+      "description": "When removing (state=`absent`), purge configuration files as well."
+    },
+    {
+      "name": "autoremove",
+      "type": "boolean",
+      "optional": true,
+      "description": "After changes, remove automatically installed packages that are no longer needed."
+    },
+    {
+      "name": "allow_unauthenticated",
+      "type": "boolean",
+      "optional": true,
+      "description": "Allow unauthenticated packages (passes `--allow-unauthenticated`)."
+    },
+    {
+      "name": "force",
+      "type": "boolean",
+      "optional": true,
+      "description": "Convenience toggle for dpkg conflict handling (minimal set).\nWhen `true`, acts like enabling `--force-confnew` for dpkg.\nPrefer [dpkg_options](#parameter-dpkg_options) for full control."
+    },
+    {
+      "name": "dpkg_options",
+      "type": "string[]",
+      "optional": true,
+      "description": "Raw dpkg options; each entry is passed as `-o Dpkg::Options::[value]`.\n\nExample: `[\"--force-confnew\",\"--force-confdef\"]`.\n\nSee also the convenience flags:\n[dpkg_force_confnew](#parameter-dpkg_force_confnew) and\n[dpkg_force_confdef](#parameter-dpkg_force_confdef)."
+    },
+    {
+      "name": "install_recommends",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether to install recommended packages.\nOmitting keeps apt's default behavior (usually `true`)."
+    },
+    {
+      "name": "update_cache_retries",
+      "type": "number",
+      "optional": true,
+      "description": "Max number of retry attempts for `apt-get update` when `update_cache` is enabled."
+    },
+    {
+      "name": "update_cache_retry_max_delay",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum backoff delay (seconds) between update retries."
+    },
+    {
+      "name": "lock_timeout",
+      "type": "number",
+      "optional": true,
+      "description": "Lock timeout for dpkg/apt operations (seconds).\nBest-effort via `-o DPkg::Lock::Timeout=[seconds]`."
+    },
+    {
+      "name": "policy_rc_d",
+      "type": "number",
+      "optional": true,
+      "description": "Set `POLICY_RC_D` in the environment (e.g. `101`) to prevent service starts."
+    },
+    {
+      "name": "only_upgrade",
+      "type": "boolean",
+      "optional": true,
+      "description": "Upgrade only existing packages; do not install new ones.\nMaps to `--only-upgrade` where applicable."
+    },
+    {
+      "name": "cache_valid_time",
+      "type": "number",
+      "optional": true,
+      "description": "If set (seconds), skip `apt-get update` when the apt lists directory mtime\nis newer than `now - cache_valid_time`. Best-effort heuristic."
+    },
+    {
+      "name": "deb",
+      "type": "string | string[]",
+      "optional": true,
+      "description": "Local `.deb` path(s) to install directly. Accepts a single path or list.\nIf provided, [name](#parameter-name) is optional."
+    },
+    {
+      "name": "force_apt_get",
+      "type": "boolean",
+      "optional": true,
+      "description": "Prefer `apt-get` explicitly. (Kept for parity; module already uses `apt-get`.)"
+    },
+    {
+      "name": "clean",
+      "type": "boolean",
+      "optional": true,
+      "description": "Run `apt-get clean` at the end."
+    },
+    {
+      "name": "dpkg_force_confnew",
+      "type": "boolean",
+      "optional": true,
+      "description": "Shorthand to add `--force-confnew` to dpkg options.\n(Equivalent to including it in [dpkg_options](#parameter-dpkg_options).)"
+    },
+    {
+      "name": "dpkg_force_confdef",
+      "type": "boolean",
+      "optional": true,
+      "description": "Shorthand to add `--force-confdef` to dpkg options.\n(Equivalent to including it in [dpkg_options](#parameter-dpkg_options).)"
+    },
+    {
+      "name": "update_cache_error_fatal",
+      "type": "boolean",
+      "optional": true,
+      "description": "If `true`, fail the task when `apt-get update` ultimately fails after retries."
+    }
+  ],
+  "examples": "\n# Refresh cache (if older than 10 minutes), install nginx, then autoremove\n- name: Install nginx and clean up\n  apt:\n    name: nginx\n    state: present\n    update_cache: true\n    cache_valid_time: 600\n    autoremove: true\n\n# Ensure latest versions for a list of packages\n- name: Bump packages to latest available versions\n  apt:\n    name: [curl, unzip, git]\n    state: latest\n\n# Remove a package (purge configuration files too)\n- name: Remove nginx completely\n  apt:\n    name: nginx\n    state: absent\n    purge: true\n\n# Install from local .deb(s)\n- name: Install from local deb files\n  apt:\n    deb:\n      - /tmp/custom_1.0.0_amd64.deb\n      - /tmp/agent_2.3.1_amd64.deb\n\n# Run a safe upgrade first, then install a package\n- name: Safe upgrade then install htop\n  apt:\n    upgrade: safe\n    name: htop\n    state: present\n",
+  "returns": [
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": false,
+      "description": "Whether any changes were made (install/remove/upgrade/autoremove/clean)."
+    },
+    {
+      "name": "stdout",
+      "type": "string",
+      "optional": true,
+      "description": "Standard output from the last apt/dpkg command executed (best-effort)."
+    },
+    {
+      "name": "stderr",
+      "type": "string",
+      "optional": true,
+      "description": "Standard error from the last apt/dpkg command executed (best-effort)."
+    },
+    {
+      "name": "updated_cache",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the package cache was updated during this run."
+    },
+    {
+      "name": "upgraded",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether an upgrade action (per [undefined](#parameter-upgrade)) ran."
+    },
+    {
+      "name": "cleaned",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether `apt-get clean` ran."
+    },
+    {
+      "name": "autoremove",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether `apt-get autoremove` ran."
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "optional": true,
+      "description": "Human-readable message when the module surfaces an error condition."
+    }
+  ]
+}

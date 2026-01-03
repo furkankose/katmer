@@ -1,0 +1,101 @@
+{
+  "name": "apt-repository",
+  "constraints": {
+    "platform": {
+      "linux": {
+        "packages": ["apt"]
+      }
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/apt-repository/apt-repository.module.ts",
+  "description": "Manage entries in APT sources lists (e.g. `/etc/apt/sources.list.d/*.list`).",
+  "remarks": "- When `state: \"present\"`, at least one `repo` line is required.\n- When `state: \"absent\"`, you may remove by explicit `repo` line(s) or by `regexp`.\n- For `state: \"present\"`, do **not** set `regexp` (mutually exclusive with `repo`).\n- If `update_cache` is true and changes occurred, `apt-get update` will run with retries/backoff.",
+  "parameters": [
+    {
+      "name": "state",
+      "type": "\"present\" | \"absent\"",
+      "optional": true,
+      "description": "Desired end-state for the repository line(s).\n\n- `\"present\"`: ensure the given `repo` line(s) exist (create/update files as needed).\n- `\"absent\"`: remove matching lines (by exact `repo` or by `regexp`)."
+    },
+    {
+      "name": "repo",
+      "type": "string | string[]",
+      "optional": true,
+      "description": "Repository line(s) to add or remove.\n\n- **Required** when `state === \"present\"`.\n- **Optional** when `state === \"absent\"`; you may use this to remove specific line(s), or omit it and use `regexp` to remove by pattern."
+    },
+    {
+      "name": "regexp",
+      "type": "string",
+      "optional": true,
+      "description": "Regular expression to match lines for removal (used only with `state === \"absent\"`).",
+      "details": "- Mutually exclusive with repo for state === \"present\".\n- Useful to sweep multiple entries across files (e.g., remove a discontinued mirror)."
+    },
+    {
+      "name": "filename",
+      "type": "string",
+      "optional": true,
+      "description": "Override the destination filename (no path).",
+      "details": "- When adding lines, places them under /etc/apt/sources.list.d/[filename].list.\n- If omitted, the module chooses a suitable filename (e.g. derived from the repo)."
+    },
+    {
+      "name": "update_cache",
+      "type": "boolean",
+      "optional": true,
+      "description": "Run `apt-get update` after changes.",
+      "details": "- Only runs if any file content actually changed.\n- Retries are controlled by  and ."
+    },
+    {
+      "name": "update_cache_retries",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum retry attempts when updating the APT cache."
+    },
+    {
+      "name": "update_cache_retry_max_delay",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum exponential backoff (seconds) between retries when updating the cache."
+    },
+    {
+      "name": "validate_certs",
+      "type": "boolean",
+      "optional": true,
+      "description": "Validate TLS certificates when fetching remote keys/sources."
+    },
+    {
+      "name": "check_mode",
+      "type": "boolean",
+      "optional": true,
+      "description": "Simulate changes without writing files or running `apt-get update`.",
+      "details": "- Returns what would change; useful in CI and dry runs."
+    },
+    {
+      "name": "mode",
+      "type": "string | number",
+      "optional": true,
+      "description": "File mode for created/updated source files.",
+      "details": "- Accepts octal number (e.g., 0o644) or string (e.g., \"0644\").\n- Only applied to files the module creates/updates."
+    }
+  ],
+  "examples": "\n- name: Add a repo line and refresh cache\n  apt-repository:\n    state: present\n    repo: \"deb http://deb.debian.org/debian bookworm main\"\n    update_cache: true\n\n- name: Remove specific repo lines\n  apt-repository:\n    state: absent\n    repo:\n      - \"deb http://old.example.com/debian bookworm main\"\n      - \"deb-src http://old.example.com/debian bookworm main\"\n\n- name: Remove all lines that match a pattern\n  apt-repository:\n    state: absent\n    regexp: \"^deb .*example\\\\.com\"\n\n- name: Add deb + deb-src into a fixed filename\n  apt-repository:\n    state: present\n    filename: \"example.list\"\n    repo:\n      - \"deb http://deb.debian.org/debian bookworm main\"\n      - \"deb-src http://deb.debian.org/debian bookworm main\"\n    mode: \"0644\"\n",
+  "returns": [
+    {
+      "name": "repo",
+      "type": "string | string[]",
+      "optional": true,
+      "description": "Original repo parameter (if provided)."
+    },
+    {
+      "name": "sources_added",
+      "type": "string[]",
+      "optional": false,
+      "description": "Filenames created."
+    },
+    {
+      "name": "sources_removed",
+      "type": "string[]",
+      "optional": false,
+      "description": "Filenames removed."
+    }
+  ]
+}

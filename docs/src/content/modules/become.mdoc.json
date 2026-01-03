@@ -1,0 +1,53 @@
+{
+  "name": "become",
+  "constraints": {
+    "platform": {
+      "any": true
+    }
+  },
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/become.module.ts",
+  "description": "Control privilege escalation.",
+  "remarks": "- Set to `true` to enable sudo with sensible defaults (uses the provider's password if available).\n- Set to `false` to disable privilege escalation (no-op).\n- Provide an object to override sudo behavior (`user`, `password`, `prompt`).\n- The module rewrites subsequent commands to `sudo -S -p [prompt] [-u <user>] ...`\n  and automatically responds to the prompt with the configured password.",
+  "parameters": [
+    {
+      "name": "BecomeModuleOptions",
+      "type": "BecomeModuleOptions",
+      "optional": false,
+      "description": "When `true`, enable sudo with defaults.\nWhen `false`, disable privilege escalation (no-op).\nOr provide an object to customize user/prompt/password.",
+      "union": {
+        "alias": "",
+        "branches": [
+          {
+            "label": "object",
+            "fields": [
+              {
+                "name": "user",
+                "type": "string",
+                "optional": true,
+                "description": "Target user to run commands as (e.g. \"root\" or \"deploy\")."
+              },
+              {
+                "name": "password",
+                "type": "string",
+                "optional": true,
+                "description": "Password for sudo (falls back to provider's password if omitted)."
+              },
+              {
+                "name": "prompt",
+                "type": "string",
+                "optional": true,
+                "description": "Prompt marker for sudo; used to detect when to send the password."
+              }
+            ]
+          },
+          {
+            "label": "boolean",
+            "description": "boolean"
+          }
+        ]
+      }
+    }
+  ],
+  "examples": "\n# Enable with defaults (use provider password, run as root)\n- name: Run with sudo\n  become: true\n\n# Custom sudo user and prompt\n- name: Run as deploy user with custom prompt\n  become:\n    user: deploy\n    prompt: \"SUDO:\"\n\n# Explicit password override (falls back to provider password if omitted)\n- name: Use an explicit sudo password\n  become:\n    user: root\n    password: \"{{ VAULT_SUDO_PASSWORD }}\"\n\n# Disable privilege escalation\n- name: Run without sudo\n  become: false\n",
+  "returns": null
+}

@@ -1,0 +1,304 @@
+{
+  "name": "http",
+  "constraints": null,
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/http/http.module.ts",
+  "description": "Execute HTTP(S) requests.",
+  "remarks": "- Uses `curl` when running with ssh provider\n- Follows redirects by default (`-L`).\n- Validates TLS by default; set [validate_certs](#parameter-validate_certs): false to pass `--insecure`.\n- When [output.toFile](#parameter-output) is set, writes to a temporary file then moves atomically; `changed=true` on success.\n- If [fail_on_http_error](#parameter-fail_on_http_error) is true (default), non-2xx responses cause a failure using `--fail-with-body`.\n- Best-effort status parsing is performed from saved headers or stderr when available.",
+  "parameters": [
+    {
+      "name": "url",
+      "type": "string | object",
+      "optional": false,
+      "description": "Target URL"
+    },
+    {
+      "name": "method",
+      "type": "\"GET\" | \"POST\" | \"PUT\" | \"PATCH\" | \"DELETE\" | \"HEAD\" | \"OPTIONS\" | \"TRACE\" | \"CONNECT\"",
+      "optional": true,
+      "description": "HTTP method to use."
+    },
+    {
+      "name": "headers",
+      "type": "object",
+      "optional": true,
+      "description": "Additional HTTP headers to send."
+    },
+    {
+      "name": "query",
+      "type": "object",
+      "optional": true,
+      "description": "Key-value query parameters to append to the URL.\nNull or undefined values are skipped."
+    },
+    {
+      "name": "body",
+      "type": "string | object",
+      "optional": true,
+      "description": "Request body.\n- If an object is provided, it is JSON-encoded and `Content-Type: application/json` is added unless already set.\n- If a string is provided, it is sent via `--data-binary \"string\"`.\n- For binary payloads, prefer [bodyFile](#parameter-bodyfile)."
+    },
+    {
+      "name": "bodyFile",
+      "type": "string",
+      "optional": true,
+      "description": "Remote path to a file whose content will be sent via `--data-binary @[file]`."
+    },
+    {
+      "name": "auth",
+      "type": "object",
+      "optional": true,
+      "description": "Authentication configuration (basic or bearer).",
+      "union": {
+        "alias": "HttpAuth",
+        "branches": [
+          {
+            "key": "obj:HttpBasicAuth",
+            "label": "object",
+            "fields": [
+              {
+                "name": "type",
+                "type": "\"basic\"",
+                "optional": false,
+                "description": "Use Basic authentication."
+              },
+              {
+                "name": "username",
+                "type": "string",
+                "optional": false,
+                "description": "Username used for basic auth."
+              },
+              {
+                "name": "password",
+                "type": "string",
+                "optional": false,
+                "description": "Password used for basic auth."
+              }
+            ]
+          },
+          {
+            "key": "obj:HttpBearerAuth",
+            "label": "object",
+            "fields": [
+              {
+                "name": "type",
+                "type": "\"bearer\"",
+                "optional": false,
+                "description": "Use Bearer token authentication."
+              },
+              {
+                "name": "token",
+                "type": "string",
+                "optional": false,
+                "description": "Bearer token to send in Authorization header."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "timeout",
+      "type": "number",
+      "optional": true,
+      "description": "Total request timeout in seconds.\nMaps to: `--max-time [seconds]`"
+    },
+    {
+      "name": "follow_redirects",
+      "type": "boolean",
+      "optional": true,
+      "description": "Follow redirects.\nMaps to: `-L`"
+    },
+    {
+      "name": "validate_certs",
+      "type": "boolean",
+      "optional": true,
+      "description": "Validate TLS certificates. If false, passes `--insecure`."
+    },
+    {
+      "name": "output",
+      "type": "string | object",
+      "optional": true,
+      "description": "Output configuration. A string is shorthand for `output.toFile`.",
+      "union": {
+        "branches": [
+          {
+            "key": "prim:string",
+            "label": "string",
+            "description": "string"
+          },
+          {
+            "key": "obj:HttpOutput",
+            "label": "object",
+            "fields": [
+              {
+                "name": "toFile",
+                "type": "string",
+                "optional": true,
+                "description": "Remote path to save the response body to.\nIf set, the module writes to a temporary file and atomically moves it into place."
+              },
+              {
+                "name": "captureBody",
+                "type": "boolean",
+                "optional": true,
+                "description": "Additionally capture the response body in the module result (body field).\nNote: may increase memory usage for large responses."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "save_headers_to",
+      "type": "string",
+      "optional": true,
+      "description": "Remote path to save response headers.\nMaps to: `-D [file]`"
+    },
+    {
+      "name": "fail_on_http_error",
+      "type": "boolean",
+      "optional": true,
+      "description": "Treat non-2xx HTTP codes as fatal.\nMaps to: `--fail-with-body`"
+    },
+    {
+      "name": "retry",
+      "type": "object",
+      "optional": true,
+      "description": "Retry settings.",
+      "children": [
+        {
+          "name": "tries",
+          "type": "number",
+          "optional": true,
+          "description": "Total number of retry attempts on transient failures.\nMaps to: --retry [tries]"
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "optional": true,
+          "description": "Delay in seconds between retries.\nMaps to: --retry-delay [seconds]"
+        },
+        {
+          "name": "max_time",
+          "type": "number",
+          "optional": true,
+          "description": "Total time limit in seconds for all retries.\nMaps to: --retry-max-time [seconds]"
+        }
+      ]
+    },
+    {
+      "name": "extra_args",
+      "type": "string[]",
+      "optional": true,
+      "description": "Additional raw arguments to append to the curl command. Only works with Local provider"
+    },
+    {
+      "name": "mode",
+      "type": "string | number",
+      "optional": true,
+      "description": "File mode to set on output file (when `output.toFile` is set).\nAccepts octal number (e.g., `0o644`) or string (e.g., `\"0644\"`)."
+    },
+    {
+      "name": "owner",
+      "type": "string",
+      "optional": true,
+      "description": "File owner to set on the output file (`chown`)."
+    },
+    {
+      "name": "group",
+      "type": "string",
+      "optional": true,
+      "description": "File group to set on the output file (`chown`)."
+    }
+  ],
+  "examples": "\n- name: Download a file to a path (like get_url)\n  http:\n    url: \"https://example.com/app.tar.gz\"\n    output: \"/opt/app/app.tar.gz\"\n    mode: \"0644\"\n\n- name: GET JSON with headers and save response headers\n  http:\n    url: \"https://api.example.com/meta\"\n    headers:\n      Accept: \"application/json\"\n    save_headers_to: \"/tmp/meta.headers\"\n    output:\n      toFile: \"/tmp/meta.json\"\n      captureBody: true\n\n- name: POST JSON with bearer token\n  http:\n    url: \"https://api.example.com/resources\"\n    method: \"POST\"\n    headers:\n      Accept: \"application/json\"\n    body:\n      name: \"demo\"\n      enabled: true\n    auth:\n      type: \"bearer\"\n      token: \"{{ MY_API_TOKEN }}\"\n    fail_on_http_error: true\n\n- name: Download with basic auth\n  http:\n    url: \"https://intranet.local/file.bin\"\n    auth:\n      type: \"basic\"\n      username: \"user\"\n      password: \"pass\"\n    validate_certs: false\n    retry:\n      tries: 5\n      delay: 2\n\n",
+  "returns": [
+    {
+      "name": "url",
+      "type": "object",
+      "optional": false,
+      "description": "Parsed whatwg-url URL object."
+    },
+    {
+      "name": "status",
+      "type": "number",
+      "optional": true,
+      "description": "Parsed HTTP status code when available (best-effort)."
+    },
+    {
+      "name": "headers",
+      "type": "object",
+      "optional": true,
+      "description": "Raw response headers if saved via [save_headers_to](#parameter-save_headers_to)."
+    },
+    {
+      "name": "body",
+      "type": "string",
+      "optional": true,
+      "description": "Response body if `captureBody=true`, or when output is not used and `captureBody=true`."
+    },
+    {
+      "name": "dest",
+      "type": "string",
+      "optional": true,
+      "description": "Destination path when `output.toFile` (or string shorthand) was used."
+    },
+    {
+      "name": "changed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether this module changed anything on the target."
+    },
+    {
+      "name": "failed",
+      "type": "boolean",
+      "optional": true,
+      "description": "Whether the module failed (non-zero exit code, validation failure, etc.)."
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "optional": true,
+      "description": "Human-readable message describing the outcome or error."
+    },
+    {
+      "name": "stdout",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard output, if available."
+    },
+    {
+      "name": "stderr",
+      "type": "string",
+      "optional": true,
+      "description": "Captured standard error, if available."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution started (best-effort)."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "optional": true,
+      "description": "ISO8601 timestamp when execution ended (best-effort)."
+    },
+    {
+      "name": "delta",
+      "type": "string",
+      "optional": true,
+      "description": "Duration string, e.g., \"0:00:00.123\" (best-effort)."
+    },
+    {
+      "name": "attempts",
+      "type": "number",
+      "optional": true,
+      "description": "Number of attempts performed so far (e.g., by `until`).\nTypically increments from 1 upwards."
+    },
+    {
+      "name": "retries",
+      "type": "number",
+      "optional": true,
+      "description": "Maximum retries allowed for this operation (e.g., by `until`).\nThis reflects the configured ceiling, not the attempts taken."
+    }
+  ]
+}
