@@ -32,6 +32,10 @@ jobs:
       - name: Generate docs
         run: bun run generate:docs
 
+      - name: Install docs dependencies
+        working-directory: ./docs
+        run: bun install
+
       - name: Build docs
         working-directory: ./docs
         run: bun run build
