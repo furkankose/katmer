@@ -1,26 +1,26 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="Katmer Logo" width="320px" style="margin-top: 24px;" />
-  <p style="font-size: 24px"><strong>Manage your infrastructure with ease</strong></p>
+    <a href="https://katmer-io.github.io/katmer/" target="_blank">
+      <img src="assets/logo.svg" alt="Katmer Logo" width="320px" style="margin-top: 24px;" />
+    </a>
+    <p style="font-size: 24px"><strong>Manage your infrastructure with ease</strong></p>
 </div>
 
 > [!CAUTION]
 > katmer is currently in **alpha**. This project is still in early development. Interfaces, schemas, and behavior
-> may change without notice. 
+> may change without notice.
 >
 > **Do not use in production** yet.
-> 
+>
 > Feedback and early experimentation are welcome.
-
 
 ## What is katmer?
 
-**katmer** (named after the traditional Turkish layered dessert, from the word *"kat"* 
-meaning "layer", pronounced /kaˈtmer/) is a modular infrastructure management framework 
-designed to simplify how infrastructure is defined, composed, and executed. 
+**katmer** (named after the traditional Turkish layered dessert, from the word *"kat"*
+meaning "layer", pronounced /kaˈtmer/) is a modular infrastructure management framework
+designed to simplify how infrastructure is defined, composed, and executed.
 
-It emphasizes building systems from clear, reusable layers that adapt across operating systems, architectures, and environments.
-
-
+It emphasizes building systems from clear, reusable layers that adapt across operating systems, architectures, and
+environments.
 
 ## Features
 
