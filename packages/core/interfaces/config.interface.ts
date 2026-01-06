@@ -1,3 +1,5 @@
+import pino from "pino"
+
 export interface KatmerCLIOptions {
   cwd?: string
   target: string[]
@@ -98,4 +100,14 @@ export interface KatmerNormalizedTargets {
   groups: Map<string, Set<string>>
   hosts: Map<string, KatmerHostResolved>
   allNames: Set<string>
+}
+
+export interface StandardLogger {
+  trace: pino.LogFn
+  debug: pino.LogFn
+  info: pino.LogFn
+  warn: pino.LogFn
+  error: pino.LogFn
+  fatal: pino.LogFn
+  child: (bindings: Record<string, unknown>) => StandardLogger
 }

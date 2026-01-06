@@ -1,5 +1,5 @@
-import type { Logger } from "pino"
 import type { ProviderResponse } from "../providers/provider_response"
+import type { StandardLogger } from "./config.interface"
 
 export type OsFamily =
   | "any"
@@ -72,7 +72,7 @@ export abstract class KatmerProvider<
     arch: "unknown",
     source: "unknown"
   }
-  logger!: Logger
+  logger!: StandardLogger
   options: TOptions
 
   connected = false

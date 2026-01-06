@@ -1,7 +1,8 @@
 import { parseKatmerFile, readKatmerFile } from "../utils/file.utils"
 import type {
   KatmerConfig,
-  KatmerCLIOptions
+  KatmerCLIOptions,
+  StandardLogger
 } from "../interfaces/config.interface"
 import { KatmerTargetResolver } from "./target_resolver"
 import "./module_registry"
@@ -26,7 +27,7 @@ export interface KatmerInitOptions extends KatmerCLIOptions {
 export class KatmerCore {
   config!: KatmerConfig
   registry!: KatmerModuleRegistry
-  logger!: pino.Logger<never, boolean>
+  logger!: StandardLogger
   constructor(private opts: KatmerCLIOptions) {}
 
   async init() {
@@ -85,6 +86,16 @@ export class KatmerCore {
     //     }
     //   })
     // )
+  }
+  async check() {
+    await using targetResolver = new KatmerTargetResolver(this)
+    const providers = targetResolver.resolveTargets("all")
+    console.log(targetResolver.hosts)
+    console.log(this.config, providers)
+    for (const runFor of providers) {
+      const provider = await targetResolver.resolveProvider(runFor)
+      await provider.ensureReady()
+    }
   }
 
   async run(file: string) {

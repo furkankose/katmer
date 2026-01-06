@@ -31,6 +31,10 @@ export class KatmerTargetResolver {
     this.#allNames = normalized.allNames
   }
 
+  get hosts() {
+    return this.#hosts
+  }
+
   async resolveProvider(opts: KatmerHostResolved): Promise<KatmerProvider> {
     const key = objectHash(opts)
 
@@ -38,7 +42,7 @@ export class KatmerTargetResolver {
       return this.#providerCache.get(key)!
     }
     let provider: KatmerProvider
-    if (opts.connection === "ssh") {
+    if (!opts.connection || opts.connection === "ssh") {
       provider = new SSHProvider(opts)
     } else if (opts.connection === "local") {
       provider = new LocalProvider(opts)
@@ -285,8 +289,10 @@ export class KatmerTargetResolver {
   }
 
   async [Symbol.asyncDispose]() {
-    for (const [_hash, provider] of this.#providerCache.entries()) {
-      await provider.safeShutdown()
-    }
+    try {
+      for (const [_hash, provider] of this.#providerCache.entries()) {
+        await provider.safeShutdown()
+      }
+    } catch {}
   }
 }

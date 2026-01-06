@@ -1,4 +1,4 @@
-import type { OsArch, OsFamily } from "../providers/ssh/ssh.provider"
+import type { OsArch, OsFamily } from "./provider.interface"
 
 export type PackageManager =
   | "apt"
