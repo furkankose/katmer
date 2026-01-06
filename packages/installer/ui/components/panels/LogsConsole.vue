@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import type { LogEntry } from "../../../common"
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue"
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  useTemplateRef
+} from "vue"
 import { Filter } from "../../utils/ansi_to_html.ts"
 import { useInstaller } from "@/composables/useInstaller.ts"
 
@@ -31,7 +38,7 @@ const filter = new Filter()
 let lastBuffer = ""
 
 function createMessageEl(logInput: LogEntry) {
-  const { timestamp, level, data, message } = logInput
+  const { timestamp, level = "trace", data, message } = logInput
 
   const messages =
     Array.isArray(data) ? [...data]
@@ -116,7 +123,7 @@ onMounted(async () => {
 })
 
 function useLogLevel() {
-  const levels = ["error", "warn", "info", "debug"]
+  const levels = ["error", "warn", "info", "debug", "trace"]
 
   const selectedLevel = ref([...levels])
 
@@ -126,19 +133,21 @@ function useLogLevel() {
     toggleLevel(level: string) {
       const existing = selectedLevel.value.indexOf(level)
       if (existing >= 0) {
+        levelStyleVars[`--l-${level}`] = "none"
         selectedLevel.value.splice(existing, 1)
       } else {
+        levelStyleVars[`--l-${level}`] = "flex"
         selectedLevel.value.push(level)
       }
     },
-    levelStyleVars: computed(() => {
-      const finalLevels = {} as any
-      for (const l of levels) {
-        finalLevels[`--l-${l}`] =
-          selectedLevel.value.includes(l) ? "flex" : "none"
-      }
-      return finalLevels
-    })
+    levelStyleVars: reactive(
+      levels.reduce((fin, lvl) => {
+        return {
+          ...fin,
+          [`--l-${lvl}`]: "flex"
+        }
+      }, {})
+    )
   }
 }
 
@@ -150,12 +159,11 @@ defineExpose({
   <div title="Logs" class="logs">
     <div class="logs-header">
       <span class="flex-1" />
-      <div>
+      <div class="join">
         <button
           v-for="level in levels"
-          :key="level"
-          class="level-btn"
-          :class="{ 'bg-orange-500': selectedLevel.includes(level) }"
+          class="join-item btn btn-xs"
+          :class="{ 'btn-active btn-primary': selectedLevel.includes(level) }"
           @click="toggleLevel(level)"
         >
           {{ level }}
@@ -167,7 +175,7 @@ defineExpose({
 </template>
 <style>
 .level-btn {
-  @apply px-1 mx-0.5 hover:bg-orange-200 active:bg-orange-600 text-sm rounded-sm;
+  @apply px-1 text-sm py-1 font-semibold hover:bg-orange-200 active:bg-orange-600 text-sm  cursor-pointer;
 }
 
 .logs {
@@ -220,6 +228,10 @@ defineExpose({
 
   .l-debug {
     display: var(--l-debug, none);
+  }
+
+  .l-trace {
+    display: var(--l-trace, none);
   }
 }
 </style>

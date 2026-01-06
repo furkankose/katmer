@@ -76,132 +76,72 @@ export type SourceUpdatePolicy = Static<typeof SourceUpdatePolicySchema>
 /**
  * Common fields shared by all sources.
  */
-export const SourceConfigBaseSchema = Type.Object(
-  {
-    id: Type.String(),
-    label: Type.Optional(Type.String()),
-    disabled: Type.Optional(Type.Boolean()),
-    /**
-     * Lower number = higher priority when resolving sources.
-     */
-    priority: Type.Optional(Type.Number()),
-    /**
-     * Generic update policy applicable to this source.
-     */
-    update: Type.Optional(SourceUpdatePolicySchema),
-    /**
-     * Credentials / auth for this source.
-     */
-    auth: Type.Optional(AuthConfigSchema),
-    /**
-     * Driver-specific free-form options (mainly for plugins).
-     */
-    options: Type.Optional(Type.Record(Type.String(), Type.Unknown()))
-  },
-  { additionalProperties: true }
-)
-export type SourceConfigBase = Static<typeof SourceConfigBaseSchema>
+export const SourceConfigBase = {
+  id: Type.String(),
+  label: Type.Optional(Type.String()),
+  disabled: Type.Optional(Type.Boolean()),
+  /**
+   * Lower number = higher priority when resolving sources.
+   */
+  priority: Type.Optional(Type.Number()),
+  /**
+   * Generic update policy applicable to this source.
+   */
+  update: Type.Optional(SourceUpdatePolicySchema),
+  /**
+   * Credentials / auth for this source.
+   */
+  auth: Type.Optional(AuthConfigSchema),
+  /**
+   * Driver-specific free-form options (mainly for plugins).
+   */
+  options: Type.Optional(Type.Record(Type.String(), Type.Unknown()))
+}
 
-export const FileSourceConfigSchema = Type.Intersect(
-  [
-    SourceConfigBaseSchema,
-    Type.Object(
-      {
-        driver: Type.Literal("file"),
-        /**
-         * Root directory on disk where payload lives (e.g. build artifacts).
-         */
-        root: Type.String()
-      },
-      { additionalProperties: false }
-    )
-  ],
+export const FileSourceConfigSchema = Type.Object(
+  {
+    ...SourceConfigBase,
+    driver: Type.Literal("file"),
+    /**
+     * Root directory on disk where payload lives (e.g. build artifacts).
+     */
+    root: Type.String()
+  },
   { additionalProperties: false }
 )
 export type FileSourceConfig = Static<typeof FileSourceConfigSchema>
 
-export const HttpSourceConfigSchema = Type.Intersect(
-  [
-    SourceConfigBaseSchema,
-    Type.Object(
-      {
-        driver: Type.Literal("http"),
-        /**
-         * Base URL for artifacts & metadata.
-         */
-        baseUrl: Type.String(),
-        headers: Type.Optional(Type.Record(Type.String(), Type.String()))
-      },
-      { additionalProperties: false }
-    )
-  ],
+export const HttpSourceConfigSchema = Type.Object(
+  {
+    ...SourceConfigBase,
+    driver: Type.Literal("http"),
+    /**
+     * Base URL for artifacts & metadata.
+     */
+    url: Type.String(),
+    headers: Type.Optional(Type.Record(Type.String(), Type.String()))
+  },
   { additionalProperties: false }
 )
 export type HttpSourceConfig = Static<typeof HttpSourceConfigSchema>
 
-export const GitSourceConfigSchema = Type.Intersect(
-  [
-    SourceConfigBaseSchema,
-    Type.Object(
-      {
-        driver: Type.Literal("git"),
-        repo: Type.String(),
-        ref: Type.Optional(Type.String()),
-        /**
-         * Optional path inside repo where installer files live.
-         */
-        path: Type.Optional(Type.String())
-      },
-      { additionalProperties: false }
-    )
-  ],
+export const GitSourceConfigSchema = Type.Object(
+  {
+    ...SourceConfigBase,
+    driver: Type.Literal("git"),
+    repo: Type.String(),
+    ref: Type.Optional(Type.String()),
+    /**
+     * Optional path inside repo where installer files live.
+     */
+    path: Type.Optional(Type.String())
+  },
   { additionalProperties: false }
 )
 export type GitSourceConfig = Static<typeof GitSourceConfigSchema>
 
-export const S3SourceConfigSchema = Type.Intersect(
-  [
-    SourceConfigBaseSchema,
-    Type.Object(
-      {
-        driver: Type.Literal("s3"),
-        bucket: Type.String(),
-        prefix: Type.Optional(Type.String()),
-        region: Type.Optional(Type.String())
-      },
-      { additionalProperties: false }
-    )
-  ],
-  { additionalProperties: false }
-)
-export type S3SourceConfig = Static<typeof S3SourceConfigSchema>
-
-export const CustomSourceConfigSchema = Type.Intersect(
-  [
-    SourceConfigBaseSchema,
-    Type.Object(
-      {
-        /**
-         * Plugin-provided driver id, e.g. "myAppCustomDriver".
-         */
-        driver: Type.String(),
-        path: Type.String({ description: "Source adapter file's path" })
-      },
-      { additionalProperties: true }
-    )
-  ],
-  { additionalProperties: true }
-)
-export type CustomSourceConfig = Static<typeof CustomSourceConfigSchema>
-
 export const InstallerSourceConfigSchema = Type.Union(
-  [
-    FileSourceConfigSchema,
-    HttpSourceConfigSchema,
-    GitSourceConfigSchema,
-    S3SourceConfigSchema,
-    CustomSourceConfigSchema
-  ],
+  [FileSourceConfigSchema, HttpSourceConfigSchema, GitSourceConfigSchema],
   {
     description: "Sources that can provide installer payloads and/or metadata."
   }

@@ -1,14 +1,13 @@
 import { KatmerInstallerEngine } from "./katmer/katmer.adapter"
 import { InstallerConfig } from "@type/installer"
-import type { FlowDefinition, Logger } from "@common/installer_engine.types"
+import type { InstallerOptions } from "@common/installer_engine.types"
 
 export function resolveInstaller(
   config: InstallerConfig,
-  flow: FlowDefinition,
-  logger: Logger
+  options: InstallerOptions
 ) {
   if (!config.engine || config.engine === "katmer") {
-    return new KatmerInstallerEngine(config, flow, logger)
+    return new KatmerInstallerEngine(config, options)
   }
-  throw new Error(`Unknown installer: ${name}`)
+  throw new Error(`Unknown installer: ${config.engine}`)
 }

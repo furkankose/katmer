@@ -16,7 +16,7 @@ export const InstallerConfigSchema = Type.Object(
      */
     id: Type.Optional(Type.String()),
 
-    engine: Type.Optional(Type.Enum(["katmer"])),
+    engine: Type.Optional(Type.Enum(["katmer"], { default: "katmer" })),
 
     /**
      * Version of the product this installer is built for (semver recommended).
@@ -51,7 +51,9 @@ export const InstallerConfigSchema = Type.Object(
     /**
      * Logical steps of the installer, reused by both Web UI and CLI.
      */
-    steps: Type.Optional(Type.Array(StepConfigSchema)),
+    steps: Type.Optional(
+      Type.Record(Type.String(), Type.Array(StepConfigSchema), { default: {} })
+    ),
 
     /**
      * Global CLI behaviour.
@@ -62,16 +64,20 @@ export const InstallerConfigSchema = Type.Object(
           allowNonInteractive: Type.Optional(Type.Boolean()),
           defaults: Type.Optional(Type.Record(Type.String(), Type.Unknown()))
         },
-        { additionalProperties: false }
+        { additionalProperties: false, default: {} }
       )
     ),
 
     /**
      * Reusable credential definitions.
      */
-    credentials: Type.Optional(Type.Array(CredentialConfigSchema)),
+    credentials: Type.Optional(
+      Type.Array(CredentialConfigSchema, { default: [] })
+    ),
 
-    credentialSources: Type.Optional(Type.Array(CredentialSourceSchema)),
+    credentialSources: Type.Optional(
+      Type.Array(CredentialSourceSchema, { default: [] })
+    ),
     /**
      * Distribution / artifact config.
      */

@@ -16,23 +16,34 @@ import { useI18n } from "vue-i18n"
 import { useInstaller } from "@/composables/useInstaller"
 import { createMessage, type FormKitNode } from "@formkit/core"
 import { isEmpty } from "es-toolkit/compat"
+import type { StepConfig } from "@type/forms"
+import Card from "@/components/ui/Card.vue"
+import FlowError from "@/components/FlowError.vue"
 
 const { t } = useI18n()
 
-const { snapshot, provideFormInput, pendingInteraction, status } =
-  useInstaller()
+const { snapshot, provideFormInput, status } = useInstaller()
 
 const currentFormStep =
   useTemplateRef<InstanceType<typeof FormStep>[]>("currentFormStep")
 const rootForm = useTemplateRef<{ node: FormKitNode }>("rootForm")
 
+const normalizedSteps = [] as StepConfig[]
+let defaultValues = {} as any
+
+for (const [stepId, steps] of Object.entries(config.steps)) {
+  normalizedSteps.push(...(steps || []))
+  for (const step of steps) {
+    defaultValues = deepMerge(defaultValues, step.form?.defaults ?? {})
+  }
+}
+
+const loading = ref(false)
 const state = reactive({
   activeStep: 0,
   stepsLayout: config.ui?.stepsLayout,
-  values: (config.steps ?? []).reduce((defaults, step) => {
-    return deepMerge(defaults, step.form?.defaults ?? {})
-  }, {}),
-  steps: [...(config.steps ?? [])]
+  values: defaultValues,
+  steps: normalizedSteps
 })
 
 const isLastStep = computed(() => state.activeStep === state.steps.length - 1)
@@ -73,47 +84,55 @@ async function triggerValidation(node?: FormKitNode | null) {
   return isStepValid
 }
 async function handleStepClick(navigateTo: number) {
-  const currentStep = state.activeStep
+  loading.value = true
+  try {
+    const currentStep = state.activeStep
 
-  if (navigateTo === currentStep) {
-    return
-  }
-
-  if (navigateTo < 0) {
-    state.activeStep = 0
-    return
-  }
-
-  if (navigateTo < currentStep) {
-    state.activeStep = navigateTo
-  } else {
-    const formRefs = currentFormStep.value || []
-    let lastValidStep: number | undefined
-
-    for (
-      let i = currentStep;
-      i < Math.min(navigateTo, formRefs.length - 1);
-      i++
-    ) {
-      if (await triggerValidation(formRefs[i]?.formStep?.node)) {
-        lastValidStep = i
-      } else {
-        break
-      }
+    if (navigateTo === currentStep) {
+      return
     }
 
-    const storedStep = snapshot.value?.context.uiState?.formStepIndex
-
-    if (lastValidStep !== undefined) {
-      // send current cumulative values + index to engine
-      if (!storedStep || storedStep <= lastValidStep) {
-        provideFormInput({
-          values: rootForm.value?.node.value ?? {},
-          stepIndex: lastValidStep
-        })
-      }
-      state.activeStep = lastValidStep + 1
+    if (navigateTo < 0) {
+      state.activeStep = 0
+      return
     }
+
+    if (navigateTo < currentStep) {
+      state.activeStep = navigateTo
+    } else {
+      const formRefs = currentFormStep.value || []
+      let lastValidStep: number | undefined
+
+      for (
+        let i = currentStep;
+        i < Math.min(navigateTo, formRefs.length - 1);
+        i++
+      ) {
+        if (await triggerValidation(formRefs[i]?.formStep?.node)) {
+          lastValidStep = i
+        } else {
+          break
+        }
+      }
+
+      const storedStep = snapshot.value?.context.uiState?.formStepIndex
+
+      if (lastValidStep !== undefined) {
+        // send current cumulative values + index to engine
+        if (!storedStep || storedStep <= lastValidStep) {
+          const res = await provideFormInput({
+            values: rootForm.value?.node.value ?? {},
+            stepIndex: lastValidStep
+          })
+          if (res.status === "failed") {
+            return
+          }
+        }
+        state.activeStep = lastValidStep + 1
+      }
+    }
+  } finally {
+    loading.value = false
   }
 }
 
@@ -144,7 +163,7 @@ watch(
 
 <template>
   <div
-    class="w-full flex-1 min-h-0"
+    class="w-full flex-1 min-h-0 relative"
     :class="
       state.stepsLayout === 'vertical' ?
         'flex flex-col md:flex-row'
@@ -159,10 +178,11 @@ watch(
       :clickable="true"
       :skippable="true"
       :disabled="status !== 'awaitingInput'"
-      @stepClick="handleStepClick($event, true)"
+      @stepClick="handleStepClick($event)"
     />
-
+    <FlowError v-show="status === 'failed'" :snapshot="snapshot" />
     <FormKit
+      v-show="status !== 'failed'"
       ref="rootForm"
       type="form"
       name="$root"
@@ -170,13 +190,16 @@ watch(
       preserve
       :value="state.values"
       :incomplete-message="false"
-      class="$reset flex flex-col flex-1 w-full min-h-0"
+      class="$reset flex flex-col flex-1 w-full min-h-0 relative"
       @submit="() => {}"
     >
+      <Overlay v-if="loading" :scrim="0" class="w-full"> <Spinner /></Overlay>
+
       <FormStep
         v-for="(step, index) in state.steps"
         v-show="state.activeStep === index"
         ref="currentFormStep"
+        :disabled="loading"
         :show-back="state.activeStep > 0"
         :handle-next="
           () =>
@@ -185,7 +208,7 @@ watch(
             : handleStepClick(index + 1)
         "
         :handle-back="() => handleStepClick(index - 1)"
-        :submit-label="isLastStep ? 'install' : 'next'"
+        :next-label="isLastStep ? 'install' : 'next'"
         :step="step"
       />
     </FormKit>

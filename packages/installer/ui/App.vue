@@ -4,7 +4,7 @@ import Card from "@/components/ui/Card.vue"
 import { useI18n } from "vue-i18n"
 import Configuration from "@/components/Configuration.vue"
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 
 const { snapshot, status, isConnecting, start, retry, cancel } = useInstaller()
 </script>
@@ -25,50 +25,6 @@ const { snapshot, status, isConnecting, start, retry, cancel } = useInstaller()
       </Overlay>
       <template v-else>
         <Landing v-if="status === 'idle'" />
-
-        <Configuration v-else-if="status === 'awaitingInput'" />
-
-        <!-- generic running state -->
-        <Card v-else-if="status === 'running'" tag="section" class="mt-8">
-          <div class="flex items-center space-x-4">
-            <span class="loading loading-spinner loading-lg text-primary" />
-            <div>
-              <h3 class="card-title">{{ t("installationRunning") }}</h3>
-              <p class="text-base-content/70">
-                {{ t("installationRunningInfo") }}
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <!-- failed -->
-        <div
-          v-else-if="status === 'failed'"
-          role="alert"
-          class="alert alert-error mt-6"
-        >
-          <Icon icon="i-ph-warning-bold" />
-          <div>
-            <h2 class="text-xl">{{ t("installationFailed") }}</h2>
-            <p class="mb-4">
-              {{
-                snapshot?.context.lastError?.code ?
-                  t(snapshot?.context.lastError?.code)
-                : (snapshot?.context.lastError?.message ?? t("unexpectedError"))
-              }}
-            </p>
-          </div>
-          <div class="card-actions">
-            <button class="btn btn-primary" type="button" @click="retry">
-              {{ t("retry") }}
-            </button>
-            <button class="btn btn-ghost" type="button" @click="cancel">
-              {{ t("cancel") }}
-            </button>
-          </div>
-        </div>
-
-        <!-- completed -->
         <Card
           v-else-if="status === 'completed'"
           tag="section"
@@ -87,7 +43,13 @@ const { snapshot, status, isConnecting, start, retry, cancel } = useInstaller()
             </button>
           </div>
         </Card>
-
+        <Configuration
+          v-else-if="
+            status === 'failed' ||
+            status === 'running' ||
+            status === 'awaitingInput'
+          "
+        />
         <!-- Unknown state -->
         <Card v-else tag="section" class="mt-8 bg-warning text-warning-content">
           <h2 class="card-title">{{ t("unknownState") }}</h2>

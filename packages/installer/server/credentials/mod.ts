@@ -4,14 +4,12 @@ import { FileCredentialResolver } from "./adapters/file.credential.resolver"
 import { InstallerConfig } from "@type/installer"
 import { safeImportDynamic } from "@common/utils/import.utils"
 import { InstallerEngine } from "../installer_engine"
+import { KeyringCredentialResolver } from "./adapters/keyring.credential.resolver"
 
-export async function createCredentialManager(
-  engine: InstallerEngine,
-  options: InstallerConfig
-) {
-  const registry = new CredentialManager()
+export async function createCredentialManager(engine: InstallerEngine) {
+  const registry = new CredentialManager(engine)
 
-  for (const credential of options.credentialSources ?? []) {
+  for (const credential of engine.config.credentialSources ?? []) {
     switch (credential.driver) {
       case "env":
         registry.register(new EnvCredentialResolver(engine, credential as any))
@@ -27,6 +25,8 @@ export async function createCredentialManager(
         registry.register(new mod(engine, credential))
     }
   }
+
+  registry.register(new KeyringCredentialResolver(engine, {}))
 
   return registry
 }

@@ -16,14 +16,18 @@ export const UIConfigSchema = Type.Object(
     hideSteps: Type.Optional(Type.Boolean()),
     hideSummary: Type.Optional(Type.Boolean()),
     stepsLayout: Type.Optional(
-      Type.Union([
-        Type.Literal("vertical"),
-        Type.Literal("simple"),
-        Type.Literal("horizontal")
-      ])
+      Type.Union(
+        [
+          Type.Literal("vertical"),
+          Type.Literal("simple"),
+          Type.Literal("horizontal")
+        ],
+        { default: "vertical" }
+      )
     )
   },
   {
+    default: {},
     additionalProperties: false
   }
 )

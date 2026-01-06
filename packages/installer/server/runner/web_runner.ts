@@ -14,7 +14,6 @@ import type { InstallerConfig } from "@type/installer"
 
 import ui_html from "../../index.html"
 import favicon from "../assets/favicon.svg" with { type: "text" }
-import { DEFAULT_FLOW } from "@common/installer_engine.types"
 import type { CliRuntimeOptions } from "@type/cli"
 import { resolveInstaller } from "../installers/resolve_installer"
 
@@ -40,10 +39,12 @@ export async function start_web_runner(
   const sessions = new Map<string, session>()
   const log_clients: ServerWebSocket<any>[] = []
 
-  const engine = resolveInstaller(installerConfig, DEFAULT_FLOW, {
-    log(level: string, message: string) {
-      for (const logClient of log_clients) {
-        logClient.send(new WSMessage("installer:log", { level, message }))
+  const engine = resolveInstaller(installerConfig, {
+    logger: {
+      log(level: string, message: string) {
+        for (const logClient of log_clients) {
+          logClient.send(new WSMessage("installer:log", { level, message }))
+        }
       }
     }
   })
@@ -70,9 +71,11 @@ export async function start_web_runner(
 
     existing.unsubscribe()
     const { engine } = existing
-    const unsubscribe = engine.onTransition((snapshot: InstallerSnapshot) => {
-      ws.send(new WSMessage("installer:state", snapshot as any))
-    })
+    const unsubscribe = engine.onTransition(
+      (snapshot: InstallerSnapshot, traceId?: string) => {
+        ws.send(new WSMessage("installer:state", snapshot as any, traceId))
+      }
+    )
 
     const updated: session = { ws, engine, unsubscribe }
     sessions.set(id, updated)
@@ -143,6 +146,7 @@ export async function start_web_runner(
             : null
 
           if (installer_event) {
+            installer_event.$id = message.id
             const sess = sessions.get(ws.data.id)
             if (!sess) {
               ws.send(
@@ -156,7 +160,6 @@ export async function start_web_runner(
             }
 
             await sess.engine.send(installer_event)
-            ws.send(message.generateResponse({ ok: true }))
             return
           }
 

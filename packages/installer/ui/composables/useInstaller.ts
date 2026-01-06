@@ -1,4 +1,3 @@
-// ui/composables/use_installer.ts
 import { ref, computed, onMounted, onBeforeUnmount } from "vue"
 import type {
   InstallerSnapshot,
@@ -9,15 +8,14 @@ import { WSMessage } from "@common/utils/ws.utils"
 
 type InstallerState = InstallerSnapshot | null
 
-// Connection status types
 export type ConnectionStatus =
-  | "idle" // Initial state, not yet attempting to connect
-  | "connecting" // WebSocket connection in progress
-  | "connected" // WebSocket successfully connected and ready
-  | "reconnecting" // Attempting to reconnect after connection loss
-  | "failed" // Connection failed (error occurred)
-  | "disconnected" // Connection was closed intentionally
-  | "error" // WebSocket error occurred
+  | "idle"
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "failed"
+  | "disconnected"
+  | "error"
 
 const WS_PATH = `ws://${import.meta.env.DEV ? "localhost:3000/" : ""}api`
 
@@ -33,7 +31,6 @@ function create_client_id(): string {
   return id
 }
 
-// Singleton WebSocket instance and shared state
 let sharedWs: WebSocket | null = null
 let sharedReconnectAttempts = 0
 let sharedReconnectTimer: number | null = null
@@ -41,14 +38,11 @@ let sharedConnectionStatus: ConnectionStatus = "idle"
 let sharedSnapshot: InstallerState = null
 let sharedLastError: unknown = null
 
-// Listeners for component-specific state updates
 const componentListeners = new Set<Function>()
-
 const MAX_RECONNECT_ATTEMPTS = 5
-const RECONNECT_DELAY = 2000 // 2 seconds
-// Message-type specific listeners
-type MessageHandler<T = any> = (message: WSMessage<string, T>) => void
+const RECONNECT_DELAY = 2000
 
+type MessageHandler<T = any> = (message: WSMessage<string, T>) => void
 const messageListeners = new Map<string, Set<MessageHandler>>()
 
 function addMessageListener<T>(type: string, handler: MessageHandler<T>) {
@@ -70,6 +64,7 @@ function removeMessageListener<T>(type: string, handler: MessageHandler<T>) {
 }
 
 function dispatchMessage(message: WSMessage<any>) {
+  console.log(message.id, message.data)
   const set = messageListeners.get(message.type)
   if (!set) return
   set.forEach((handler) => {
@@ -87,7 +82,7 @@ function notifyComponents() {
 
 function setSharedStatus(status: ConnectionStatus) {
   sharedConnectionStatus = status
-  console.log(`WebSocket status: ${status}`)
+  // console.log(`WebSocket status: ${status}`) // Optional logging
   notifyComponents()
 }
 
@@ -101,17 +96,40 @@ function setSharedLastError(error: unknown) {
   notifyComponents()
 }
 
+function waitForMessage<T>(
+  type: string,
+  traceId: string,
+  timeoutMs: number
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    let timer: number | null = null
+
+    const handler: MessageHandler<T> = (message) => {
+      if (message.id === traceId) {
+        if (timer) clearTimeout(timer)
+        removeMessageListener(type, handler)
+        resolve(message.data)
+      }
+    }
+
+    // Set timeout to prevent hanging forever
+    timer = window.setTimeout(() => {
+      removeMessageListener(type, handler)
+      reject(new Error(`Timeout waiting for server message: ${type}`))
+    }, timeoutMs)
+
+    addMessageListener(type, handler)
+  })
+}
+
 function connectShared() {
   if (
     sharedWs &&
     (sharedWs.readyState === WebSocket.CONNECTING ||
       sharedWs.readyState === WebSocket.OPEN)
   ) {
-    console.warn("WebSocket connection already exists or is connecting")
     return
   }
-
-  // Clear any existing reconnect timer
   if (sharedReconnectTimer) {
     clearTimeout(sharedReconnectTimer)
     sharedReconnectTimer = null
@@ -129,23 +147,17 @@ function connectShared() {
     sharedWs = socket
 
     socket.onopen = () => {
-      sharedReconnectAttempts = 0 // Reset reconnect attempts on successful connection
+      sharedReconnectAttempts = 0
       setSharedStatus("connected")
-
-      // Request current state
       const msg = new WSMessage("installer:get_state", {})
       socket.send(msg)
     }
 
     socket.onclose = (event) => {
       sharedWs = null
-
-      // Check if this was a clean close or an unexpected one
       if (event.wasClean && sharedConnectionStatus === "disconnected") {
-        // Intentional disconnect
         setSharedStatus("disconnected")
       } else {
-        // Unexpected disconnect, attempt to reconnect
         setSharedStatus("failed")
         attemptSharedReconnect()
       }
@@ -154,7 +166,6 @@ function connectShared() {
     socket.onerror = (error) => {
       setSharedLastError(error)
       setSharedStatus("error")
-      // Note: onclose will be called after onerror, so we don't attempt reconnect here
     }
 
     socket.onmessage = async (ev: MessageEvent) => {
@@ -162,12 +173,9 @@ function connectShared() {
         const message = await WSMessage.parse(ev.data)
         if (!message) return
 
-        // 🔔 NEW: dispatch to message listeners
         dispatchMessage(message)
 
-        // Existing shared-state handling
         if (message.type === "installer:state") {
-          console.log(message.data)
           setSharedSnapshot(message.data as InstallerSnapshot)
         }
       } catch (error) {
@@ -185,18 +193,11 @@ function connectShared() {
 
 function attemptSharedReconnect() {
   if (sharedReconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-    console.error("Max reconnection attempts reached")
     setSharedStatus("failed")
     return
   }
-
   sharedReconnectAttempts++
-  console.log(
-    `Attempting to reconnect... (${sharedReconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`
-  )
-
   setSharedStatus("reconnecting")
-
   sharedReconnectTimer = window.setTimeout(() => {
     connectShared()
   }, RECONNECT_DELAY)
@@ -204,17 +205,13 @@ function attemptSharedReconnect() {
 
 function disconnectShared() {
   setSharedStatus("disconnected")
-
-  // Clear reconnect timer
   if (sharedReconnectTimer) {
     clearTimeout(sharedReconnectTimer)
     sharedReconnectTimer = null
   }
-
   sharedReconnectAttempts = 0
-
   if (sharedWs) {
-    sharedWs.close(1000, "Client disconnected") // Normal closure
+    sharedWs.close(1000, "Client disconnected")
     sharedWs = null
   }
 }
@@ -225,10 +222,10 @@ function sendSharedEvent(event: InstallerEvent) {
     setSharedLastError(error)
     throw error
   }
-
   try {
     const msg = new WSMessage("installer:event", event)
     sharedWs.send(msg)
+    return msg
   } catch (error) {
     setSharedLastError(error)
     setSharedStatus("error")
@@ -237,7 +234,6 @@ function sendSharedEvent(event: InstallerEvent) {
 }
 
 export function useInstaller() {
-  // Component-specific reactive state that syncs with shared state
   const snapshot = ref<InstallerState>(sharedSnapshot)
   const connectionStatus = ref<ConnectionStatus>(sharedConnectionStatus)
   const lastError = ref<unknown>(sharedLastError)
@@ -249,39 +245,28 @@ export function useInstaller() {
     () => snapshot.value?.pendingInteraction
   )
 
-  // Computed properties for convenient status checks
   const isConnecting = computed(
     () =>
       connectionStatus.value === "connecting" ||
       connectionStatus.value === "reconnecting"
   )
-
   const isConnected = computed(() => connectionStatus.value === "connected")
-
   const isError = computed(
     () =>
       connectionStatus.value === "failed" || connectionStatus.value === "error"
   )
-
   const isDisconnected = computed(
     () => connectionStatus.value === "disconnected"
   )
 
-  // Connection health check
   const connectionHealth = computed(() => {
-    if (isConnected.value && sharedWs?.readyState === WebSocket.OPEN) {
+    if (isConnected.value && sharedWs?.readyState === WebSocket.OPEN)
       return "healthy"
-    }
-    if (isConnecting.value) {
-      return "connecting"
-    }
-    if (isError.value) {
-      return "unhealthy"
-    }
+    if (isConnecting.value) return "connecting"
+    if (isError.value) return "unhealthy"
     return "unknown"
   })
 
-  // Update component state when shared state changes
   const updateComponentState = () => {
     snapshot.value = sharedSnapshot
     connectionStatus.value = sharedConnectionStatus
@@ -289,100 +274,98 @@ export function useInstaller() {
     reconnectAttempts.value = sharedReconnectAttempts
   }
 
-  // Component-specific methods that delegate to shared methods
   function connect() {
     connectShared()
   }
-
   function disconnect() {
     disconnectShared()
   }
-
   function sendEvent(event: InstallerEvent) {
-    sendSharedEvent(event)
+    return sendSharedEvent(event)
   }
-
-  // high-level actions
-  function start() {
-    sendEvent({ type: "START" })
-  }
-
-  function retry() {
-    sendEvent({ type: "RETRY" })
-  }
-
-  function cancel() {
-    sendEvent({ type: "CANCEL" })
-  }
-  function onMessage<T = any>(
-    type: string | string[],
-    handler: (data: T, message: WSMessage<string, T>) => void
-  ) {
-    const types = Array.isArray(type) ? type : [type]
-
-    const wrapped: MessageHandler<T> = (message) => {
-      handler(message.data as T, message)
-    }
-
-    types.forEach((t) => addMessageListener(t, wrapped))
-
-    // Auto cleanup helper
-    return () => {
-      types.forEach((t) => removeMessageListener(t, wrapped))
-    }
-  }
-
-  function provideFormInput(payload: { values: any; stepIndex: number }) {
-    const interaction = pendingInteraction.value
-    if (!interaction) {
-      throw new Error("No pending interaction available")
-    }
-
-    sendEvent({
-      type: "PROVIDE_INPUT",
-      stepId: interaction.stepId,
-      kind: interaction.kind,
-      data: payload
-    })
-  }
-
-  // Manual connection control
   function reconnect() {
     sharedReconnectAttempts = 0
     connect()
   }
 
-  onMounted(() => {
-    // Register this component to receive updates
-    componentListeners.add(updateComponentState)
+  function start() {
+    sendEvent({ type: "START" })
+  }
+  function retry() {
+    sendEvent({ type: "RETRY" })
+  }
+  function cancel() {
+    sendEvent({ type: "CANCEL" })
+  }
 
-    // If this is the first component, connect
+  function onMessage<T = any>(
+    type: string | string[],
+    handler: (data: T, message: WSMessage<string, T>) => void
+  ) {
+    const types = Array.isArray(type) ? type : [type]
+    const wrapped: MessageHandler<T> = (message) => {
+      handler(message.data as T, message)
+    }
+    types.forEach((t) => addMessageListener(t, wrapped))
+    return () => {
+      types.forEach((t) => removeMessageListener(t, wrapped))
+    }
+  }
+
+  /**
+   * Sends an event and awaits a specific response type from the server.
+   * Useful for flow control where you need confirmation before UI updates.
+   */
+  async function sendEventAwait<T = any>(
+    event: InstallerEvent,
+    responseType: string = "installer:state",
+    timeoutMs: number = 120000
+  ): Promise<T> {
+    // Register listener BEFORE sending to avoid race conditions
+    const msg = sendEvent(event)
+    return waitForMessage<T>(responseType, msg.id, timeoutMs)
+  }
+
+  async function provideFormInput(payload: { values: any; stepIndex: number }) {
+    const interaction = pendingInteraction.value
+    if (!interaction) {
+      throw new Error("No pending interaction available")
+    }
+
+    // Prepare the event
+    const event: InstallerEvent = {
+      type: "PROVIDE_INPUT",
+      stepId: interaction.stepId,
+      kind: interaction.kind,
+      data: payload
+    }
+
+    // Send and wait for state update
+    // We expect the server to emit "installer:state" after processing input
+    return await sendEventAwait<InstallerSnapshot>(event, "installer:state")
+  }
+
+  onMounted(() => {
+    componentListeners.add(updateComponentState)
     if (componentListeners.size === 1 && sharedConnectionStatus === "idle") {
       connect()
     } else {
-      // Sync with current shared state
       updateComponentState()
     }
   })
 
   onBeforeUnmount(() => {
-    // Unregister this component
     componentListeners.delete(updateComponentState)
-
-    // If this was the last component, disconnect
     if (componentListeners.size === 0) {
       disconnect()
     }
   })
 
   return {
-    // State
     snapshot,
     connectionStatus,
     lastError,
     reconnectAttempts,
-
-    // Computed
     status,
     currentStep,
     pendingInteraction,
@@ -391,8 +374,6 @@ export function useInstaller() {
     isError,
     isDisconnected,
     connectionHealth,
-
-    // Methods
     onMessage,
     connect,
     disconnect,
@@ -400,6 +381,7 @@ export function useInstaller() {
     start,
     retry,
     cancel,
-    provideFormInput
+    provideFormInput, // Now returns Promise<InstallerSnapshot>
+    sendEventAwait // Exposed generic helper
   }
 }

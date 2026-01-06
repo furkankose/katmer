@@ -13,4 +13,9 @@ export class EnvCredentialResolver extends CredentialResolver<EnvCredentialSourc
     }
     return value
   }
+
+  async store(id: string, value: string) {
+    const lookup = `${this.source.prefix ?? ""}${id}`
+    process.env[lookup] = value
+  }
 }

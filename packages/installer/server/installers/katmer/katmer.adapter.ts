@@ -1,50 +1,86 @@
-import type {
-  FlowStepDefinition,
-  FlowStepResult,
-  StepInput
+import {
+  type FlowStepResult,
+  type StepInput,
+  InstallerOptions
 } from "@common/installer_engine.types"
-import { InstallerEngine } from "../../installer_engine"
+import {
+  InstallerEngine,
+  type InstallerStepPayload
+} from "../../installer_engine"
+import { KatmerCore } from "@katmer/core"
+import type { InstallerConfig } from "@type/installer"
 
+function katmerLogger(logfn: (...args: any[]) => void, bindings?: any) {
+  return {
+    child: (bindings: any) => katmerLogger(logfn, bindings),
+    debug: logfn.bind(null, "debug"),
+    error: logfn.bind(null, "error"),
+    fatal: logfn.bind(null, "fatal"),
+    info: logfn.bind(null, "info"),
+    trace: logfn.bind(null, "trace"),
+    warn: logfn.bind(null, "warn")
+  }
+}
 export class KatmerInstallerEngine extends InstallerEngine {
+  katmer: KatmerCore
+
+  constructor(
+    public config: InstallerConfig,
+    options: InstallerOptions
+  ) {
+    super(config, options)
+    this.katmer = new KatmerCore({ cwd: this.workspaceRoot, target: [] })
+    this.katmer.logger = katmerLogger(options.logger.log, {})
+  }
+
   async runStep(
-    step: FlowStepDefinition,
+    step: InstallerStepPayload,
     input?: StepInput
   ): Promise<FlowStepResult> {
-    switch (step.id) {
-      case "resolveCredentials": {
-        if (!input) {
-          const configured = Object.keys(this.context.config.credentials ?? {})
-          const already = Object.keys(this.context.credentials ?? {})
-          const missing_ids =
-            this.context.pendingCredentialIds.length > 0 ?
-              this.context.pendingCredentialIds
-            : configured.filter((id) => !already.includes(id))
-
-          if (missing_ids.length === 0) {
-            return this.done()
+    switch (step.stepId) {
+      case "init": {
+        if (input) {
+          const { values } = (input.data || {}) as {
+            values: { targets: any[] }
           }
-
-          return this.wait({
-            stepId: step.id,
-            kind: "credentials",
-            payload: { missing_ids }
-          })
+          if (values.targets) {
+            await this.katmer.loadConfig({
+              targets: {
+                hosts: values.targets.reduce<Record<string, any>>(
+                  (acc, target, ind) => ({
+                    ...acc,
+                    [target.id || target.hostname || ind]: target
+                  }),
+                  {}
+                )
+              }
+            })
+            await this.katmer.check()
+            return this.done({
+              targets: values.targets
+            })
+          }
         }
-
-        if (input.kind === "credentials" && input.data) {
-          const credentials = input.data as Record<string, string>
-          return this.done({
-            credentials: { ...this.context.credentials, ...credentials },
-            pendingCredentialIds: []
+        if (!step.data.targets) {
+          return this.wait({
+            stepId: step.stepId,
+            kind: "credentials",
+            payload: { targets: [] }
           })
         }
 
         return this.done()
       }
 
-      case "planDistribution": {
-        const version = this.context.config.version ?? "0.0.0"
-        const source = this.context.config.distribution?.sources?.[0]
+      case "prepare": {
+        this.context.logger.log("info", "Setting up installation files")
+
+        return this.done()
+      }
+
+      case "plan": {
+        const version = this.config.version ?? "0.0.0"
+        const source = this.config.distribution?.sources?.[0]
 
         const plan = {
           mode: "install" as const,
@@ -60,13 +96,8 @@ export class KatmerInstallerEngine extends InstallerEngine {
         return this.done({ plan })
       }
 
-      case "preparePayload": {
-        // placeholder for fetching/extracting files
-        return this.done()
-      }
-
-      case "collectInput": {
-        const stepsCount = this.context.config.steps?.length ?? 0
+      case "configure": {
+        const stepsCount = this.uiStepCount
 
         this.context.logger.log(
           "info",
@@ -75,10 +106,10 @@ export class KatmerInstallerEngine extends InstallerEngine {
         // first entry: ask UI to render all steps
         if (!input) {
           return this.wait({
-            stepId: step.id,
+            stepId: step.stepId,
             kind: "form",
             payload: {
-              steps: this.context.config.steps ?? []
+              steps: this.config.steps
             }
           })
         }
@@ -94,7 +125,7 @@ export class KatmerInstallerEngine extends InstallerEngine {
           }
 
           const mergedValues: Record<string, unknown> = {
-            ...(this.context.values ?? {}),
+            ...(step.data ?? {}),
             ...(values ?? {})
           }
 
@@ -105,14 +136,14 @@ export class KatmerInstallerEngine extends InstallerEngine {
             const nextIndex = index + 1
             return this.wait(
               {
-                stepId: step.id,
+                stepId: step.stepId,
                 kind: "form",
                 payload: {
-                  steps: this.context.config.steps ?? []
+                  steps: this.config.steps
                 }
               },
+              mergedValues,
               {
-                values: mergedValues,
                 uiState: {
                   formStepIndex: nextIndex
                 }
@@ -120,9 +151,8 @@ export class KatmerInstallerEngine extends InstallerEngine {
             )
           }
 
-          // last step -> finish collectInput
-          return this.done({
-            values: mergedValues,
+          // last step -> finish configure
+          return this.done(mergedValues, {
             uiState: undefined
           })
         }
@@ -130,14 +160,13 @@ export class KatmerInstallerEngine extends InstallerEngine {
         return this.done()
       }
 
-      case "executeInstall": {
-        this.context.logger.log("info", "Executing install steps")
+      case "install": {
         console.log(this.context)
         // placeholder for runtime execution (katmer / entrypoint)
         return this.done()
       }
 
-      case "executeMigrations": {
+      case "migrate": {
         // placeholder for migrations
         return this.done()
       }

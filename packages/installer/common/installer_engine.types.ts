@@ -1,7 +1,8 @@
-// installer-flow.types.ts
-import type { FieldPath } from "@type/core"
-import type { InstallerConfig } from "@type/installer"
 import type { InstallerMetadata } from "@type/metadata"
+import {
+  InstallerStep,
+  type InstallerStepPayload
+} from "../server/installer_engine"
 
 /**
  * High-level execution status for the installer flow.
@@ -17,61 +18,6 @@ export type InstallerStatus =
  * Describes how the current run relates to existing installation state.
  */
 export type InstallerMode = "install" | "upgrade" | "none"
-
-/**
- * Identifiers reserved for built-in steps that many installers use.
- * Custom steps can extend this with their own identifiers.
- */
-export type BuiltinFlowStepId =
-  | "resolveCredentials"
-  | "planDistribution"
-  | "preparePayload"
-  | "collectInput"
-  | "executeInstall"
-  | "executeMigrations"
-  | "finalize"
-
-/**
- * Identifier for a flow step.
- * Built-in identifiers are listed in BuiltinFlowStepId; installations can
- * introduce arbitrary custom step ids as well.
- */
-export type FlowStepId = BuiltinFlowStepId | (string & {})
-
-/**
- * A single step in the installer flow definition.
- */
-export interface FlowStepDefinition {
-  /**
-   * Unique identifier for the step within the flow.
-   */
-  id: FlowStepId
-
-  /**
-   * Human-readable label used in logs or UI.
-   */
-  label?: string
-
-  /**
-   * Optional description describing the purpose of the step.
-   */
-  description?: string
-
-  /**
-   * Boolean-like expression that can be used by the environment to decide
-   * whether this step should run. The interpretation of this expression
-   * is environment-specific.
-   */
-  when?: string
-}
-
-/**
- * Complete definition of the installer flow.
- * Steps are executed sequentially by default.
- */
-export interface FlowDefinition {
-  steps: FlowStepDefinition[]
-}
 
 /**
  * Distribution plan for a given run. The environment is responsible for
@@ -90,6 +36,10 @@ export interface Logger {
   log(level: string, message: string): void
 }
 
+export interface InstallerOptions {
+  logger: Logger
+  promptHandler?: PromptHandler
+}
 /**
  * Context shared across steps of the installer flow.
  * This structure is intended to be serializable.
@@ -97,20 +47,9 @@ export interface Logger {
 export interface InstallerContext {
   logger: Logger
   /**
-   * Static installer configuration loaded at startup.
-   */
-  config: InstallerConfig
-
-  /**
    * Distribution plan resolved for this run, if available.
    */
   plan?: DistributionPlan
-
-  /**
-   * Accumulated answers for configuration fields.
-   * Keys are field paths such as "app.domain".
-   */
-  values: Record<FieldPath, unknown>
 
   /**
    * Resolved credential values indexed by credential id.
@@ -160,7 +99,7 @@ export interface InteractionRequest {
   /**
    * Identifier of the step that is currently awaiting input.
    */
-  stepId: FlowStepId
+  stepId: InstallerStep
 
   /**
    * Type of interaction requested (for example "credentials" or "form").
@@ -192,6 +131,8 @@ export type FlowStepResult =
        */
       type: "done"
 
+      data?: Record<string, any>
+
       /**
        * Partial context update to apply after the step finishes.
        */
@@ -204,6 +145,7 @@ export type FlowStepResult =
        */
       type: "wait"
 
+      data?: Record<string, any>
       /**
        * Interaction description sent to the UI layer.
        */
@@ -228,7 +170,7 @@ export interface InstallerEnvironment {
    * last suspension point.
    */
   runStep(
-    step: FlowStepDefinition,
+    step: InstallerStep,
     context: InstallerContext,
     input?: StepInput
   ): Promise<FlowStepResult>
@@ -238,16 +180,18 @@ export interface InstallerEnvironment {
  * Events that drive the installer flow.
  * UIs and backends send these into the engine.
  */
-export type InstallerEvent =
+export type InstallerEvent = (
+  | { type: "PROMPT"; data: PromptRequest }
   | { type: "START" }
   | { type: "CANCEL" }
   | { type: "RETRY" }
   | {
       type: "PROVIDE_INPUT"
-      stepId: FlowStepId
+      stepId: InstallerStep
       kind: InteractionKind
       data: unknown
     }
+) & { $id?: string }
 
 /**
  * Serialized representation of the engine state used for persistence.
@@ -271,7 +215,7 @@ export interface SerializedInstallerState {
   /**
    * Index of the currently active step within the flow definition.
    */
-  currentStepIndex: number
+  currentStep: InstallerStep
 
   /**
    * Interaction request that is currently awaiting input, if any.
@@ -285,50 +229,32 @@ export interface SerializedInstallerState {
 export interface InstallerSnapshot {
   status: InstallerStatus
   context: InstallerContext
-  currentStepIndex: number
-  currentStep?: FlowStepDefinition
+  steps: Record<InstallerStep, InstallerStepPayload>
+  currentStep?: InstallerStep
   pendingInteraction?: InteractionRequest
 }
 
 /**
  * Listener invoked whenever the engine transitions to a new state.
  */
-export type TransitionListener = (snapshot: InstallerSnapshot) => void
+export type TransitionListener = (
+  snapshot: InstallerSnapshot,
+  traceId?: string
+) => void
+export type PromptHandler = (
+  data: PromptRequest,
+  snapshot: InstallerSnapshot
+) => PromptResponse
 
-/**
- * Default sequential flow covering a common installer lifecycle.
- * Environments can implement handlers for each built-in step id, or
- * provide their own FlowDefinition when constructing the engine.
- */
-export const DEFAULT_FLOW: FlowDefinition = {
-  steps: [
-    {
-      id: "resolveCredentials",
-      label: "Resolve credentials"
-    },
-    {
-      id: "planDistribution",
-      label: "Plan distribution"
-    },
-    {
-      id: "preparePayload",
-      label: "Prepare payload"
-    },
-    {
-      id: "collectInput",
-      label: "Collect configuration"
-    },
-    {
-      id: "executeInstall",
-      label: "Execute installation"
-    },
-    {
-      id: "executeMigrations",
-      label: "Execute migrations"
-    },
-    {
-      id: "finalize",
-      label: "Finalize"
-    }
-  ]
+export type PromptRequest = {
+  key: string
+  type: string
+  message?: string
+  usage?: string
 }
+
+export type PromptResponse = {
+  value: string
+}
+
+export { InstallerStep }

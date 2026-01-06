@@ -1,8 +1,9 @@
-import { readFile } from "node:fs/promises"
+import { readFile, writeFile } from "node:fs/promises"
 import { resolve } from "node:path"
 import { CredentialResolver } from "../credential.resolver"
 import type { InstallerContext } from "@common/installer_engine.types"
 import { FileCredentialSource } from "@type/credentials"
+import process from "node:process"
 
 export class FileCredentialResolver extends CredentialResolver<FileCredentialSource> {
   driver = "file" as const
@@ -23,5 +24,12 @@ export class FileCredentialResolver extends CredentialResolver<FileCredentialSou
     } catch {
       throw new Error(`File credential not found: ${file}`)
     }
+  }
+
+  async store(id: string, value: string) {
+    const file = resolve(this.source.dir ?? "", id)
+    await writeFile(file, value, {
+      encoding: (this.source.encoding as any) ?? "utf8"
+    })
   }
 }

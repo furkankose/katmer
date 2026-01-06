@@ -10,8 +10,7 @@ export const Step = createInput(
     features: [
       disablesChildren,
       (node) => {
-        node.props.clickable ??= true
-        node.props.disabled ??= false
+        console.log(node.props.disabled)
       }
     ]
   },

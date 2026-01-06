@@ -15,23 +15,23 @@ export abstract class CredentialResolver<T extends CredentialSource = any> {
    * Must return the secret value as string.
    * Must throw if credential does not exist or is inaccessible.
    */
-  abstract resolve(id: string): Promise<string>
+  abstract resolve(id: string): Promise<string | null | undefined>
+
+  abstract store(id: string, secret: string): Promise<void>
 }
 
 export class CredentialManager {
   private readonly resolvers = new Map<string, CredentialResolver>()
-  private order: string[] = []
+  private order: Set<string> = new Set<string>()
 
+  constructor(protected engine: InstallerEngine) {}
   /**
    * Register a resolver.
    * If order is not explicitly set, registration order is used.
    */
   register(resolver: CredentialResolver): this {
     this.resolvers.set(resolver.driver, resolver)
-
-    if (!this.order.includes(resolver.driver)) {
-      this.order.push(resolver.driver)
-    }
+    this.order.add(resolver.driver)
 
     return this
   }
@@ -39,7 +39,7 @@ export class CredentialManager {
   /**
    * Resolve a credential value using fallback semantics.
    */
-  async resolve(id: string): Promise<string> {
+  async resolve(id: string) {
     const errors: Error[] = []
 
     for (const name of this.order) {
@@ -51,9 +51,12 @@ export class CredentialManager {
       }
     }
 
+    const messages = errors
+      .map((e) => e.message)
+      .filter(Boolean)
+      .join(" | ")
     throw new Error(
-      `Credential "${id}" could not be resolved. Errors: ` +
-        errors.map((e) => e.message).join(" | ")
+      `Credential "${id}" could not be resolved.${messages ? ` Errors: ${messages}` : ``}`
     )
   }
 }

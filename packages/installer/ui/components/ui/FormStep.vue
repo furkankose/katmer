@@ -6,13 +6,19 @@ import { useI18n } from "vue-i18n"
 import { Step } from "@/plugins/formkit/components/step"
 import Summary from "@/components/Summary.vue"
 
-const props = defineProps({
-  step: { type: Object, required: true },
-  handleNext: { type: Function as () => () => void, required: true },
-  handleBack: { type: Function as () => () => void, default: null },
-  submitLabel: { type: String, default: "next" },
-  showBack: { type: Boolean, default: false }
-})
+withDefaults(
+  defineProps<{
+    step: any
+    handleNext: () => void
+    handleBack: () => void
+    nextLabel?: string
+    showBack?: boolean
+  }>(),
+  {
+    showBack: false,
+    nextLabel: "next"
+  }
+)
 
 defineEmits<{
   cancel: []
@@ -27,7 +33,6 @@ defineExpose({ formStep })
 
 <template>
   <FormKit
-    :key="step.name"
     ref="formStep"
     name="__$hidden"
     type="step"
@@ -71,7 +76,7 @@ defineExpose({ formStep })
         </button>
 
         <button type="button" class="btn btn-primary" @click="handleNext">
-          {{ t(submitLabel) }}
+          {{ t(nextLabel) }}
         </button>
       </footer>
     </template>

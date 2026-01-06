@@ -157,11 +157,11 @@ export type CredentialConfig = Static<typeof CredentialConfigSchema>
 
 // ---------- AUTH ----------
 
-export const AuthDriverSchema = Type.String({
+export const AuthTypeSchema = Type.String({
   description:
     'Auth driver. Known values: "none", "basic", "bearer", "header", "query", "aws", "git".'
 })
-export type AuthDriver = Static<typeof AuthDriverSchema>
+export type CredentialAuthType = Static<typeof AuthTypeSchema>
 
 /**
  * How a source / probe uses credentials.
@@ -169,7 +169,7 @@ export type AuthDriver = Static<typeof AuthDriverSchema>
  */
 export const AuthConfigSchema = Type.Object(
   {
-    driver: Type.Optional(AuthDriverSchema),
+    type: Type.Optional(AuthTypeSchema),
 
     /**
      * Single credential for simple schemes (e.g. Bearer token, API key).

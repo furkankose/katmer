@@ -1,8 +1,4 @@
-// installer-flow.engine.ts
-import type {
-  FlowDefinition,
-  FlowStepDefinition,
-  InstallerEnvironment,
+import {
   InstallerEvent,
   InstallerSnapshot,
   InstallerStatus,
@@ -11,15 +7,31 @@ import type {
   StepInput,
   TransitionListener,
   InteractionRequest,
-  FlowStepId,
   FlowStepResult,
-  Logger
+  InstallerOptions
 } from "@common/installer_engine.types"
 import type { InstallerConfig } from "@type/installer"
-import { createSourceManager } from "./sources/mod"
 import { createCredentialManager } from "./credentials/mod"
-import { SourceManager } from "./sources/source.manager"
 import { CredentialManager } from "./credentials/credential.resolver"
+import * as os from "node:os"
+import path from "node:path"
+
+const STEPS = [
+  "init",
+  "prepare",
+  "plan",
+  "configure",
+  "install",
+  "migrate",
+  "finalize"
+] as const
+
+export type InstallerStep = (typeof STEPS)[number]
+export type InstallerStepPayload = {
+  stepId: InstallerStep
+  data: Record<string, any>
+}
+
 /**
  * State machine responsible for orchestrating the installer flow.
  * It executes steps sequentially and suspends when user interaction
@@ -31,38 +43,70 @@ export abstract class InstallerEngine {
   status: InstallerStatus = "idle"
 
   credentialManager!: CredentialManager
-  sourceManager!: SourceManager
 
-  private readonly flow: FlowDefinition
-  private currentStepIndex = 0
+  private currentStep = "init" as InstallerStep
   private pendingInteraction?: InteractionRequest
   private readonly listeners = new Set<TransitionListener>()
+
+  steps: Record<
+    | "install"
+    | "init"
+    | "prepare"
+    | "plan"
+    | "configure"
+    | "migrate"
+    | "finalize",
+    InstallerStepPayload
+  >
+  uiStepCount: number
 
   /**
    * Creates a new engine instance.
    *
    * @param config Static installer configuration.
-   * @param flow Flow definition describing the sequence of steps.
-   * @param logger Logger interface for emitting events.
+   * @param options
    */
-  constructor(config: InstallerConfig, flow: FlowDefinition, logger: Logger) {
-    this.flow = flow
+  constructor(
+    public config: InstallerConfig,
+    options: InstallerOptions
+  ) {
+    this.workspaceRoot = path.resolve(os.tmpdir(), `${config.id}`)
+
     this.context = {
-      logger,
-      config,
+      logger: options.logger,
       plan: undefined,
-      values: {},
       credentials: {},
       pendingCredentialIds: [],
       lastError: undefined
     }
+    this.steps = this.prepareInstallationSteps()
+    this.uiStepCount = Object.entries(this.config.steps || {}).reduce<number>(
+      (total, [_stepName, config]) => {
+        for (const step of config) {
+          if (step && (step.name || step.label)) {
+            total++
+          }
+        }
+        return total
+      },
+      0
+    )
   }
 
   async initialize() {
-    this.sourceManager = await createSourceManager(this, this.context.config)
-    this.credentialManager = await createCredentialManager(
-      this,
-      this.context.config
+    this.credentialManager = await createCredentialManager(this)
+  }
+
+  prepareInstallationSteps() {
+    return STEPS.reduce<Record<InstallerStep, InstallerStepPayload>>(
+      (acc, step) => {
+        acc[step] = {
+          stepId: step,
+          data: {}
+        }
+        return acc
+      },
+      {} as any
     )
   }
 
@@ -74,7 +118,7 @@ export abstract class InstallerEngine {
    * last suspension point.
    */
   abstract runStep(
-    step: FlowStepDefinition,
+    step: InstallerStepPayload,
     input?: StepInput
   ): Promise<FlowStepResult>
   // /**
@@ -113,9 +157,9 @@ export abstract class InstallerEngine {
   getSnapshot(): InstallerSnapshot {
     return {
       status: this.status,
+      steps: this.steps,
       context: this.context,
-      currentStepIndex: this.currentStepIndex,
-      currentStep: this.flow.steps[this.currentStepIndex],
+      currentStep: this.currentStep,
       pendingInteraction: this.pendingInteraction
     }
   }
@@ -128,7 +172,7 @@ export abstract class InstallerEngine {
       schemaVersion: 1,
       status: this.status,
       context: this.context,
-      currentStepIndex: this.currentStepIndex,
+      currentStep: this.currentStep,
       pendingInteraction: this.pendingInteraction
     }
   }
@@ -149,7 +193,7 @@ export abstract class InstallerEngine {
           this.resetRunState()
           this.status = "running"
           this.emitTransition()
-          await this.runLoop()
+          await this.runLoop(event)
         }
         break
       }
@@ -159,7 +203,7 @@ export abstract class InstallerEngine {
           this.resetRunState()
           this.status = "running"
           this.emitTransition()
-          await this.runLoop()
+          await this.runLoop(event)
         }
         break
       }
@@ -197,9 +241,9 @@ export abstract class InstallerEngine {
           data: event.data
         }
 
-        await this.runCurrentStepWithInput(input)
+        await this.runCurrentStepWithInput(input, event)
         if (this.status === "running") {
-          await this.runLoop()
+          await this.runLoop(event)
         }
         break
       }
@@ -213,12 +257,12 @@ export abstract class InstallerEngine {
    * static configuration.
    */
   private resetRunState(): void {
-    this.currentStepIndex = 0
+    this.currentStep = "init"
     this.pendingInteraction = undefined
+    this.steps = this.prepareInstallationSteps()
     this.context = {
       ...this.context,
       plan: undefined,
-      values: this.context.values ?? {},
       credentials: this.context.credentials ?? {},
       pendingCredentialIds: [],
       lastError: undefined
@@ -229,68 +273,81 @@ export abstract class InstallerEngine {
    * Executes steps sequentially until the flow either completes,
    * requests user interaction, or fails.
    */
-  private async runLoop(): Promise<void> {
-    const steps = this.flow.steps
+  private async runLoop(initiater: InstallerEvent): Promise<void> {
+    const steps = this.steps
 
-    while (this.status === "running" && this.currentStepIndex < steps.length) {
-      const step = steps[this.currentStepIndex]
+    while (this.status === "running" && this.currentStep != "finalize") {
+      const step = steps[this.currentStep]
 
       try {
         const result = await this.runStep(step)
-        this.applyStepResult(result)
+        this.applyStepResult(result, initiater)
         if (this.status !== "running") {
           return
         }
       } catch (err: any) {
-        this.failWithError(err)
+        this.failWithError(err, initiater)
         return
       }
     }
 
-    if (this.status === "running" && this.currentStepIndex >= steps.length) {
+    if (this.status === "running" && this.currentStep == "finalize") {
       this.status = "completed"
-      this.emitTransition()
+      this.emitTransition(initiater)
     }
   }
 
   /**
    * Re-runs the current step with input provided after an interaction.
    */
-  private async runCurrentStepWithInput(input: StepInput): Promise<void> {
-    const step = this.flow.steps[this.currentStepIndex]
-
+  private async runCurrentStepWithInput(
+    input: StepInput,
+    initiater: InstallerEvent
+  ): Promise<void> {
+    const step = this.steps[this.currentStep]
     try {
       const result = await this.runStep(step, input)
-      this.applyStepResult(result)
+      this.applyStepResult(result, initiater)
     } catch (err: any) {
-      this.failWithError(err)
+      this.failWithError(err, initiater)
     }
   }
 
   /**
    * Applies the result of a step execution to the engine state.
    */
-  private applyStepResult(result: FlowStepResult): void {
+  private applyStepResult(
+    result: FlowStepResult,
+    initiater: InstallerEvent
+  ): void {
     if (result.contextPatch) {
       this.context = { ...this.context, ...result.contextPatch }
     }
+    if (result.data) {
+      this.steps[this.currentStep].data = {
+        ...(this.steps[this.currentStep].data || {}),
+        ...result.data
+      }
+    }
 
     if (result.type === "done") {
-      this.currentStepIndex += 1
+      this.currentStep =
+        STEPS[(STEPS.indexOf(this.currentStep) + 1) % STEPS.length]
+
       this.pendingInteraction = undefined
-      this.emitTransition()
+      this.emitTransition(initiater)
       return
     }
 
     this.pendingInteraction = result.interaction
     this.status = "awaitingInput"
-    this.emitTransition()
+    this.emitTransition(initiater)
   }
 
   /**
    * Updates the state to failed, using information from the error object.
    */
-  private failWithError(err: any): void {
+  private failWithError(err: any, initiater: InstallerEvent): void {
     const message =
       err && typeof err.message === "string" ?
         err.message
@@ -307,16 +364,16 @@ export abstract class InstallerEngine {
         details: err
       }
     }
-    this.emitTransition()
+    this.emitTransition(initiater)
   }
 
   /**
    * Emits the current snapshot to all registered listeners.
    */
-  private emitTransition(): void {
+  private emitTransition(initiater?: InstallerEvent): void {
     const snapshot = this.getSnapshot()
     for (const listener of this.listeners) {
-      listener(snapshot)
+      listener(snapshot, initiater?.$id)
     }
   }
 
@@ -324,27 +381,33 @@ export abstract class InstallerEngine {
    * Checks whether a PROVIDE_INPUT event corresponds to the interaction
    * the engine is currently waiting for.
    */
-  private isMatchingInteraction(stepId: FlowStepId, kind: string): boolean {
+  private isMatchingInteraction(stepId: InstallerStep, kind: string): boolean {
     return (
       this.pendingInteraction?.stepId === stepId &&
-      this.pendingInteraction.kind === kind
+      this.pendingInteraction!.kind === kind
     )
   }
 
   wait(
     interaction: InteractionRequest,
+    data?: Record<string, any>,
     patch?: Partial<InstallerContext>
   ): FlowStepResult {
     return {
       type: "wait",
       interaction,
+      data,
       contextPatch: patch
     }
   }
 
-  done(patch?: Partial<InstallerContext>): FlowStepResult {
+  done(
+    data?: Record<string, any>,
+    patch?: Partial<InstallerContext>
+  ): FlowStepResult {
     return {
       type: "done",
+      data,
       contextPatch: patch
     }
   }

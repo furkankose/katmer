@@ -23,7 +23,7 @@ declare module "*.vue" {
 declare module "@app/config" {
   import type { InstallerConfig } from "@type/installer"
 
-  const config: InstallerConfig
+  const config: Required<InstallerConfig>
   export default config
 }
 

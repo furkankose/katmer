@@ -22,6 +22,6 @@ export const DistributionConfigSchema = Type.Object(
      */
     versioning: Type.Optional(VersioningStrategyConfigSchema)
   },
-  { additionalProperties: false }
+  { additionalProperties: false, default: {} }
 )
 export type DistributionConfig = Static<typeof DistributionConfigSchema>
