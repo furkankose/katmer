@@ -4,6 +4,19 @@
 </div>
 
 
+> ⚠️ **Alpha Status** ⚠️
+>
+> katmer is currently in **alpha**.
+>
+> - APIs, configuration schemas, and module behavior are **unstable**
+> - **Breaking changes** may occur at any time without prior notice
+> - Features may be incomplete, experimental, or subject to redesign
+>
+> **Do not use in production** yet.
+> 
+> Feedback and early experimentation are welcome.
+
+
 ## What is katmer?
 
 katmer is a modular infrastructure management framework designed to simplify the deployment and configuration of software across diverse environments. Built with a plugin-based architecture, Katmer enables you to define, provision, and manage infrastructure through reusable modules that adapt to different platforms, architectures, and operating systems.
