@@ -21,12 +21,12 @@
   ],
   "plugins": ["oxc", "typescript", "unicorn", "import"],
   "rules": {
-    "sort-imports": "off",
     "no-async-promise-executor": "off",
     "no-control-regex": "off",
     "no-unused-vars": "off",
     "no-useless-escape": "off",
     "no-useless-fallback-in-spread": "off",
+    "sort-imports": "off",
     "unicorn/no-invalid-fetch-options": "off",
     "unicorn/no-new-array": "off"
   }

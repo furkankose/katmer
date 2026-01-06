@@ -53,6 +53,7 @@ export default defineConfigWithVueTs(
         }
       ],
       "no-useless-fallback-in-spread": "off",
+      "@typescript-eslint/no-namespace": "off",
       "vue/attributes-order": "error",
       "vue/block-order": "error",
       "vue/no-lone-template": "error",
