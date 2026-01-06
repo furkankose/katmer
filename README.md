@@ -3,14 +3,9 @@
   <p style="font-size: 24px"><strong>Manage your infrastructure with ease</strong></p>
 </div>
 
-
-> ⚠️ **Alpha Status** ⚠️
->
-> katmer is currently in **alpha**.
->
-> - APIs, configuration schemas, and module behavior are **unstable**
-> - **Breaking changes** may occur at any time without prior notice
-> - Features may be incomplete, experimental, or subject to redesign
+> [!CAUTION]
+> katmer is currently in **alpha**. This project is still in early development. Interfaces, schemas, and behavior
+> may change without notice. 
 >
 > **Do not use in production** yet.
 > 
