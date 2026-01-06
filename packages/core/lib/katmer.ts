@@ -32,12 +32,20 @@ export class KatmerCore {
   async init() {
     await this.loadConfig()
     this.initLogger()
-    this.registry = new KatmerModuleRegistry(this)
+    this.initRegistry()
   }
 
-  async loadConfig() {
-    const { target, cwd } = this.opts
-    this.config = await KatmerConfigLoader.load(target, { cwd })
+  async loadConfig(config?: Partial<KatmerConfig>) {
+    if (config) {
+      this.config = KatmerConfigLoader.validate(config)
+    } else {
+      const { target, cwd } = this.opts
+      this.config = await KatmerConfigLoader.load(target, { cwd })
+    }
+  }
+
+  initRegistry() {
+    this.registry = new KatmerModuleRegistry(this)
   }
 
   initLogger() {

@@ -66,7 +66,7 @@ export const KatmerConfigLoader = {
     config.cwd = opts?.cwd || process.cwd()
     return config
   },
-  validate(obj: any, filename: string) {
+  validate(obj: any, filename?: string) {
     const configValidator = ajv.getSchema(
       "https://katmer.dev/schemas/katmer-config.schema.json"
     )!
@@ -74,7 +74,7 @@ export const KatmerConfigLoader = {
     if (configValidator.errors) {
       const err = configValidator.errors[0]
       throw new Error(
-        `Invalid configuration [${filename}]: ${normalizeAjvError(err)} at path: ${err.instancePath}`
+        `Invalid configuration${filename ? ` [${filename}]` : ""}: ${normalizeAjvError(err)} at path: ${err.instancePath}`
       )
     }
     return obj
