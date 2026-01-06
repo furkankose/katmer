@@ -6,6 +6,13 @@ import type { Katmer } from "../interfaces/task.interface"
 import type { SSHProvider } from "../providers/ssh/ssh.provider"
 import { KatmerModule } from "../lib/module"
 
+declare module "../interfaces/task.interface" {
+  export namespace Katmer {
+    export interface TaskActions {
+      systemd_service?: SystemdServiceModuleOptions
+    }
+  }
+}
 /**
  * Manage systemd units (start/stop/restart/reload/enable/disable/mask/unmask/daemon-reload).
  *

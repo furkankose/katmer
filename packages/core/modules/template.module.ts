@@ -14,6 +14,13 @@ import path from "node:path"
 import { toOctal } from "../utils/number.utils"
 import { KatmerModule } from "../lib/module"
 
+declare module "../interfaces/task.interface" {
+  export namespace Katmer {
+    export interface TaskActions {
+      template?: TemplateModuleOptions
+    }
+  }
+}
 /**
  * Options for the `template` module.
  *

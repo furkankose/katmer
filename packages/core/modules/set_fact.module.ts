@@ -19,7 +19,7 @@ import { KatmerModule } from "../lib/module"
  *       render: true
  */
 declare module "../interfaces/task.interface" {
-  export namespace KatmerTask {
+  export namespace Katmer {
     export interface TaskActions {
       /** Compute and set variables (facts) on the task context. */
       set_fact?: SetFactModuleOptions

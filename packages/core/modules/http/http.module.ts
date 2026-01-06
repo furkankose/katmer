@@ -6,7 +6,7 @@ import { HttpModule as HTTPCurlModule } from "./http.curl.module"
 import { HttpModule as HTTPLocalModule } from "./http.local.module"
 
 declare module "../../interfaces/task.interface" {
-  export namespace KatmerTask {
+  export namespace Katmer {
     export interface TaskActions {
       /**
        * Perform an HTTP(S) request.

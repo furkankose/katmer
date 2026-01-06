@@ -9,9 +9,7 @@ import { toOctal } from "../../utils/number.utils"
 import { mkdir, writeFile, readFile, chmod, chown } from "fs/promises"
 import { basename, dirname } from "path"
 import type { BodyInit } from "bun"
-import { TextDecoder } from "node:util"
 import type { KatmerProvider } from "../../interfaces/provider.interface"
-import { parseHeaderString } from "../../utils/http.utils"
 import { KatmerModule } from "../../lib/module"
 
 export class HttpModule extends KatmerModule<

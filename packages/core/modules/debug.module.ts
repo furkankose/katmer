@@ -9,7 +9,13 @@ import { get } from "es-toolkit/compat"
 import { evalTemplate } from "../utils/renderer/renderer"
 import { wrapInArray } from "../utils/json.utils"
 import { KatmerModule } from "../lib/module"
-
+declare module "../interfaces/task.interface" {
+  export namespace Katmer {
+    export interface TaskActions {
+      debug?: DebugModuleOptions | string | string[]
+    }
+  }
+}
 /**
  * Print messages and/or variable values for troubleshooting.
  *

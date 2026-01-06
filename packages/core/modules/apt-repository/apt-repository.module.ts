@@ -5,7 +5,7 @@ import type { SSHProvider } from "../../providers/ssh/ssh.provider"
 import { KatmerModule } from "../../lib/module"
 
 declare module "../../interfaces/task.interface" {
-  export namespace KatmerTask {
+  export namespace Katmer {
     export interface TaskActions {
       /**
        * Manage apt repositories (.list files).
@@ -293,7 +293,7 @@ export class AptRepositoryModule extends KatmerModule<
       } else {
         const { repo, regexp } = this.params
         const repos = Array.isArray(repo) ? repo : [repo]
-        if (repos.length > 0 && repos.some(Boolean)) {
+        if (repos.length > 0) {
           for (const r of repos) {
             if (!r) continue
             sources_list.remove_source(r, undefined)
@@ -324,8 +324,8 @@ export class AptRepositoryModule extends KatmerModule<
       const beforeKeys = new Set(Object.keys(sources_before))
       const afterKeys = new Set(Object.keys(sources_after))
 
-      sources_added = [...[...afterKeys].filter((k) => !beforeKeys.has(k))]
-      sources_removed = [...[...beforeKeys].filter((k) => !afterKeys.has(k))]
+      sources_added = [...afterKeys].filter((k) => !beforeKeys.has(k))
+      sources_removed = [...beforeKeys].filter((k) => !afterKeys.has(k))
 
       const union = new Set<string>([
         ...sources_added,

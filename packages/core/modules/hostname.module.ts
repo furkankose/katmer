@@ -6,6 +6,14 @@ import type { Katmer } from "../interfaces/task.interface"
 import type { SSHProvider } from "../providers/ssh/ssh.provider"
 import { KatmerModule } from "../lib/module"
 
+declare module "../interfaces/task.interface" {
+  export namespace Katmer {
+    export interface TaskActions {
+      hostname?: HostnameModuleOptions
+    }
+  }
+}
+
 /**
  * Get or set the system hostname.
  *

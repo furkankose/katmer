@@ -5,7 +5,7 @@ import type { OsInfo } from "../interfaces/provider.interface"
 import { KatmerModule } from "../lib/module"
 
 declare module "../interfaces/task.interface" {
-  export namespace KatmerTask {
+  export namespace Katmer {
     export interface TaskActions {
       apt?: AptModuleOptions
     }

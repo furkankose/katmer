@@ -16,6 +16,13 @@ import { KatmerModule } from "../lib/module"
 
 type OsKey = "linux" | "darwin" | "windows"
 
+declare module "../interfaces/task.interface" {
+  export namespace Katmer {
+    export interface TaskActions {
+      gather_facts?: GatherFactsModuleOptions
+    }
+  }
+}
 /**
  * You can pass `true` to use sensible defaults with controller caching and target-side persistence.
  * If a string array is provided, it will be used as the `modules` list.

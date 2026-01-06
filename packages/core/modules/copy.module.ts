@@ -22,6 +22,13 @@ const exec = promisify(execCb)
 
 const REMOTE_STAGE_DIR = "/tmp"
 
+declare module "../interfaces/task.interface" {
+  export namespace Katmer {
+    export interface TaskActions {
+      copy?: CopyModuleOptions
+    }
+  }
+}
 /**
  * Options for the {@link CopyModule | `copy`} module.
  *

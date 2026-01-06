@@ -26,9 +26,7 @@ export namespace Katmer {
   /*
    * For plugins
    */
-  export interface TaskActions {
-    [key: string]: unknown
-  }
+  export interface TaskActions {}
 
   export interface TaskContext<
     Provider extends KatmerProvider = KatmerProvider
@@ -85,13 +83,13 @@ export namespace Katmer {
     register?: string
     allow_failure?: boolean
     variables?: RuleVariables
-    [k: string]: unknown
+    environment?: string | Record<string, string>
   }
 
   export interface Task extends TaskActions, TaskRule {
     name?: string
     targets: string[]
-    script: string[]
+    script?: string[]
   }
 
   export type Config = {

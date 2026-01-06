@@ -4,7 +4,7 @@ import type { Katmer } from "../interfaces/task.interface"
 import { KatmerModule } from "../lib/module"
 
 declare module "../interfaces/task.interface" {
-  export namespace KatmerTask {
+  export namespace Katmer {
     export interface TaskActions {
       become?: BecomeModuleOptions
     }
