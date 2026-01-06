@@ -14,7 +14,13 @@
 
 ## What is katmer?
 
-katmer is a modular infrastructure management framework designed to simplify the deployment and configuration of software across diverse environments. Built with a plugin-based architecture, Katmer enables you to define, provision, and manage infrastructure through reusable modules that adapt to different platforms, architectures, and operating systems.
+**katmer** (named after the traditional Turkish layered dessert, from the word *"kat"* 
+meaning "layer", pronounced /kaˈtmer/) is a modular infrastructure management framework 
+designed to simplify how infrastructure is defined, composed, and executed. 
+
+It emphasizes building systems from clear, reusable layers that adapt across operating systems, architectures, and environments.
+
+
 
 ## Features
 
@@ -24,4 +30,5 @@ katmer is a modular infrastructure management framework designed to simplify the
 - **Beautiful Installation Experience**: Auto-generated UI from configuration schemas
 - **Remote Management**: Built-in SSH and remote execution capabilities
 - **Extensible**: Plugin system for custom functionality
+
 
