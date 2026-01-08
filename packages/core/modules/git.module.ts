@@ -76,7 +76,8 @@ export class GitModule extends KatmerModule<
 
   constraints = {
     platform: {
-      any: true
+      local: true,
+      any: { packages: ["git"] }
     }
   } satisfies ModuleConstraints
 
