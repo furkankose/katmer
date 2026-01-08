@@ -81,7 +81,10 @@ export interface ModulePlatformConstraint {
  */
 export interface ModuleConstraints {
   platform?: {
-    [family in OsFamily | "any"]?: true | false | ModulePlatformConstraint
+    [family in OsFamily | "any" | "local"]?:
+      | true
+      | false
+      | ModulePlatformConstraint
   }
 }
 

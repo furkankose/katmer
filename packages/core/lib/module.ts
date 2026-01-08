@@ -28,10 +28,7 @@ export abstract class KatmerModule<
   constructor(
     public params: TOptions,
     public provider: TProvider
-  ) {
-    this.provider = provider
-    this.params = params
-  }
+  ) {}
 
   private async checkConstraints(ctx: Katmer.TaskContext<TProvider>) {
     const osInfo = ctx.provider.os
@@ -41,8 +38,10 @@ export abstract class KatmerModule<
 
     const platformMap = this.constraints.platform || {}
 
-    // Resolve base: specific family OR "any"
+    // Resolve base: specific family OR "any" OR "local
     const base =
+      (ctx.provider.type === "local" &&
+        normalizeConstraint(platformMap.local)) ??
       normalizeConstraint(platformMap[family]) ??
       normalizeConstraint(platformMap.any)
 
