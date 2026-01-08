@@ -1,5 +1,6 @@
 export * from "./apt.module"
 export * from "./apt-repository/apt-repository.module"
+export * from "./archive.module"
 export * from "./become.module"
 export * from "./copy.module"
 export * from "./gather_facts.module"
