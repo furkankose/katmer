@@ -1,7 +1,7 @@
 // @ts-ignore
 import prompts from "prompts"
 
-const status = await Bun.$`git status --porcelain`.text()
+const status = await Bun.$`git status --porcelain --untracked-files=no`.text()
 
 if (status.trim().length > 0) {
   console.error("Working directory is dirty. Commit or stash changes first.")
