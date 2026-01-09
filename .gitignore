@@ -3,7 +3,7 @@ out
 logs
 dist
 releases/*
-
+.idea
 .env
 .env.development.local
 .env.test.local
