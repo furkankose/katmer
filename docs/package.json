@@ -15,7 +15,7 @@
     "@astrojs/starlight-markdoc": "^0.5.1",
     "@astrojs/starlight-tailwind": "^4.0.2",
     "@tailwindcss/vite": "^4.1.18",
-    "astro": "^5.16.7",
+    "astro": "^5.16.8",
     "gray-matter": "^4.0.3",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.1.18"
