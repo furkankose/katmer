@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release-core:
+    if: |
+      contains(github.event.head_commit.message, 'chore: release') &&
+      contains(github.event.head_commit.message, '@core')
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Build core binaries
+        run: bun packages/core/scripts/build.ts
+
+      - name: Release core (katmer)
+        run: |
+          cd packages/core
+          bun x semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  release-installer:
+    if: |
+      contains(github.event.head_commit.message, 'chore: release') &&
+      contains(github.event.head_commit.message, '@installer')
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Build installer binaries
+        run: bun packages/installer/scripts/build.ts
+
+      - name: Release installer
+        run: |
+          cd packages/installer
+          bun x semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

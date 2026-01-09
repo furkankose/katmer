@@ -1,10 +1,8 @@
 import { CredentialManager, CredentialResolver } from "./credential.resolver"
 import { EnvCredentialResolver } from "./adapters/env.credential.resolver"
 import { FileCredentialResolver } from "./adapters/file.credential.resolver"
-import { InstallerConfig } from "@type/installer"
 import { safeImportDynamic } from "@common/utils/import.utils"
 import { InstallerEngine } from "../installer_engine"
-import { KeyringCredentialResolver } from "./adapters/keyring.credential.resolver"
 
 export async function createCredentialManager(engine: InstallerEngine) {
   const registry = new CredentialManager(engine)
@@ -25,8 +23,6 @@ export async function createCredentialManager(engine: InstallerEngine) {
         registry.register(new mod(engine, credential))
     }
   }
-
-  registry.register(new KeyringCredentialResolver(engine, {}))
 
   return registry
 }

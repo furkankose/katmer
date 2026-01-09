@@ -4,10 +4,10 @@ const Builds = {
   ui: async () => await Bun.$`vite build ./`,
   server: async () =>
     Bun.build({
-      entrypoints: ["./server/index.ts"],
+      entrypoints: ["./cli/index.ts"],
       packages: "bundle",
       target: "bun",
-      outdir: "./server/dist/",
+      outdir: "./dist/",
       minify: true,
       throw: true,
       define: {
