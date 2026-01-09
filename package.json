@@ -19,7 +19,8 @@
     "lint:oxlint": "oxlint . --fix --fix-suggestions --fix-dangerously -c .oxlintrc.json --ignore-path .gitignore",
     "lint:eslint": "eslint . --fix",
     "lint": "bun run lint:format && bun run lint:oxlint && bun run lint:eslint",
-    "prepare": "bun .husky/install.mjs || true"
+    "prepare": "bun .husky/install.mjs || true",
+    "release": "bun scripts/release.ts"
   },
   "dependencies": {
     "fs-extra": "^11.3.3"
@@ -53,6 +54,7 @@
     "oxlint": "^1.38.0",
     "prettier": "^3.7.4",
     "prettier-plugin-astro": "^0.14.1",
+    "prompts": "^2.4.2",
     "semantic-release": "^25.0.2",
     "typedoc": "^0.28.15",
     "typescript": "^5.9.3",

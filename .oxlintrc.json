@@ -27,6 +27,7 @@
     "no-useless-escape": "off",
     "no-useless-fallback-in-spread": "off",
     "sort-imports": "off",
+    "unicorn/no-empty-file": "off",
     "unicorn/no-invalid-fetch-options": "off",
     "unicorn/no-new-array": "off"
   }
