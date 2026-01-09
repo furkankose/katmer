@@ -2,7 +2,7 @@ import type { KatmerProvider } from "./provider.interface"
 import type { KatmerConfig } from "./config.interface"
 import type { TwigExpression } from "./executor.interface"
 import type { Logger } from "pino"
-import type { ProviderResponse } from "../providers/provider_response"
+import type { ProviderResponse } from "../lib/providers/provider_response"
 import { KatmerModule } from "../lib/module"
 
 export namespace Katmer {

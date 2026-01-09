@@ -6,11 +6,11 @@ import type {
 import { toMerged } from "es-toolkit"
 import type { KatmerProvider } from "../interfaces/provider.interface"
 import objectHash from "stable-hash"
-import { SSHProvider } from "../providers/ssh/ssh.provider"
+import { SSHProvider } from "./providers/ssh/ssh.provider"
 import type { KatmerCore } from "./katmer"
-import { LocalProvider } from "../providers/local.provider"
-import { wildcardMatch } from "../utils/string.utils"
-import { evalObjectVals, evalTemplate } from "../utils/renderer/renderer"
+import { LocalProvider } from "./providers/local.provider"
+import { wildcardMatch } from "./utils/string.utils"
+import { evalObjectVals, evalTemplate } from "./utils/renderer/renderer"
 
 export class KatmerTargetResolver {
   #providerCache = new Map<string, KatmerProvider>()

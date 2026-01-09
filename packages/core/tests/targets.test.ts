@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
-import { SSHProvider } from "../providers/ssh/ssh.provider"
-import { LocalProvider } from "../providers/local.provider"
+import { SSHProvider } from "../lib/providers/ssh/ssh.provider"
+import { LocalProvider } from "../lib/providers/local.provider"
 import type {
   KatmerConfig,
   KatmerHostInput

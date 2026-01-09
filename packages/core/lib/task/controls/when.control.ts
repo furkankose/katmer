@@ -1,6 +1,6 @@
 import type { KatmerTask } from "../task"
 import type { Katmer } from "../../../interfaces/task.interface"
-import { evalExpr } from "../../../utils/renderer/renderer"
+import { evalExpr } from "../../utils/renderer/renderer"
 
 const configKey = "when" as const
 

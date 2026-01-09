@@ -1,4 +1,4 @@
-import { parseKatmerFile, readKatmerFile } from "../utils/file.utils"
+import { parseKatmerFile, readKatmerFile } from "./utils/file.utils"
 import type {
   KatmerConfig,
   KatmerCLIOptions,
@@ -10,9 +10,9 @@ import { KatmerModuleRegistry } from "./module_registry"
 import * as pino from "pino"
 import pinoPretty from "pino-pretty"
 import { KatmerConfigLoader } from "./config"
-import { evalExpr } from "../utils/renderer/renderer"
+import { evalExpr } from "./utils/renderer/renderer"
 import type { ModuleCommonReturn } from "../interfaces/module.interface"
-import { wrapInArray } from "../utils/json.utils"
+import { wrapInArray } from "./utils/json.utils"
 import { defaults, isObjectLike } from "es-toolkit/compat"
 import type { Katmer } from "../interfaces/task.interface"
 import { KatmerTask } from "./task/task"

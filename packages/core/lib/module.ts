@@ -14,7 +14,7 @@ import type {
   BinaryConstraint,
   PackageManager
 } from "../interfaces/module.interface"
-import { wrapInArray } from "../utils/json.utils"
+import { wrapInArray } from "./utils/json.utils"
 import semver from "semver"
 
 export abstract class KatmerModule<

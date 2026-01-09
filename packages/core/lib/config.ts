@@ -1,14 +1,14 @@
-import configSchema from "../schemas/katmer_config.schema.json" with { type: "json" }
+import configSchema from "./schemas/katmer_config.schema.json" with { type: "json" }
 
 import Ajv from "ajv/dist/2020"
 import ajvErrors from "ajv-errors"
 import { toMerged } from "es-toolkit"
 
-import { parseKatmerFile, readKatmerFile } from "../utils/file.utils"
-import { wrapInArray } from "../utils/json.utils"
-import { HttpModule } from "../modules/http/http.local.module"
-import { LocalProvider } from "../providers/local.provider"
-import { normalizeAjvError } from "../utils/ajv.utils"
+import { parseKatmerFile, readKatmerFile } from "./utils/file.utils"
+import { wrapInArray } from "./utils/json.utils"
+import { HttpModule } from "./modules/http/http.local.module"
+import { LocalProvider } from "./providers/local.provider"
+import { normalizeAjvError } from "./utils/ajv.utils"
 import type { KatmerConfig } from "../interfaces/config.interface"
 
 const ajv = ajvErrors(
