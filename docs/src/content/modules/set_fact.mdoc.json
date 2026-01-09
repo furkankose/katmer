@@ -5,7 +5,7 @@
       "any": true
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/set_fact.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/set_fact.module.ts",
   "description": "Compute and set variables (facts) on the task context.",
   "remarks": "- Values are merged into `ctx.variables`.\n- `changed` is true when a value is added or changed.\n- When `render=true`, string values that contain `{{ ... }}` are evaluated via `evalExpr`\n  with `ctx.variables` as scope. Set `deep=true` to render nested strings as well.",
   "parameters": [

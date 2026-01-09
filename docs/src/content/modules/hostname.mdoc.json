@@ -7,7 +7,7 @@
       "windows": true
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/hostname.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/hostname.module.ts",
   "description": "Get or set the system hostname.",
   "remarks": "- When no options are provided, the module gathers the current hostname facts and returns them as JSON.\n- When \"name\" is provided, the module sets the transient hostname (runtime) and optionally persists it to the appropriate config\n  (e.g., /etc/hostname for most Linux distros or hostnamectl if available).\n- The module attempts to be idempotent: if the current hostname already matches the desired one, changed=false.",
   "parameters": [

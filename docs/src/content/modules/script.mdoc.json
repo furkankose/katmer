@@ -5,7 +5,7 @@
       "any": true
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/script.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/script.module.ts",
   "description": "Execute an ad-hoc shell script on the target.",
   "remarks": "- Accepts either a **string** (backwards compatible) or an **object** with a `content` string\n  and a `render` flag to enable/disable template rendering.\n- When `render` is `true` (default), the script string is rendered with Twig against `ctx.variables`\n  before execution. When `false`, the string is executed **as-is**.\n- Uses the provider's shell via [`ctx.exec`](#katmer-taskcontext-exec).\n- Return semantics are simple: `changed` is always `false`; `failed` is set when the exit code is non-zero.\n- Standard output and error are surfaced as `stdout` and `stderr`.",
   "parameters": [

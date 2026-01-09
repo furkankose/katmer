@@ -61,7 +61,7 @@
       }
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/cron.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/cron.module.ts",
   "description": "Manage scheduled jobs cross-platform.",
   "remarks": "- **POSIX (Linux/macOS/BSD)**: edits the per-user crontab using `crontab -l/-`.\n- **Windows**: manages a Scheduled Task using `schtasks`.\n- Idempotent by tracking named blocks (`# KATMER_CRON_START:<name>` / `# KATMER_CRON_END:<name>`) on POSIX.\n- Supports adding/updating/removing a single job (by `name`) or clearing all jobs with `state: \"absent\"` and no `name` (dangerous).",
   "parameters": [

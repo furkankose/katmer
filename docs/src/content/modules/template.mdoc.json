@@ -5,7 +5,7 @@
       "any": true
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/template.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/template.module.ts",
   "description": "Render a Twig template locally and deploy the result to a file (remote for SSH, local for Local).",
   "remarks": "- Renders with the merged context of `ctx.variables` + per-call `variables`.\n- If [diff_check](#parameter-diff_check) is `true` (default), content is compared to avoid needless writes.\n- On **SSH**:\n  - Ensures parent directory via shell (`mkdir -p`).\n  - Writes through a temporary file and installs atomically (`install -m … -D` or `mv` fallback).\n  - Applies `chmod`/`chown` when requested.\n- On **Local**:\n  - Uses pure Node.js (`fs.mkdir`, `fs.readFile`, `fs.writeFile`, `fs.rename`, `fs.chmod`, `fs.chown`).\n  - `owner`/`group` must be numeric (`uid`/`gid`).",
   "parameters": [

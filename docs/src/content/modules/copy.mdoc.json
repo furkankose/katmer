@@ -5,7 +5,7 @@
       "any": true
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/copy.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/copy.module.ts",
   "description": "Copy files or inline content to a destination, with idempotency, optional validation,\nand metadata management (mode/owner/group).",
   "remarks": "**Behavior by provider**\n- **SSH**:\n  - Ensures parent directory with `mkdir -p` when `parents: true`.\n  - Stages to a remote temp file (upload or `cp` for remote_src), validates, then moves into place atomically.\n  - Applies `chmod`/`chown` via shell when requested.\n  - Computes SHA-256 using `sha256sum`/`shasum -a 256` if available.\n- **Local**:\n  - Uses pure Node.js (`fs.ensureDir`, `fs.move`, `fs.chmod`, `fs.chown`).\n  - Owner/group resolution reads `/etc/passwd` and `/etc/group` (POSIX).\n  - Computes SHA-256 by streaming the file via Node crypto.\n\n**Idempotency**\n- When `force: false` (default), compares the incoming staged file hash with the current `dest` hash.\n  If equal, the write is skipped and `changed=false`.\n\n**Validation**\n- If [`validate`](#parameter-validate) is defined, the command runs against the staged file.\n  Only a zero exit code allows the replacement to proceed.",
   "parameters": [

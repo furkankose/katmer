@@ -5,7 +5,7 @@
       "any": true
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/gather_facts.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/gather_facts.module.ts",
   "description": "Gather target facts using the [**fastfetch** CLI](https://github.com/fastfetch-cli/fastfetch) (zero external deps on the target).",
   "remarks": "- The module **fetches a prebuilt fastfetch binary from GitHub Releases** (once, with a TTL cache on the controller),\n  uploads (or remote-downloads) the matching binary to the target into a persistent directory\n  (e.g. `~/.katmer/bin` on POSIX or `%USERPROFILE%\\.katmer\\bin` on Windows), and runs it with `--format json`.\n- It relies on the provider's pre-detected OS/arch to pick the right asset.\n  If the OS is unknown and [`fallback_when_unknown`](#parameter-fallback_when_unknown) is true,\n  it will **try all supported OS binaries** (linux → darwin → windows) until one succeeds.\n- **Idempotent on target**: if the same fastfetch version already exists on the target path, the binary won't be re-uploaded/re-downloaded.\n- **Cached on controller**: GitHub releases and zip payloads are cached locally under [`cache_dir`](#parameter-cache_dir).\n  Releases are re-queried only after [`release_ttl_days`](#parameter-release_ttl_days) days.\n- Works with both **SSH** and **Local** providers:\n  - SSH: uploads to `~/.katmer/bin/fastfetch[-os].exe` (or remote-downloads if upload fails).\n  - Local: runs the cached controller binary directly (still keeps controller cache/TTL).",
   "parameters": [

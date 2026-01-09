@@ -7,7 +7,7 @@
       }
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/apt-repository/apt-repository.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/apt-repository/apt-repository.module.ts",
   "description": "Manage entries in APT sources lists (e.g. `/etc/apt/sources.list.d/*.list`).",
   "remarks": "- When `state: \"present\"`, at least one `repo` line is required.\n- When `state: \"absent\"`, you may remove by explicit `repo` line(s) or by `regexp`.\n- For `state: \"present\"`, do **not** set `regexp` (mutually exclusive with `repo`).\n- If `update_cache` is true and changes occurred, `apt-get update` will run with retries/backoff.",
   "parameters": [

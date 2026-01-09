@@ -7,7 +7,7 @@
       }
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/apt.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/apt.module.ts",
   "description": "APT package manager: install, remove, and upgrade packages on Debian/Ubuntu.",
   "remarks": "- Uses `apt-get` with noninteractive, idempotent flags where possible.\n- Can optionally refresh the cache (`apt-get update`) with retries/backoff.\n- Supports installing from package names or local `.deb` files.\n- When `upgrade` is set, a system-wide upgrade action runs before package\n  state changes (e.g. `full-upgrade`), then requested package operations.",
   "parameters": [

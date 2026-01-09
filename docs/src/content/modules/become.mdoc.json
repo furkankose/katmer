@@ -5,7 +5,7 @@
       "any": true
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/become.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/become.module.ts",
   "description": "Control privilege escalation.",
   "remarks": "- Set to `true` to enable sudo with sensible defaults (uses the provider's password if available).\n- Set to `false` to disable privilege escalation (no-op).\n- Provide an object to override sudo behavior (`user`, `password`, `prompt`).\n- The module rewrites subsequent commands to `sudo -S -p [prompt] [-u <user>] ...`\n  and automatically responds to the prompt with the configured password.",
   "parameters": [

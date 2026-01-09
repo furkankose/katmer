@@ -19,7 +19,7 @@
       }
     }
   },
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/systemd_service.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/systemd_service.module.ts",
   "description": "Manage systemd units (start/stop/restart/reload/enable/disable/mask/unmask/daemon-reload).",
   "remarks": "- Requires systemd on the target (systemctl must be available).\n- Operations are idempotent where feasible by checking current unit state.",
   "parameters": [

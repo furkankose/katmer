@@ -1,7 +1,7 @@
 {
   "name": "http",
   "constraints": null,
-  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/modules/http/http.module.ts",
+  "source": "C:/Users/ayz/ws-webstorm/katmer/packages/core/lib/modules/http/http.module.ts",
   "description": "Execute HTTP(S) requests.",
   "remarks": "- Uses `curl` when running with ssh provider\n- Follows redirects by default (`-L`).\n- Validates TLS by default; set [validate_certs](#parameter-validate_certs): false to pass `--insecure`.\n- When [output.toFile](#parameter-output) is set, writes to a temporary file then moves atomically; `changed=true` on success.\n- If [fail_on_http_error](#parameter-fail_on_http_error) is true (default), non-2xx responses cause a failure using `--fail-with-body`.\n- Best-effort status parsing is performed from saved headers or stderr when available.",
   "parameters": [

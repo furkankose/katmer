@@ -7,7 +7,11 @@ import { Standardization } from "@microsoft/tsdoc/lib/details/Standardization"
 
 // --- paths ---------------------------------------------------------------
 
-const SRC_ROOT = path.resolve(import.meta.dir, "..", "packages/core/modules")
+const SRC_ROOT = path.resolve(
+  import.meta.dir,
+  "..",
+  "packages/core/lib/modules"
+)
 const CORE_ROOT = path.resolve(import.meta.dir, "..", "packages/core")
 const DOCS_DIR = path.resolve(import.meta.dir, "..", "docs")
 const OUT_DIR = path.resolve(DOCS_DIR, "src/content/modules")
