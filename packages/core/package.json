@@ -2,12 +2,21 @@
   "name": "@katmer/core",
   "module": "index.ts",
   "description": "Manage your infrastructure with ease.",
-  "version": "0.0.0",
+  "version": "0.0.1-4",
   "main": "index.ts",
   "type": "module",
   "types": "index.ts",
+  "bin": {
+    "katmer": "./cli/katmer.ts"
+  },
+  "exports": {
+    "bun": "./index.ts"
+  },
   "files": [
-    "dist"
+    "cli",
+    "interfaces",
+    "lib",
+    "index.ts"
   ],
   "scripts": {
     "build": "bun ./scripts/build.ts",
@@ -15,7 +24,6 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@denosaurs/log": "npm:@jsr/denosaurs__log",
     "@fastify/deepmerge": "^3.1.0",
     "adm-zip": "^0.5.16",
     "ajv": "^8.17.1",
@@ -24,6 +32,7 @@
     "convict": "^6.2.4",
     "es-toolkit": "^1.43.0",
     "fast-equals": "^6.0.0",
+    "fs-extra": "^11.3.3",
     "isomorphic-git": "^1.36.1",
     "json5": "^2.2.3",
     "jsrsasign": "^11.1.0",
@@ -44,5 +53,11 @@
     "@types/semver": "^7.7.1",
     "@types/ssh2": "^1.15.5",
     "@types/twig": "^1.12.17"
+  },
+  "engines": {
+    "bun": ">=1.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

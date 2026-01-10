@@ -16,7 +16,6 @@
     }
   },
   "dependencies": {
-    "@denosaurs/log": "npm:@jsr/denosaurs__log",
     "@fastify/deepmerge": "^3.1.0",
     "@formkit/addons": "^1.7.2",
     "@formkit/core": "^1.7.2",

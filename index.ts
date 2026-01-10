@@ -1,1 +1,1 @@
-import "./packages/core/cli/index"
+import "./packages/core/cli/katmer"

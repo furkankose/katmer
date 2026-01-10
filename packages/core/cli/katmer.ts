@@ -1,3 +1,5 @@
+#!/usr/bin/env bun
+
 import { Command } from "commander"
 import { version, description } from "../package.json"
 import run from "./run"
