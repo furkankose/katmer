@@ -9,7 +9,10 @@ export default {
       {
         preset: "conventionalcommits",
         path: "packages/core",
-        changelogFile: "CHANGELOG.md"
+        changelogFile: "CHANGELOG.md",
+        presetConfig: {
+          preMajor: true
+        }
       }
     ],
     [
