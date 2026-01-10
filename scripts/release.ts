@@ -25,11 +25,11 @@ if (!pkgs || pkgs.length === 0) {
   process.exit(1)
 }
 
-const tag = pkgs.map((pkg) => `@${pkg}`).join(",")
+const tag = pkgs.join(", ")
 
 await Bun.$`git commit --allow-empty -m ${`chore: release [${tag}]`}`
 
-console.log(`Release commit created for: ${pkgs.join(", ")}`)
+console.log(`Release commit created for: ${tag}`)
 
 if (autoPush) {
   await Bun.$`git push`

@@ -14,7 +14,7 @@ jobs:
   release-core:
     if: |
       contains(github.event.head_commit.message, 'chore: release') &&
-      contains(github.event.head_commit.message, '@core')
+      contains(github.event.head_commit.message, 'core')
 
     runs-on: ubuntu-latest
 
@@ -43,7 +43,7 @@ jobs:
   release-installer:
     if: |
       contains(github.event.head_commit.message, 'chore: release') &&
-      contains(github.event.head_commit.message, '@installer')
+      contains(github.event.head_commit.message, 'installer')
 
     runs-on: ubuntu-latest
 
