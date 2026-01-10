@@ -1,18 +1,26 @@
+import path from "node:path"
+
 const EXECUTABLE_NAME = "katmer"
 
+const localPath = (...paths: string[]) =>
+  path.resolve(import.meta.dirname, "..", ...paths)
+
 const Builds = {
-  server: async () =>
-    Bun.build({
-      entrypoints: ["./cli/index.ts"],
+  server: async () => {
+    console.log("Building server.")
+    return Bun.build({
+      entrypoints: [localPath("cli/index.ts")],
+      root: localPath(),
       packages: "bundle",
       target: "bun",
-      outdir: "./dist/",
+      outdir: localPath("dist"),
       minify: false,
       throw: true,
       define: {
         "process.env.NODE_ENV": JSON.stringify("production")
       }
-    }),
+    })
+  },
   release: async () => {
     for (const target of [
       "linux-x64",
@@ -20,9 +28,18 @@ const Builds = {
       "windows-x64",
       "darwin-arm64",
       "darwin-x64"
-    ]) {
+    ] as const) {
       console.log(`Building for ${target}`)
-      await Bun.$`bun build --compile --target bun-${target} ./dist/index.js --outfile ./dist/releases/${releaseFileName(target)}`
+      await Bun.build({
+        entrypoints: [localPath("./dist/cli/index.js")],
+        root: localPath(),
+        compile: {
+          target: `bun-${target}`,
+          autoloadDotenv: false,
+          autoloadBunfig: false,
+          outfile: localPath(`./dist/releases/${releaseFileName(target)}`)
+        }
+      })
     }
   }
 }
