@@ -32,6 +32,11 @@ jobs:
       - name: Build core binaries
         run: bun packages/core/scripts/build.ts
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
       - name: Release core (katmer)
         run: |
           cd packages/core
@@ -60,6 +65,11 @@ jobs:
 
       - name: Build installer binaries
         run: bun packages/installer/scripts/build.ts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
 
       - name: Release installer
         run: |
