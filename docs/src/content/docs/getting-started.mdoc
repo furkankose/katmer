@@ -4,21 +4,34 @@ sidebar:
   order: 0
 ---
 
-Katmer is a tiny, scriptable automation engine for **running tasks on hosts** (over SSH or locally). You describe *where* to run (targets), *what* to do (modules), and optional logic (conditions, loops, register). Katmer handles resolving hosts, setting up providers, evaluating templates/expressions, and running modules with a consistent result shape.
+Katmer is a lightweight, scriptable automation engine designed to execute tasks on hosts, either locally or over SSH. 
+You define **where** to run code (targets), **what** to do (modules), and apply logic like conditions, loops, or
+variable registration. Katmer manages host resolution, provider setup, template evaluation, and execution flow,
+ensuring consistent and predictable results across different environments.
 
----
+## Core Concepts
 
-## Core concepts
+### Targets (Inventory)
 
-### Targets (inventory)
+Targets define the machines you want to manage and the contextual data associated with them. This data is 
+merged into the execution context when tasks run.
 
-Targets describe hosts and groups—plus data you want available when tasks run.
+A target configuration can include:
 
-* `hosts`: machines and their connection settings
-* `settings`: defaults merged into each host (e.g., `connection`, `port`)
-* `variables`: arbitrary data merged into `ctx.variables`
-* `environment`: key/value **environment variables** exported to the shell that runs commands
-* `children`: include another group's hosts, then overlay this group's settings/variables/environment
+- `hosts`: machines and their connection details
+- `settings`: defaults like connection type or port
+- `variables`: data available to templates and expressions
+- `environment`: variables exported to the shell
+- `children`: include other targets and overlay their data
+
+Targets can be defined in two ways:
+
+1. **Externally**, in a shared `targets.yaml` file
+2. **Inline**, directly inside a task file (self-contained scripts)
+
+#### External Targets File
+
+This approach separates inventory from logic and is useful when multiple task files share the same hosts.
 
 ```yaml
 # targets.yaml
@@ -27,48 +40,97 @@ production:
   variables: { env: "prod", app_dir: "/opt/myapp" }
   environment: { APP_ENV: "prod", JAVA_OPTS: "-Xms256m -Xmx512m" }
   hosts:
-    web-01: { hostname: "10.0.0.11", username: "deploy", private_key: "~/.ssh/id_rsa" }
-    web-02: { hostname: "10.0.0.12", username: "deploy", private_key: "~/.ssh/id_rsa" }
+    web-01:
+      hostname: "10.0.0.11"
+      username: "deploy"
+      private_key: "~/.ssh/id_rsa"
+    web-02:
+      hostname: "10.0.0.12"
+      username: "deploy"
+      private_key: "~/.ssh/id_rsa"
 
 local:
   hosts:
     localhost: { connection: local }
-```
+````
 
-**Selecting targets in tasks**
+#### Inline Targets
 
-Use names/patterns:
-
-* `all` (alias for `*`)
-* Wildcards: `api_*`
-* Exclude: `!host_2`
-* Intersection: `@host_1`
-* Combine with `,` or `:`
+Inline targets live inside the same file as your tasks. This is recommended for single-file scripts, CI/CD jobs, 
+or ephemeral environments where a separate inventory adds unnecessary complexity.
 
 ```yaml
-# examples
-targets: all,!core*         # everything but core*
-targets: east,@host_1       # only host_1 inside group east
-targets: api_*,web-02       # wildcard + explicit host
+# deploy.yaml
+targets:
+  production:
+    settings:
+      connection: ssh
+      port: 22
+    variables:
+      env: prod
+      app_dir: /opt/myapp
+    hosts:
+      web-01:
+        hostname: 10.0.0.11
+        username: deploy
+        private_key: ~/.ssh/id_rsa
 ```
 
-### Providers
+### Selecting Targets
 
-How Katmer connects to a host:
+Whether defined externally or inline, targets are selected in tasks using the same syntax:
 
-* **SSH provider** – built on NodeSSH (file transfer, exec, etc.)
-* **Local provider** – runs on the controller machine
+* `all` or `*`: all known hosts
+* `api_*`: wildcard matching
+* `!host_2`: exclude a host
+* `@host_1`: intersection
+* `api_*,web-02`: comma-separated lists
 
-### Modules
+### Tasks
 
-A module is a unit of work. Out of the box you'll commonly use:
+A **task** is the fundamental unit of execution. It answers the question:
 
-* `copy` – copy content or files (local→remote, remote→remote; idempotent)
-* `template` – render a Twig template locally, upload if changed
-* `http` – perform HTTP(S) requests (curl or local client)
-* `script` – run an inline shell script (optionally templated)
+> Run this module, with these parameters, on these targets, if these conditions are met.
 
-All modules return a common shape (subset shown):
+Every task must have:
+
+* `name`: used for logging and reporting
+* `targets`: which hosts to run on
+* **exactly one module** (e.g. `script`, `copy`, `http`)
+
+Optionally, a task may also include:
+
+* `when`: conditional execution (Twig expression)
+* `loop`: iteration
+* `register`: capture results
+* `become`: privilege escalation
+
+Tasks are always defined under a top-level `tasks` key.
+
+```yaml
+tasks:
+- name: Check disk space
+  targets: production
+  script: "df -h"
+```
+
+### Providers and Modules
+
+**Providers** determine how Katmer connects to a host:
+
+* **SSH provider**: remote execution and file transfer
+* **Local provider**: runs commands on the controller machine
+
+Providers are resolved automatically based on target settings.
+
+**Modules** are the units of work. Common modules include:
+
+* `copy`: transfer files or inline content
+* `template`: render Twig templates and upload if changed
+* `http`: perform HTTP(S) requests
+* `script`: run inline shell scripts
+
+All modules return a consistent result structure:
 
 ```ts
 {
@@ -77,191 +139,110 @@ All modules return a common shape (subset shown):
   msg?: string
   stdout?: string
   stderr?: string
-  start?: string   // ISO8601
-  end?: string     // ISO8601
-  delta?: string   // "0:00:00.123"
+  start?: string
+  end?: string
+  delta?: string
 }
 ```
 
-### Task flow (high level)
+## Quick Start
 
-```
-targets pattern
-   │
-   ▼
-Target resolver ──▶ list of hosts
-   │
-   ▼
-Provider(s) (SSH/Local) ──▶ context: exec, execSafe, variables, environment, logger
-   │
-   ▼
-Task ▶ modules:
-  check → initialize → execute → cleanup
-   │
-   └─▶ per-module result (merged with task timing fields)
-```
-
----
-
-## Writing your first task
-
-A **task** has a name, a target selector, optional logic (`when`, `loop`, `register`), and exactly one module with its parameters.
+The following example shows a fully self-contained deployment using **inline targets** and **module shorthand**.
+No external inventory is required.
 
 ```yaml
-- name: Upload config and restart the service
-  targets: production
-  template:
-    src: "./_source/myapp.conf.twig"
-    dest: "/etc/myapp/myapp.conf"
-    mode: "0644"
-    owner: "root"
-    group: "root"
+# deploy.yaml
 
-- name: Restart only on Linux
+targets:
+  production:
+    settings:
+      connection: ssh
+      port: 22
+    variables:
+      env: prod
+      app_dir: /opt/myapp
+    hosts:
+      web-01:
+        hostname: 10.0.0.11
+        username: deploy
+        private_key: ~/.ssh/id_rsa
+
+tasks:
+- name: Upload application archive
   targets: production
-  when: os_family == "Linux"         # Twig expression; any Twig syntax is valid, evaluated for truthiness
+  copy:
+    src: "./dist/myapp.tar.gz"
+    dest: "/opt/myapp/myapp.tar.gz"
+
+- name: Extract archive
+  targets: production
+  script: |
+    mkdir -p "{{ app_dir }}"
+    tar -xzf /opt/myapp/myapp.tar.gz -C "{{ app_dir }}"
+
+- name: Restart service
+  targets: production
+  become: true
   script:
     content: "systemctl restart myapp"
-    render: false                    # set true to enable templating in the script body
+    render: false
 ```
-
-> **Conditionals:** Katmer evaluates `when` with **Twig**, not a custom mini-language. Any Twig expression is allowed; if the result is truthy, the task runs.
-
----
 
 ## Variables vs Environment
 
-* `variables` → merged into `ctx.variables` and used in **templates/expressions** (`{{ ... }}`).
-* `environment` → **exported** to the shell that runs your commands (`$APP_ENV`).
+Katmer distinguishes between two execution contexts:
 
-```yaml
-- name: Both styles
-  targets: production
-  variables: { token: "{{ secrets.token }}" }
-  script:
-    content: 'echo "env=$APP_ENV, token={{ token | slice(0,4) }}****"'
-    render: true
-```
+1. **`variables`**
+   Used by Twig for templates and expressions (`{{ ... }}`).
+
+2. **`environment`**
+   Exported to the shell as environment variables.
 
 Precedence (low → high): group → host → task/module.
 
----
-
-## Common module examples
-
-### copy (idempotent)
-
 ```yaml
-- name: Copy a file from controller
+- name: Variable usage example
   targets: production
-  copy:
-    src: "./dist/myapp.tar.gz"   # for SSH: controller → remote
-    dest: "/opt/myapp/myapp.tar.gz"
-    mode: "0644"
-    backup: true
-
-- name: Write inline content (templated)
-  targets: production
-  copy:
-    content: "server_name {{ domain }};"
-    dest: "/etc/nginx/sites-enabled/app.conf"
-    mode: "0644"
+  variables:
+    token: "{{ secrets.token }}"
+  script: 'echo "env=$APP_ENV, token={{ token | slice(0,4) }}****"'
 ```
 
-### template (render then upload)
-
-```yaml
-- name: Render config
-  targets: production
-  template:
-    src: "./_source/nginx.conf.twig"
-    dest: "/etc/nginx/nginx.conf"
-    mode: "0644"
-    owner: "root"
-    group: "root"
-```
-
-### http
-
-```yaml
-- name: GET JSON and save headers
-  targets: production
-  http:
-    url: "https://api.example.com/meta"
-    headers: { Accept: "application/json" }
-    save_headers_to: "/tmp/meta.headers"
-    output:
-      toFile: "/tmp/meta.json"
-      captureBody: true
-    fail_on_http_error: true
-
-- name: POST with bearer token
-  targets: production
-  http:
-    url: "https://api.example.com/resources"
-    method: "POST"
-    headers: { Accept: "application/json" }
-    body: { name: "demo", enabled: true }
-    auth: { type: "bearer", token: "{{ API_TOKEN }}" }
-```
-
-### script
-
-```yaml
-- name: One-liner (no templating)
-  targets: local
-  script:
-    content: 'echo "hello $USER"'
-    render: false
-
-- name: Templated multi-line
-  targets: production
-  script:
-    render: true
-    content: |
-      set -euo pipefail
-      echo "Deploying {{ app }} to {{ app_dir }}"
-      mkdir -p "{{ app_dir }}"
-      tar -xzf "/opt/myapp/myapp.tar.gz" -C "{{ app_dir }}"
-```
-
----
-
-## Conditions, loops, register
+## Control Flow
 
 ### Conditions (`when`)
 
-Any **Twig** expression; truthy → run.
+The `when` field accepts any valid Twig expression. If it evaluates to truthy, the task runs.
 
 ```yaml
 - name: Only on production
   targets: all
   when: env == "prod"
-  script: { content: "echo prod only", render: false }
+  script: "echo prod only"
 ```
 
 ### Loops
 
-Iterate over arrays/objects. Each iteration exposes `item` (and often `index`).
+Use `loop` to iterate over arrays or objects. Each iteration exposes `item` and `index`.
 
 ```yaml
-- name: Only process enabled sites
-  targets: web
+- name: Enable selected sites
+  targets: production
   loop:
     for:
       siteA: { enabled: true }
       siteB: { enabled: false }
   when: item.enabled
-  script: { content: 'echo "enabling {{ index }}"', render: true }
+  script: 'echo "enabling {{ index }}"'
 ```
 
-### Register + chaining
+### Register and Chaining
 
-Capture a result and use it in subsequent tasks.
+Use `register` to capture a module result and reference it later.
 
 ```yaml
 - name: Probe endpoints
-  targets: edge
+  targets: production
   loop:
     for:
       - https://a.example.com/health
@@ -272,57 +253,34 @@ Capture a result and use it in subsequent tasks.
     fail_on_http_error: false
 
 - name: Report failures
-  targets: edge
-  script:
-    render: true
-    content: |
-      cat <<'TXT'
-      Failing endpoints:
-      {{ probes.results | selectattr('status', 'ne', 200) | mapattr('url.href') | join('\n') }}
-      TXT
+  targets: production
+  script: |
+    Failing endpoints:
+    {{ probes.results
+       | selectattr('status', 'ne', 200)
+       | mapattr('url.href')
+       | join('\n') }}
 ```
 
-> With loops, the outer registered value has a **`results` array**; every iteration result also carries its **`item`** so you can correlate outputs.
+> With loops, the outer registered value contains a **`results` array**. Each iteration result
+> also carries its **`item`**, making correlation straightforward.
 
----
+## Privilege Escalation
 
-## Privilege escalation (`become`)
-
-Enable sudo with defaults:
+To execute a task with elevated privileges, set `become: true`.
 
 ```yaml
-- name: Restart service as root
+- name: Restart as root
   targets: production
   become: true
-  script: { content: "systemctl restart myapp", render: false }
+  script:
+    content: "systemctl restart myapp"
+    render: false
 ```
 
-Or configure:
+## Project Layouts
 
-```yaml
-become:
-  user: "root"
-  password: "{{ SUDO_PASSWORD }}"
-  prompt: "[sudo] password for"
-```
-
----
-
-## Idempotency & safety
-
-* `copy` / `template`: compare existing content; skip if identical (`changed: false`). Support `backup`, `force`, `mode`, `owner`, `group`.
-* `http`: respects `fail_on_http_error`; can follow redirects, validate certs, retry.
-* `script`: keeps `changed: false`; `failed` reflects exit code.
-
----
-
-## Logging & timing
-
-Each task records `start`, `end`, `delta`. Module stdout/stderr are surfaced. Use your runner's logger output to inspect details per host.
-
----
-
-## Minimal project layout
+**With external inventory** (shared environments):
 
 ```
 .
@@ -330,38 +288,22 @@ Each task records `start`, `end`, `delta`. Module stdout/stderr are surfaced. Us
 ├─ tasks/
 │  └─ deploy.yaml
 └─ _source/
-   └─ nginx.conf.twig
 ```
 
-`deploy.yaml`:
+**Fully inline (single file)** — ideal for CI/CD and one-off automations:
 
-```yaml
-- name: Upload and restart
-  targets: production
-  copy:
-    src: "./dist/myapp.tar.gz"
-    dest: "/opt/myapp/myapp.tar.gz"
-
-- name: Render config
-  targets: production
-  template:
-    src: "./_source/nginx.conf.twig"
-    dest: "/etc/nginx/nginx.conf"
-
-- name: Restart
-  targets: production
-  script: { content: "systemctl restart nginx", render: false }
+```
+.
+└─ deploy.yaml
 ```
 
----
+## Summary
 
-## Mental model recap
+* **Flexibility:** Targets can be defined inline or externally.
+* **Predictability:** Each task runs exactly one module with a uniform result shape.
+* **Templating:** Twig is used for templates, conditionals (`when`), and expressions.
+* **Shorthand:** The `script` module defaults to rendering enabled for concise usage.
+* **Structure:** Results are consistent and easy to chain using `register`.
 
-* Describe **targets** (hosts/groups + variables/environment).
-* Pick targets in each **task** with patterns.
-* Run one **module** per task.
-* Use **Twig** for conditionals & templating.
-* Capture and chain with **`register`**.
-* Aim for **idempotency** where possible.
-
-That's the whole loop. Once you're comfortable with copy/template/script/http and target patterns, you can build larger playbooks with clear, repeatable behavior.
+Once you are comfortable with targets, tasks, and the core modules, you can build larger, repeatable 
+automation flows with confidence.
