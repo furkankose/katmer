@@ -3,6 +3,9 @@ name: Deploy Docs to GitHub Pages
 on:
   push:
     branches: [main]
+    paths:
+      - "docs/**"
+      - "packages/core/lib/modules/**"
   workflow_dispatch:
 
 permissions:
