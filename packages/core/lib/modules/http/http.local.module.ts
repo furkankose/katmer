@@ -1,5 +1,5 @@
-import { type ModuleConstraints } from "../../../interfaces/module.interface"
-import { type Katmer } from "../../../interfaces/task.interface"
+import { type ModuleConstraints } from "../../interfaces/module.interface"
+import { type Katmer } from "../../interfaces/task.interface"
 import type {
   HttpModuleOptions,
   HttpModuleResult,
@@ -9,7 +9,7 @@ import { toOctal } from "../../utils/number.utils"
 import { mkdir, writeFile, readFile, chmod, chown } from "fs/promises"
 import { basename, dirname } from "path"
 import type { BodyInit } from "bun"
-import type { KatmerProvider } from "../../../interfaces/provider.interface"
+import type { KatmerProvider } from "../../interfaces/provider.interface"
 import { KatmerModule } from "../../module"
 
 export class HttpModule extends KatmerModule<

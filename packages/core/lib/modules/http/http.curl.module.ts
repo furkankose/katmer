@@ -1,6 +1,6 @@
-import { type ModuleConstraints } from "../../../interfaces/module.interface"
+import { type ModuleConstraints } from "../../interfaces/module.interface"
 import type { SSHProvider } from "../../providers/ssh/ssh.provider"
-import type { Katmer } from "../../../interfaces/task.interface"
+import type { Katmer } from "../../interfaces/task.interface"
 import { toOctal } from "../../utils/number.utils"
 import type {
   HttpModuleOptions,
@@ -8,7 +8,7 @@ import type {
   HttpModuleResult
 } from "./http.module"
 import { quote } from "../../utils/string.utils"
-import type { KatmerProvider } from "../../../interfaces/provider.interface"
+import type { KatmerProvider } from "../../interfaces/provider.interface"
 import { parseHeaderString } from "../../utils/http.utils"
 import { KatmerModule } from "../../module"
 

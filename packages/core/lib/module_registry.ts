@@ -2,7 +2,7 @@ import type { KatmerCore } from "./katmer"
 
 import * as modules from "./modules/index"
 
-import type { KatmerProvider } from "../interfaces/provider.interface"
+import type { KatmerProvider } from "./interfaces/provider.interface"
 
 import { isClass } from "./utils/object.utils"
 import type { KatmerModule } from "./module"

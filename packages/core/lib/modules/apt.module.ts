@@ -1,10 +1,10 @@
-import { type ModuleConstraints } from "../../interfaces/module.interface"
-import type { Katmer } from "../../interfaces/task.interface"
+import { type ModuleConstraints } from "../interfaces/module.interface"
+import type { Katmer } from "../interfaces/task.interface"
 import type { SSHProvider } from "../providers/ssh/ssh.provider"
-import type { OsInfo } from "../../interfaces/provider.interface"
+import type { OsInfo } from "../interfaces/provider.interface"
 import { KatmerModule } from "../module"
 
-declare module "../../interfaces/task.interface" {
+declare module "../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       apt?: AptModuleOptions

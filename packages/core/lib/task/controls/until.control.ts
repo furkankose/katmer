@@ -1,8 +1,8 @@
 import type { KatmerTask } from "../task"
-import type { Katmer } from "../../../interfaces/task.interface"
+import type { Katmer } from "../../interfaces/task.interface"
 import { evalExpr } from "../../utils/renderer/renderer"
 import { delay } from "es-toolkit"
-import type { ModuleCommonReturn } from "../../../interfaces/module.interface"
+import type { ModuleCommonReturn } from "../../interfaces/module.interface"
 
 const configKey = "until" as const
 

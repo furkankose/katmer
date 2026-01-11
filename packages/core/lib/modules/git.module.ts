@@ -4,14 +4,14 @@ import http from "isomorphic-git/http/node"
 import {
   type ModuleCommonReturn,
   type ModuleConstraints
-} from "../../interfaces/module.interface"
-import type { Katmer } from "../../interfaces/task.interface"
-import type { KatmerProvider } from "../../interfaces/provider.interface"
+} from "../interfaces/module.interface"
+import type { Katmer } from "../interfaces/task.interface"
+import type { KatmerProvider } from "../interfaces/provider.interface"
 import { SSHProvider } from "../providers/ssh/ssh.provider"
 import { LocalProvider } from "../providers/local.provider"
 import { KatmerModule } from "../module"
 
-declare module "../../interfaces/task.interface" {
+declare module "../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       git?: GitModuleOptions

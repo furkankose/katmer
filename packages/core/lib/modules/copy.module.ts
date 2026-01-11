@@ -5,9 +5,9 @@ import fs from "fs-extra"
 import {
   type ModuleCommonReturn,
   type ModuleConstraints
-} from "../../interfaces/module.interface"
+} from "../interfaces/module.interface"
 import type { Katmer } from "../katmer"
-import type { KatmerProvider } from "../../interfaces/provider.interface"
+import type { KatmerProvider } from "../interfaces/provider.interface"
 import { SSHProvider } from "../providers/ssh/ssh.provider"
 import { LocalProvider } from "../providers/local.provider"
 import { evalTemplate } from "../utils/renderer/renderer"
@@ -22,7 +22,7 @@ const exec = promisify(execCb)
 
 const REMOTE_STAGE_DIR = "/tmp"
 
-declare module "../../interfaces/task.interface" {
+declare module "../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       copy?: CopyModuleOptions

@@ -1,7 +1,7 @@
 import type { SSHProvider } from "../providers/ssh/ssh.provider"
 import { baseName, targetDir } from "./path.utils"
 import { toOctal } from "./number.utils"
-import type { Katmer } from "../../interfaces/task.interface"
+import type { Katmer } from "../interfaces/task.interface"
 
 export const UnixComms = {
   escapePOSIX(s: string): string {

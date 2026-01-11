@@ -1,4 +1,4 @@
-import type { OsArch } from "../../interfaces/provider.interface"
+import type { OsArch } from "../interfaces/provider.interface"
 
 export function normalizeOs(
   s: string

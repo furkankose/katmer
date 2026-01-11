@@ -2,9 +2,9 @@ import type {
   KatmerConfig,
   KatmerHostResolved,
   KatmerHostInput
-} from "../interfaces/config.interface"
+} from "./interfaces/config.interface"
 import { toMerged } from "es-toolkit"
-import type { KatmerProvider } from "../interfaces/provider.interface"
+import type { KatmerProvider } from "./interfaces/provider.interface"
 import objectHash from "stable-hash"
 import { SSHProvider } from "./providers/ssh/ssh.provider"
 import type { KatmerCore } from "./katmer"

@@ -1,10 +1,10 @@
-import type { Katmer } from "../../../interfaces/task.interface"
+import type { Katmer } from "../../interfaces/task.interface"
 import { SourcesList } from "./apt-sources-list"
 import { cloneInstance } from "../../utils/object.utils"
 import type { SSHProvider } from "../../providers/ssh/ssh.provider"
 import { KatmerModule } from "../../module"
 
-declare module "../../../interfaces/task.interface" {
+declare module "../../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       /**

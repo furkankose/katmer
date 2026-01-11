@@ -1,4 +1,4 @@
-import type { ProviderResponse } from "../lib/providers/provider_response"
+import type { ProviderResponse } from "../providers/provider_response"
 import type { StandardLogger } from "./config.interface"
 
 export type OsFamily =

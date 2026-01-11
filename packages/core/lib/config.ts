@@ -9,7 +9,7 @@ import { wrapInArray } from "./utils/json.utils"
 import { HttpModule } from "./modules/http/http.local.module"
 import { LocalProvider } from "./providers/local.provider"
 import { normalizeAjvError } from "./utils/ajv.utils"
-import type { KatmerConfig } from "../interfaces/config.interface"
+import type { KatmerConfig } from "./interfaces/config.interface"
 
 const ajv = ajvErrors(
   new Ajv({

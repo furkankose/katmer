@@ -1,9 +1,9 @@
 import {
   type ModuleCommonReturn,
   type ModuleConstraints
-} from "../../interfaces/module.interface"
-import type { Katmer } from "../../interfaces/task.interface"
-import type { KatmerProvider } from "../../interfaces/provider.interface"
+} from "../interfaces/module.interface"
+import type { Katmer } from "../interfaces/task.interface"
+import type { KatmerProvider } from "../interfaces/provider.interface"
 import { evalExpr, evalIterative } from "../utils/renderer/renderer"
 import { toMerged } from "es-toolkit"
 import { KatmerModule } from "../module"
@@ -18,7 +18,7 @@ import { KatmerModule } from "../module"
  *         stamp: "{{ 1 + 2 }}"
  *       render: true
  */
-declare module "../../interfaces/task.interface" {
+declare module "../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       /** Compute and set variables (facts) on the task context. */

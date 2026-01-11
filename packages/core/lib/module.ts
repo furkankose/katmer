@@ -3,8 +3,8 @@ import type {
   OsArch,
   OsFamily,
   OsInfo
-} from "../interfaces/provider.interface"
-import type { Katmer } from "../interfaces/task.interface"
+} from "./interfaces/provider.interface"
+import type { Katmer } from "./interfaces/task.interface"
 import type {
   ModuleCommonReturn,
   ModuleConstraints,
@@ -13,7 +13,7 @@ import type {
   PackageConstraint,
   BinaryConstraint,
   PackageManager
-} from "../interfaces/module.interface"
+} from "./interfaces/module.interface"
 import { wrapInArray } from "./utils/json.utils"
 import semver from "semver"
 

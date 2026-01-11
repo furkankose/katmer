@@ -2,9 +2,9 @@
 import {
   type ModuleCommonReturn,
   type ModuleConstraints
-} from "../../interfaces/module.interface"
-import type { Katmer } from "../../interfaces/task.interface"
-import type { KatmerProvider } from "../../interfaces/provider.interface"
+} from "../interfaces/module.interface"
+import type { Katmer } from "../interfaces/task.interface"
+import type { KatmerProvider } from "../interfaces/provider.interface"
 import { SSHProvider } from "../providers/ssh/ssh.provider"
 import type { LocalProvider } from "../providers/local.provider"
 import { evalTemplate } from "../utils/renderer/renderer"
@@ -14,7 +14,7 @@ import path from "node:path"
 import { toOctal } from "../utils/number.utils"
 import { KatmerModule } from "../module"
 
-declare module "../../interfaces/task.interface" {
+declare module "../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       template?: TemplateModuleOptions

@@ -2,14 +2,14 @@
 import {
   type ModuleCommonReturn,
   type ModuleConstraints
-} from "../../interfaces/module.interface"
-import type { Katmer } from "../../interfaces/task.interface"
-import type { KatmerProvider } from "../../interfaces/provider.interface"
+} from "../interfaces/module.interface"
+import type { Katmer } from "../interfaces/task.interface"
+import type { KatmerProvider } from "../interfaces/provider.interface"
 import { get } from "es-toolkit/compat"
 import { evalTemplate } from "../utils/renderer/renderer"
 import { wrapInArray } from "../utils/json.utils"
 import { KatmerModule } from "../module"
-declare module "../../interfaces/task.interface" {
+declare module "../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       debug?: DebugModuleOptions | string | string[]

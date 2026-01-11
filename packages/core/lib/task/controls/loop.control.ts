@@ -1,9 +1,9 @@
-import type { Katmer } from "../../../interfaces/task.interface"
+import type { Katmer } from "../../interfaces/task.interface"
 import { defaults, isObjectLike } from "es-toolkit/compat"
 import { wrapInArray } from "../../utils/json.utils"
 import type { KatmerTask } from "../task"
 import { evalExpr } from "../../utils/renderer/renderer"
-import type { ModuleCommonReturn } from "../../../interfaces/module.interface"
+import type { ModuleCommonReturn } from "../../interfaces/module.interface"
 
 const configKey = "loop" as const
 export const LoopControl = {

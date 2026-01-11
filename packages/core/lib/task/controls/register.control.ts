@@ -1,5 +1,5 @@
 import type { KatmerTask } from "../task"
-import type { Katmer } from "../../../interfaces/task.interface"
+import type { Katmer } from "../../interfaces/task.interface"
 
 const configKey = "register" as const
 

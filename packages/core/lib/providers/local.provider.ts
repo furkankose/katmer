@@ -4,7 +4,7 @@ import {
   type OsInfo,
   type ProviderOptions,
   type SupportedShell
-} from "../../interfaces/provider.interface"
+} from "../interfaces/provider.interface"
 import * as child_process from "node:child_process"
 import type { ChildProcess } from "node:child_process"
 import { makeLineEmitter } from "./ssh/ssh.utils"

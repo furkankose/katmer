@@ -1,5 +1,5 @@
 import type { SSHProvider } from "../providers/ssh/ssh.provider"
-import type { Katmer } from "../../interfaces/task.interface"
+import type { Katmer } from "../interfaces/task.interface"
 
 export const WindowsComms = {
   /**

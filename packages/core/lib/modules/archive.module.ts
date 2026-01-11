@@ -1,9 +1,9 @@
-import { type ModuleCommonReturn } from "../../interfaces/module.interface"
-import type { Katmer } from "../../interfaces/task.interface"
-import type { KatmerProvider } from "../../interfaces/provider.interface"
+import { type ModuleCommonReturn } from "../interfaces/module.interface"
+import type { Katmer } from "../interfaces/task.interface"
+import type { KatmerProvider } from "../interfaces/provider.interface"
 import { KatmerModule } from "../module"
 
-declare module "../../interfaces/task.interface" {
+declare module "../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       archive?: ArchiveModuleOptions

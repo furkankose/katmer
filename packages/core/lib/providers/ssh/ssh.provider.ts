@@ -6,7 +6,7 @@ import {
   type OsInfo,
   type ProviderOptions,
   type SupportedShell
-} from "../../../interfaces/provider.interface"
+} from "../../interfaces/provider.interface"
 import { makeLineEmitter } from "./ssh.utils"
 import { pick } from "es-toolkit"
 import { merge } from "es-toolkit/compat"

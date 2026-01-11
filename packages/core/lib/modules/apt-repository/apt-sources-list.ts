@@ -1,7 +1,7 @@
 import { get } from "es-toolkit/compat"
 import { parseLines } from "../../utils/string.utils"
 import path from "node:path"
-import type { Katmer } from "../../../interfaces/task.interface"
+import type { Katmer } from "../../interfaces/task.interface"
 import type { SSHProvider } from "../../providers/ssh/ssh.provider"
 import { UnixComms } from "../../utils/unix.utils"
 

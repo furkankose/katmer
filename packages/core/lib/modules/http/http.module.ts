@@ -1,11 +1,11 @@
-import { type ModuleCommonReturn } from "../../../interfaces/module.interface"
+import { type ModuleCommonReturn } from "../../interfaces/module.interface"
 import { SSHProvider } from "../../providers/ssh/ssh.provider"
-import type { KatmerProvider } from "../../../interfaces/provider.interface"
+import type { KatmerProvider } from "../../interfaces/provider.interface"
 
 import { HttpModule as HTTPCurlModule } from "./http.curl.module"
 import { HttpModule as HTTPLocalModule } from "./http.local.module"
 
-declare module "../../../interfaces/task.interface" {
+declare module "../../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       /**

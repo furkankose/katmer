@@ -1,5 +1,5 @@
 import type { KatmerTask } from "../task"
-import type { Katmer } from "../../../interfaces/task.interface"
+import type { Katmer } from "../../interfaces/task.interface"
 import { evalExpr, evalObjectVals } from "../../utils/renderer/renderer"
 import { merge } from "es-toolkit/compat"
 import { mapValues } from "es-toolkit"

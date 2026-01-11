@@ -14,7 +14,7 @@
   },
   "files": [
     "cli",
-    "interfaces",
+    "lib/interfaces",
     "lib",
     "index.ts"
   ],

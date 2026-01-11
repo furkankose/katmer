@@ -1,5 +1,5 @@
 import { isPlainObject } from "es-toolkit"
-import type { Katmer } from "../../interfaces/task.interface"
+import type { Katmer } from "../interfaces/task.interface"
 
 export const URLLookup = {
   key: "url",

@@ -4,7 +4,7 @@ import { LocalProvider } from "../lib/providers/local.provider"
 import type {
   KatmerConfig,
   KatmerHostInput
-} from "../interfaces/config.interface"
+} from "../lib/interfaces/config.interface"
 import { KatmerTargetResolver } from "../lib/target_resolver"
 
 vi.mock("../providers/ssh/ssh.provider", () => ({

@@ -7,16 +7,16 @@ import AdmZip from "adm-zip"
 import {
   type ModuleCommonReturn,
   type ModuleConstraints
-} from "../../interfaces/module.interface"
+} from "../interfaces/module.interface"
 import type { Katmer } from "../katmer"
-import type { KatmerProvider } from "../../interfaces/provider.interface"
+import type { KatmerProvider } from "../interfaces/provider.interface"
 import { SSHProvider } from "../providers/ssh/ssh.provider"
 import { LocalProvider } from "../providers/local.provider"
 import { KatmerModule } from "../module"
 
 type OsKey = "linux" | "darwin" | "windows"
 
-declare module "../../interfaces/task.interface" {
+declare module "../interfaces/task.interface" {
   export namespace Katmer {
     export interface TaskActions {
       gather_facts?: GatherFactsModuleOptions
