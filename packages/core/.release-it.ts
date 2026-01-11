@@ -24,6 +24,7 @@ export default {
 
   github: {
     release: true,
+    releaseName: "v${version}",
     assets: ["dist/releases/*"]
   },
 
