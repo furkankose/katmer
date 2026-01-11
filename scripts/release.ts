@@ -27,7 +27,7 @@ if (!pkgs || pkgs.length === 0) {
 
 const tag = pkgs.join(", ")
 
-await Bun.$`git commit --allow-empty -m ${`chore: release [${tag}]`}`
+await Bun.$`git commit --allow-empty -m ${`chore: trigger release [${tag}]`}`
 
 console.log(`Release commit created for: ${tag}`)
 
