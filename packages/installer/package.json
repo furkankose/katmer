@@ -2,6 +2,10 @@
   "name": "@katmer/installer",
   "version": "0.0.0",
   "type": "module",
+  "repository": {
+    "url": "https://github.com/katmer-io/katmer",
+    "directory": "packages/installer"
+  },
   "scripts": {
     "dev": "bun --watch ./scripts/dev.ts",
     "dev:ui": "vite -l error ./",

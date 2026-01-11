@@ -6,6 +6,10 @@
   "main": "index.ts",
   "type": "module",
   "types": "index.ts",
+  "repository": {
+    "url": "https://github.com/katmer-io/katmer",
+    "directory": "packages/core"
+  },
   "bin": {
     "katmer": "cli/katmer.js"
   },
