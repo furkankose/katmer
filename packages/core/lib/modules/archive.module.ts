@@ -18,7 +18,7 @@ declare module "../interfaces/task.interface" {
  * - Works on SSHProvider and LocalProvider.
  * - Matches flags available in bsdtar(1) with sensible defaults.
  *
- * @example Create a gzip archive:
+ * @examples
  * ```yaml
  * - name: Create a gzip archive
  *   archive:
@@ -28,20 +28,14 @@ declare module "../interfaces/task.interface" {
  *     dest: /tmp/system.tar.gz
  *     gzip: true
  *     verbose: true
- * ```
  *
- * @example Extract with strip components:
- * ```yaml
- * - name: Extract release
+ * - name: Extract with strip components
  *   archive:
  *     src: /tmp/release.tar.gz
  *     dest: /opt/app
  *     strip_components: 1
- * ```
  *
- * @example List archive contents:
- * ```yaml
- * - name: List archive
+ * - name: List archive contents
  *   archive:
  *     src: /tmp/archive.tar.xz
  *     list: true
