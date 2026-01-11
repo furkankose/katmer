@@ -16,9 +16,10 @@ export default {
 
   npm: {
     publish: true,
+    publishArgs: ["--access=public", "--workspaces-update=false"],
     publishPath: ".",
-    versionArgs: ["--workspaces-update=false"],
-    publishArgs: ["--access=public", "--workspaces-update=false"]
+    skipChecks: !!process.env.CI,
+    versionArgs: ["--workspaces-update=false"]
   },
 
   github: {
