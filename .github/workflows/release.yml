@@ -44,10 +44,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Determine core release channel
+        id: channel
+        run: |
+          MSG="${{ github.event.head_commit.message }}"
+
+          if echo "$MSG" | grep -q "core:beta"; then
+            echo "args=--preRelease=beta" >> $GITHUB_OUTPUT
+          elif echo "$MSG" | grep -q "core:alpha"; then
+            echo "args=--preRelease=alpha" >> $GITHUB_OUTPUT
+          elif echo "$MSG" | grep -q "core:next"; then
+            echo "args=--preRelease=rc" >> $GITHUB_OUTPUT
+          else
+            echo "args=" >> $GITHUB_OUTPUT
+          fi
+
       - name: Release core (katmer)
         run: |
           cd packages/core
-          bun x release-it --ci
+          bun x release-it --ci ${{ steps.channel.outputs.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -83,9 +98,24 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Release installer
+      - name: Determine installer release channel
+        id: channel
+        run: |
+          MSG="${{ github.event.head_commit.message }}"
+
+          if echo "$MSG" | grep -q "installer:beta"; then
+            echo "args=--preRelease=beta" >> $GITHUB_OUTPUT
+          elif echo "$MSG" | grep -q "installer:alpha"; then
+            echo "args=--preRelease=alpha" >> $GITHUB_OUTPUT
+          elif echo "$MSG" | grep -q "installer:next"; then
+            echo "args=--preRelease=rc" >> $GITHUB_OUTPUT
+          else
+            echo "args=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Release installer (katmer)
         run: |
           cd packages/installer
-          bun x release-it --ci
+          bun x release-it --ci ${{ steps.channel.outputs.args }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

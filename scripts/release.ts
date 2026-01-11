@@ -4,14 +4,15 @@ import prompts from "prompts"
 const args = process.argv.slice(2)
 const autoPush = args.includes("--push")
 
+// Fail if tracked files are dirty (ignore untracked)
 const status = await Bun.$`git status --porcelain --untracked-files=no`.text()
-
 if (status.trim().length > 0) {
   console.error("Working directory is dirty. Commit or stash changes first.")
   process.exit(1)
 }
 
 const packages = ["core", "installer"]
+const channels = ["stable", "beta", "alpha", "next"] as const
 
 const { pkgs }: { pkgs?: string[] } = await prompts({
   type: "multiselect",
@@ -25,11 +26,34 @@ if (!pkgs || pkgs.length === 0) {
   process.exit(1)
 }
 
-const tag = pkgs.join(", ")
+const selections: Record<string, string> = {}
 
-await Bun.$`git commit --allow-empty -m ${`chore: trigger release [${tag}]`}`
+for (const pkg of pkgs) {
+  const { channel }: { channel?: string } = await prompts({
+    type: "select",
+    name: "channel",
+    message: `Select release type for ${pkg}`,
+    choices: channels.map((c) => ({ title: c, value: c })),
+    initial: 0
+  })
 
-console.log(`Release commit created for: ${tag}`)
+  if (!channel) {
+    console.error(`No release type selected for ${pkg}`)
+    process.exit(1)
+  }
+
+  selections[pkg] = channel
+}
+
+const spec = Object.entries(selections)
+  .map(([pkg, ch]) => `${pkg}:${ch}`)
+  .join(", ")
+
+const message = `chore: trigger release [${spec}]`
+
+await Bun.$`git commit --allow-empty -m ${message}`
+
+console.log(`Release commit created: ${message}`)
 
 if (autoPush) {
   await Bun.$`git push`
