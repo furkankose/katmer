@@ -27,7 +27,7 @@ try {
   ] as const) {
     console.log(`Building for ${target}`)
     await Bun.build({
-      entrypoints: [localPath("cli/katmer.ts")],
+      entrypoints: [localPath("cli/katmer.js")],
       root: localPath(),
       target: "bun",
       compile: {
