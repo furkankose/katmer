@@ -76,15 +76,7 @@ targets:
         private_key: ~/.ssh/id_rsa
 ```
 
-### Selecting Targets
 
-Whether defined externally or inline, targets are selected in tasks using the same syntax:
-
-* `all` or `*`: all known hosts
-* `api_*`: wildcard matching
-* `!host_2`: exclude a host
-* `@host_1`: intersection
-* `api_*,web-02`: comma-separated lists
 
 ### Tasks
 
@@ -113,6 +105,16 @@ tasks:
   targets: production
   script: "df -h"
 ```
+
+#### Selecting Targets
+
+Whether defined externally or inline, targets are selected in tasks using the same syntax:
+
+* `all` or `*`: all known hosts
+* `api_*`: wildcard matching
+* `!host_2`: exclude a host
+* `@host_1`: intersection
+* `api_*,web-02`: comma-separated lists
 
 ### Providers and Modules
 
@@ -297,13 +299,3 @@ To execute a task with elevated privileges, set `become: true`.
 └─ deploy.yaml
 ```
 
-## Summary
-
-* **Flexibility:** Targets can be defined inline or externally.
-* **Predictability:** Each task runs exactly one module with a uniform result shape.
-* **Templating:** Twig is used for templates, conditionals (`when`), and expressions.
-* **Shorthand:** The `script` module defaults to rendering enabled for concise usage.
-* **Structure:** Results are consistent and easy to chain using `register`.
-
-Once you are comfortable with targets, tasks, and the core modules, you can build larger, repeatable 
-automation flows with confidence.
