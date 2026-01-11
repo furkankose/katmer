@@ -7,7 +7,7 @@
   "type": "module",
   "types": "index.ts",
   "bin": {
-    "katmer": "./cli/katmer.ts"
+    "katmer": "cli/katmer.js"
   },
   "exports": {
     "bun": "./index.ts"

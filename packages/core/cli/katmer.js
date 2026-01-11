@@ -21,7 +21,7 @@ run(cli)
 
 try {
   await cli.parseAsync(process.argv)
-} catch (e: any) {
+} catch (e) {
   console.error(e)
   console.error(e.message || e)
   process.exit(1)

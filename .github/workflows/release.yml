@@ -32,15 +32,17 @@ jobs:
       - name: Build core binaries
         run: bun packages/core/scripts/build.ts
 
+      # release-it uses Node internally
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Release core (katmer)
         run: |
           cd packages/core
-          bun x semantic-release
+          bun x release-it --ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -70,11 +72,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Release installer
         run: |
           cd packages/installer
-          bun x semantic-release
+          bun x release-it --ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
