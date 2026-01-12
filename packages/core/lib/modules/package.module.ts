@@ -21,7 +21,6 @@ import { KatmerModule } from "../module"
  * - **Windows**: winget, choco
  *
  * The module automatically:
- * - Detects the target OS via {@link KatmerProvider.os}
  * - Probes for available package managers
  * - Selects the most appropriate one
  *
