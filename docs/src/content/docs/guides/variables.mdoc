@@ -15,7 +15,7 @@ Katmer lets you pass data into tasks and templates using simple variables. This 
 
 ## Where variables come from
 
-At run time, each task executes with a single dictionary called **`ctx.variables`**. It's built by merging, in order:
+Each execution has its own context. It's built by merging, in order:
 
 1. **Target/group variables** – from your `targets.*` under **`variables:`** (per group and per host)
 2. **Task variables** – from the task's **`variables:`** block
@@ -35,12 +35,12 @@ You can read variables in any module parameter using `{{ ... }}` expressions (sa
 ```yaml
 # targets.yaml (or .json/.yml)
 web:
-  # Connection and provider defaults (NOT injected into ctx.variables)
+  # Connection and provider defaults (NOT injected into context)
   settings:
     username: deploy
     private_key: ~/.ssh/id_rsa
 
-  # Variables that WILL be merged into ctx.variables for tasks targeting this group/hosts
+  # Variables that WILL be merged into context for tasks targeting this group/hosts
   variables:
     env: prod
     app_dir: /opt/myapp
@@ -277,7 +277,7 @@ With loops, the outer result contains a `results` array; each iteration result a
 ## Good to know
 
 * **Precedence**: target/group `variables` → task `variables` → loop/register/set-fact (latest wins).
-* **`settings` vs `variables`**: `settings` configure providers/hosts and are not injected into `ctx.variables`. If you need a setting inside templates, mirror it under `variables`.
+* **`settings` vs `variables`**: `settings` configure providers/hosts and are not injected into context. If you need a setting inside templates, mirror it under `variables`.
 * **Visibility**: `register` and `set-fact` outputs are visible to subsequent tasks.
 * **Per-task overrides**: Modules like `template` can take their own `variables:` to override just for that action.
 

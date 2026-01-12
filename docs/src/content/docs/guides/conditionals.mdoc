@@ -8,7 +8,7 @@ Katmer supports two complementary controls:
 * **`when:`** — *gate* a task: run it only if the expression is truthy.
 * **`until:`** — *retry* a task until an expression becomes truthy (with retries & delay).
 
-Both evaluate expressions against the current variable scope (`ctx.variables`), which includes target/group variables, task `variables:`, loop locals (e.g. `item`), and any previously `register`'d / `set-fact` values.
+Both evaluate expressions against the current variable scope, which includes target/group variables, task `variables:`, loop locals (e.g. `item`), and any previously `register`'d / `set-fact` values.
 
 If a `when` condition is false, the task is **skipped** and returns:
 

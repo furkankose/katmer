@@ -13,7 +13,7 @@ import { KatmerModule } from "../module"
  * @remarks
  * - Accepts either a **string** (backwards compatible) or an **object** with a `content` string
  *   and a `render` flag to enable/disable template rendering.
- * - When `render` is `true` (default), the script string is rendered with Twig against `ctx.variables`
+ * - When `render` is `true` (default), the script string is rendered with Twig against context
  *   before execution. When `false`, the string is executed **as-is**.
  * - Uses the provider's shell via {@link Katmer.TaskContext.exec | `ctx.exec`}.
  * - Return semantics are simple: `changed` is always `false`; `failed` is set when the exit code is non-zero.
@@ -91,7 +91,7 @@ export type ScriptModuleOptions =
       /** Inline script content to execute. */
       content: string
       /**
-       * Whether to render the script with Twig against `ctx.variables` before execution.
+       * Whether to render the script with Twig against context before execution.
        * @defaultValue true
        */
       render?: boolean

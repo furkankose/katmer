@@ -21,8 +21,8 @@ declare module "../interfaces/task.interface" {
  *
  * @remarks
  * - Accepts either a **string shorthand** (printed as a message) or a **full options object**.
- * - `msg` entries support template expressions rendered against `ctx.variables` (via `evalExpr`).
- * - When `var` is provided, values are looked up from `ctx.variables` using dot-paths (e.g. `"app.version"`).
+ * - `msg` entries support template expressions rendered against context.
+ * - When `var` is provided, values are looked up from the context using dot-paths (e.g. `"app.version"`).
  * - If nothing is provided, prints a default `"ok"` line.
  *
  * @examples

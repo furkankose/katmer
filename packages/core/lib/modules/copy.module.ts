@@ -35,7 +35,7 @@ declare module "../interfaces/task.interface" {
  * Copies **content** or a **file** to a destination path.
  *
  * - If {@link CopyModuleOptions.content | `content`} is set, it is rendered **locally** using Twig
- *   against `ctx.variables` and written to {@link CopyModuleOptions.dest | `dest`}.
+ *   against context and written to {@link CopyModuleOptions.dest | `dest`}.
  * - If {@link CopyModuleOptions.src | `src`} is set:
  *   - With **SSH** provider, it is treated as a **controller (local)** path and uploaded to the remote host,
  *     unless {@link CopyModuleOptions.remote_src | `remote_src`} is `true`.
@@ -240,7 +240,7 @@ export class CopyModule extends KatmerModule<
 
   /**
    * Execute the copy:
-   * - Renders string fields (including `content`) against `ctx.variables`.
+   * - Renders string fields (including `content`) against context.
    * - Branches to SSH or Local implementation.
    * - Returns {@link CopyModuleResult} with `changed`, `checksum`, optional `backup_file`, etc.
    */
@@ -541,7 +541,7 @@ export class CopyModule extends KatmerModule<
   // ────────────────────────────────────────────────────────────────────────────────
 
   /**
-   * Render only the string-like fields against `ctx.variables`.
+   * Render only the string-like fields against context.
    * - `content` is rendered only if it is a `string`; `Uint8Array` is passed through untouched.
    *
    * @internal

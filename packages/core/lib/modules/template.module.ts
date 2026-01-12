@@ -68,7 +68,7 @@ export interface TemplateModuleOptions {
   dest: string
 
   /**
-   * Extra variables merged **on top of** `ctx.variables` for this render only.
+   * Extra variables merged **on top of** the current context for this render only.
    * Task/target variables remain intact; these act as per-render overrides.
    */
   variables?: Record<string, any>
@@ -123,7 +123,7 @@ export interface TemplateModuleResult extends ModuleCommonReturn {
  * Render a Twig template locally and deploy the result to a file (remote for SSH, local for Local).
  *
  * @remarks
- * - Renders with the merged context of `ctx.variables` + per-call `variables`.
+ * - Renders with the current context + per-call `variables`.
  * - If {@link TemplateModuleOptions.diff_check | diff_check} is `true` (default), content is compared to avoid needless writes.
  * - On **SSH**:
  *   - Ensures parent directory via shell (`mkdir -p`).

@@ -1,167 +1,81 @@
 ---
 title: Getting Started
 sidebar:
-  order: 0
----
+order: 0
+--------
 
-Katmer is a lightweight, scriptable automation engine designed to execute tasks on hosts, either locally or over SSH. 
-You define **where** to run code (targets), **what** to do (modules), and apply logic like conditions, loops, or
-variable registration. Katmer manages host resolution, provider setup, template evaluation, and execution flow,
-ensuring consistent and predictable results across different environments.
+## Overview
+
+Katmer is a lightweight, scriptable automation engine for running tasks on machines, either **locally** or
+**over SSH**. At its core, Katmer is a reliable command executor with structure: it knows *where* to run commands,
+*how* to connect, and *how* to evaluate templates, conditions, and results in a consistent way.
+
+Unlike tools such as Ansible, Katmer is designed as a **single self-contained executable**. There is no daemon,
+no agent, and no runtime dependency on Python or system packages. You download one binary and run it.
+
+Katmer is also usable as a **library**. Internally, the CLI is just a thin wrapper around the same APIs you can
+embed in your own Bun-based tooling. This makes it suitable not only for ad-hoc automation and CI/CD
+jobs, but also for building higher-level orchestration systems.
+
+Today, Katmer is intentionally focused on **small to mid-sized infrastructures**. It prioritizes clarity,
+predictability, and debuggability over large-scale fleet abstractions.
+
+At a high level, Katmer works by resolving targets, creating providers (SSH or local), preparing an
+execution context, and running one module per task. Each module returns a structured result that Katmer
+can inspect, chain, or retry.
+
+## Installation
+
+Katmer is distributed as a single executable.
+
+You can download the latest release directly from GitHub:
+
+[https://github.com/katmer-io/katmer/releases](https://github.com/katmer-io/katmer/releases)
+
+Choose the binary that matches your operating system and architecture, place it somewhere in your `PATH`,
+and make it executable if necessary.
+
+For example on Linux or macOS:
+
+```sh
+chmod +x katmer
+mv katmer /usr/local/bin/katmer
+```
+
+No additional dependencies are required.
 
 ## Core Concepts
 
-### Targets (Inventory)
+Katmer revolves around a small number of concepts that compose cleanly.
 
-Targets define the machines you want to manage and the contextual data associated with them. This data is 
-merged into the execution context when tasks run.
+**Targets** describe *where* tasks run. A target can represent a remote host accessed over SSH or the local
+machine itself. Targets can be defined in a separate inventory file or inline inside the same task file for
+fully self-contained scripts. Detailed target configuration is covered in the Targets guide.
 
-A target configuration can include:
+**Tasks** describe *what* should happen. A task always runs against one or more targets, has a human-readable
+name, and executes exactly one module. Tasks can optionally include conditions, loops, variable registration,
+or privilege escalation.
 
-- `hosts`: machines and their connection details
-- `settings`: defaults like connection type or port
-- `variables`: data available to templates and expressions
-- `environment`: variables exported to the shell
-- `children`: include other targets and overlay their data
+**Modules** are the units of work and they perform concrete actions. Each module exposes a clear interface and
+returns a consistent result structure.
 
-Targets can be defined in two ways:
+**Control flow** allows you to add logic around tasks. You can conditionally run tasks, iterate over data, or chain results between tasks. These features are documented in detail in the Variables, Conditionals, and Loops guides.
 
-1. **Externally**, in a shared `targets.yaml` file
-2. **Inline**, directly inside a task file (self-contained scripts)
-
-#### External Targets File
-
-This approach separates inventory from logic and is useful when multiple task files share the same hosts.
-
-```yaml
-# targets.yaml
-production:
-  settings: { connection: ssh, port: 22 }
-  variables: { env: "prod", app_dir: "/opt/myapp" }
-  environment: { APP_ENV: "prod", JAVA_OPTS: "-Xms256m -Xmx512m" }
-  hosts:
-    web-01:
-      hostname: "10.0.0.11"
-      username: "deploy"
-      private_key: "~/.ssh/id_rsa"
-    web-02:
-      hostname: "10.0.0.12"
-      username: "deploy"
-      private_key: "~/.ssh/id_rsa"
-
-local:
-  hosts:
-    localhost: { connection: local }
-````
-
-#### Inline Targets
-
-Inline targets live inside the same file as your tasks. This is recommended for single-file scripts, CI/CD jobs, 
-or ephemeral environments where a separate inventory adds unnecessary complexity.
-
-```yaml
-# deploy.yaml
-targets:
-  production:
-    settings:
-      connection: ssh
-      port: 22
-    variables:
-      env: prod
-      app_dir: /opt/myapp
-    hosts:
-      web-01:
-        hostname: 10.0.0.11
-        username: deploy
-        private_key: ~/.ssh/id_rsa
-```
-
-
-
-### Tasks
-
-A **task** is the fundamental unit of execution. It answers the question:
-
-> Run this module, with these parameters, on these targets, if these conditions are met.
-
-Every task must have:
-
-* `name`: used for logging and reporting
-* `targets`: which hosts to run on
-* **exactly one module** (e.g. `script`, `copy`, `http`)
-
-Optionally, a task may also include:
-
-* `when`: conditional execution (Twig expression)
-* `loop`: iteration
-* `register`: capture results
-* `become`: privilege escalation
-
-Tasks are always defined under a top-level `tasks` key.
-
-```yaml
-tasks:
-- name: Check disk space
-  targets: production
-  script: "df -h"
-```
-
-#### Selecting Targets
-
-Whether defined externally or inline, targets are selected in tasks using the same syntax:
-
-* `all` or `*`: all known hosts
-* `api_*`: wildcard matching
-* `!host_2`: exclude a host
-* `@host_1`: intersection
-* `api_*,web-02`: comma-separated lists
-
-### Providers and Modules
-
-**Providers** determine how Katmer connects to a host:
-
-* **SSH provider**: remote execution and file transfer
-* **Local provider**: runs commands on the controller machine
-
-Providers are resolved automatically based on target settings.
-
-**Modules** are the units of work. Common modules include:
-
-* `copy`: transfer files or inline content
-* `template`: render Twig templates and upload if changed
-* `http`: perform HTTP(S) requests
-* `script`: run inline shell scripts
-
-All modules return a consistent result structure:
-
-```ts
-{
-  changed: boolean
-  failed?: boolean
-  msg?: string
-  stdout?: string
-  stderr?: string
-  start?: string
-  end?: string
-  delta?: string
-}
-```
+This page intentionally keeps these descriptions brief. Each concept has its own dedicated guide that goes deeper.
 
 ## Quick Start
 
-The following example shows a fully self-contained deployment using **inline targets** and **module shorthand**.
-No external inventory is required.
+The fastest way to get started is to write a single YAML file that contains both **targets** and **tasks**.
+
+Create a file called `deploy.yaml`:
 
 ```yaml
-# deploy.yaml
-
 targets:
   production:
     settings:
       connection: ssh
       port: 22
     variables:
-      env: prod
       app_dir: /opt/myapp
     hosts:
       web-01:
@@ -176,7 +90,7 @@ tasks:
     src: "./dist/myapp.tar.gz"
     dest: "/opt/myapp/myapp.tar.gz"
 
-- name: Extract archive
+- name: Extract application
   targets: production
   script: |
     mkdir -p "{{ app_dir }}"
@@ -185,117 +99,31 @@ tasks:
 - name: Restart service
   targets: production
   become: true
-  script:
-    content: "systemctl restart myapp"
-    render: false
+  script: "systemctl restart myapp"
 ```
 
-## Variables vs Environment
+In this example, the targets are defined inline, making the file completely portable. These tasks uses `copy`
+and `script` modules to upload and execute a script respectively.
 
-Katmer distinguishes between two execution contexts:
+To execute the file, run:
 
-1. **`variables`**
-   Used by Twig for templates and expressions (`{{ ... }}`).
+```sh
+katmer run deploy.yaml
+```
 
-2. **`environment`**
-   Exported to the shell as environment variables.
+Katmer will resolve the targets, connect over SSH, upload the archive, extract it, and restart the service.
+Each task runs independently and reports whether it changed anything or failed.
 
-Precedence (low → high): group → host → task/module.
+This same pattern works for local execution as well:
 
 ```yaml
-- name: Variable usage example
-  targets: production
-  variables:
-    token: "{{ secrets.token }}"
-  script: 'echo "env=$APP_ENV, token={{ token | slice(0,4) }}****"'
+tasks:
+- name: Check disk usage locally
+  targets: local
+  script: "df -h"
 ```
 
-## Control Flow
+From here, you can gradually introduce more advanced features like variables, loops, conditionals,
+or package management, all while keeping your automation readable and explicit.
 
-### Conditions (`when`)
-
-The `when` field accepts any valid Twig expression. If it evaluates to truthy, the task runs.
-
-```yaml
-- name: Only on production
-  targets: all
-  when: env == "prod"
-  script: "echo prod only"
-```
-
-### Loops
-
-Use `loop` to iterate over arrays or objects. Each iteration exposes `item` and `index`.
-
-```yaml
-- name: Enable selected sites
-  targets: production
-  loop:
-    for:
-      siteA: { enabled: true }
-      siteB: { enabled: false }
-  when: item.enabled
-  script: 'echo "enabling {{ index }}"'
-```
-
-### Register and Chaining
-
-Use `register` to capture a module result and reference it later.
-
-```yaml
-- name: Probe endpoints
-  targets: production
-  loop:
-    for:
-      - https://a.example.com/health
-      - https://b.example.com/health
-  register: probes
-  http:
-    url: "{{ item }}"
-    fail_on_http_error: false
-
-- name: Report failures
-  targets: production
-  script: |
-    Failing endpoints:
-    {{ probes.results
-       | selectattr('status', 'ne', 200)
-       | mapattr('url.href')
-       | join('\n') }}
-```
-
-> With loops, the outer registered value contains a **`results` array**. Each iteration result
-> also carries its **`item`**, making correlation straightforward.
-
-## Privilege Escalation
-
-To execute a task with elevated privileges, set `become: true`.
-
-```yaml
-- name: Restart as root
-  targets: production
-  become: true
-  script:
-    content: "systemctl restart myapp"
-    render: false
-```
-
-## Project Layouts
-
-**With external inventory** (shared environments):
-
-```
-.
-├─ targets.yaml
-├─ tasks/
-│  └─ deploy.yaml
-└─ _source/
-```
-
-**Fully inline (single file)** — ideal for CI/CD and one-off automations:
-
-```
-.
-└─ deploy.yaml
-```
-
+That is the core Katmer workflow: describe targets, define tasks, run modules, and let Katmer handle the rest.

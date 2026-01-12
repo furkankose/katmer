@@ -35,7 +35,7 @@ declare module "../interfaces/task.interface" {
  * - `{ vars, render, deep }` for more control
  *
  * When `render` is true, string values that contain templates like `{{ ... }}` are
- * evaluated using the current `ctx.variables` scope. When `deep` is true, objects
+ * evaluated using the current context scope. When `deep` is true, objects
  * and arrays are traversed and any string leaves are evaluated similarly.
  *
  * @public
@@ -43,7 +43,7 @@ declare module "../interfaces/task.interface" {
 export type SetFactModuleOptions =
   | Record<string, unknown>
   | {
-      /** Key/value pairs to set on `ctx.variables`. */
+      /** Key/value pairs to set on the current context. */
       vars: Record<string, unknown>
       /**
        * Evaluate string templates with `evalExpr`.
@@ -72,10 +72,10 @@ export interface SetFactModuleResult extends ModuleCommonReturn {
  * Compute and set variables (facts) on the task context.
  *
  * @remarks
- * - Values are merged into `ctx.variables`.
+ * - Values are merged into current context.
  * - `changed` is true when a value is added or changed.
- * - When `render=true`, string values that contain `{{ ... }}` are evaluated via `evalExpr`
- *   with `ctx.variables` as scope. Set `deep=true` to render nested strings as well.
+ * - When `render=true`, string values that contain `{{ ... }}` are evaluated
+ *   with current context as scope. Set `deep=true` to render nested strings as well.
  *
  * @examples
  * ```yaml

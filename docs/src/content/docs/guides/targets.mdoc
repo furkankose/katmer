@@ -53,7 +53,7 @@ A **target group** is an object with these optional keys:
 
 * `hosts`: map of host records
 * `settings`: defaults merged into each host (e.g., `connection`, `port`, etc.)
-* `variables`: data merged into `ctx.variables` at run time (used in templates/expressions)
+* `variables`: data merged into current context at runtime (used in templates/expressions)
 * `environment`: key/value map exported to the shell that runs your commands
 * `children`: map of *other group names* to include (inherit their hosts, then overlay this group's settings/variables/environment)
 
@@ -86,7 +86,7 @@ Anything in the parent group's `settings` is merged into each host (last writer 
 
 ## Variables vs Environment
 
-* **`variables`** → merged into `ctx.variables`. You use them in templates/expressions:
+* **`variables`** → merged into current context. You use them in templates/expressions:
 
   ```yaml
   template:
