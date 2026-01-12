@@ -410,7 +410,7 @@ function renderMarkdown(node?: tsdoc.DocNode | tsdoc.DocNodeContainer): string {
           .replace(/\w+ModuleResult/, "return")
           .replaceAll(".", "-")
           .toLowerCase()
-        out += `[${lt.linkText}](#${destination})`
+        out += `[${lt.linkText || destination}](${destination?.startsWith("http") ? destination : `#${destination}`})`
         break
       }
       case "PlainText":
