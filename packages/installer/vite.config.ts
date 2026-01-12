@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./ui"),
-      "@app/config": path.resolve("./config.ts"),
+      "@app/config": path.resolve("./common/config.ts"),
       "@common": path.resolve(import.meta.dirname, "./common")
     }
   },

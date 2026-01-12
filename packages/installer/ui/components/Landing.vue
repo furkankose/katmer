@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import config from "@app/config"
+import config from "@common/config"
 
 import { useI18n } from "vue-i18n"
 import { useInstaller } from "@/composables/useInstaller"

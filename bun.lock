@@ -38,9 +38,9 @@
     },
     "packages/core": {
       "name": "@katmer/core",
-      "version": "0.0.1-4",
+      "version": "0.0.4-alpha.0",
       "bin": {
-        "katmer": "./cli/katmer.ts",
+        "katmer": "cli/katmer.js",
       },
       "dependencies": {
         "@fastify/deepmerge": "^3.1.0",
@@ -76,9 +76,9 @@
     },
     "packages/installer": {
       "name": "@katmer/installer",
-      "version": "0.0.0",
+      "version": "0.0.1",
       "bin": {
-        "@katmer/installer": "./cli.ts",
+        "@katmer/installer": "./cli/index.ts",
       },
       "dependencies": {
         "@fastify/deepmerge": "^3.1.0",
@@ -128,6 +128,16 @@
         "vue-i18n": "^11.2.8",
         "vue-router": "^4.6.4",
         "vue-tsc": "^3.2.2",
+      },
+    },
+    "runtimes/installer-test": {
+      "name": "installer-test",
+      "devDependencies": {
+        "@katmer/installer": "workspace:*",
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
       },
     },
   },
@@ -1174,6 +1184,8 @@
     "inherits": ["inherits@2.0.4", "", {}, "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="],
 
     "inquirer": ["inquirer@12.11.1", "", { "dependencies": { "@inquirer/ansi": "^1.0.2", "@inquirer/core": "^10.3.2", "@inquirer/prompts": "^7.10.1", "@inquirer/type": "^3.0.10", "mute-stream": "^2.0.0", "run-async": "^4.0.6", "rxjs": "^7.8.2" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha512-9VF7mrY+3OmsAfjH3yKz/pLbJ5z22E23hENKw3/LNSaA/sAt3v49bDRY+Ygct1xwuKT+U+cBfTzjCPySna69Qw=="],
+
+    "installer-test": ["installer-test@workspace:runtimes/installer-test"],
 
     "ip-address": ["ip-address@10.1.0", "", {}, "sha512-XXADHxXmvT9+CRxhXg56LJovE+bmWnEWB78LB83VZTprKTmaC5QfruXocxzTZ2Kl0DNwKuBdlIhjL8LeY8Sf8Q=="],
 

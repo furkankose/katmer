@@ -9,10 +9,10 @@ import type {
 import { InstallerEngine } from "../installer_engine"
 import type { InstallerConfig } from "@type/installer"
 
-import ui_html from "../../index.html"
 import favicon from "../assets/favicon.svg" with { type: "text" }
 import type { CliRuntimeOptions } from "@type/cli"
 import { resolveInstaller } from "../installers/resolve_installer"
+import fs from "node:fs"
 
 type ws_server_data = {
   id: string
@@ -27,6 +27,14 @@ type session = {
 function to_installer_event(message: WSMessage): InstallerEvent | null {
   if (message.type !== "installer:event") return null
   return message.data as InstallerEvent
+}
+
+let ui_html: string
+
+if (process.env.NODE_ENV !== "development") {
+  ui_html = fs.readFileSync((await import("../../index.html")).default.index, {
+    encoding: "utf-8"
+  })
 }
 
 export async function start_web_runner(
@@ -103,13 +111,11 @@ export async function start_web_runner(
         })
       }
 
-      if (process.env.NODE_ENV !== "development") {
-        return new Response(ui_html as any, {
-          headers: {
-            "content-type": "text/html; charset=utf-8;"
-          }
-        })
-      }
+      return new Response(ui_html as any, {
+        headers: {
+          "content-type": "text/html; charset=utf-8;"
+        }
+      })
 
       return new Response(null, { status: 404 })
     },

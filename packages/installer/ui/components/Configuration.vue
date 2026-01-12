@@ -11,7 +11,7 @@ import {
 import { FormKit, useFormKitContext } from "@formkit/vue"
 import FormStep from "@/components/ui/FormStep.vue"
 import { deepMerge } from "@/utils/object.utils"
-import config from "@app/config"
+import config from "@common/config"
 import { useI18n } from "vue-i18n"
 import { useInstaller } from "@/composables/useInstaller"
 import { createMessage, type FormKitNode } from "@formkit/core"

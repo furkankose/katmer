@@ -1,9 +1,9 @@
-import { InstallerConfigSchema, type InstallerConfig } from "./types/installer"
+import { InstallerConfigSchema, type InstallerConfig } from "../types/installer"
 import { Value } from "typebox/value"
 
 let $CFG: Required<InstallerConfig>
 try {
-  const mod: any = await import("./config/schema")
+  const mod: any = await import("../config/schema")
   $CFG = Value.Default(
     InstallerConfigSchema,
     mod.default ? mod.default : mod.config || mod

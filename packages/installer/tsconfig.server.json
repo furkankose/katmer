@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "composite": true,
-    "lib": ["ESNext"],
+    "lib": ["esnext", "dom"],
     "target": "ESNext",
     "module": "ESNext",
     "declaration": true,
@@ -19,5 +19,14 @@
       "@type/*": ["./types/*"]
     }
   },
-  "include": ["server", "common", "cli", "config", "types", "*.ts"]
+  "include": [
+    "server",
+    "scripts",
+    "ui",
+    "common",
+    "cli",
+    "config",
+    "types",
+    "*.ts"
+  ]
 }

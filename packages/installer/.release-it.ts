@@ -24,8 +24,7 @@ export default {
 
   github: {
     release: true,
-    releaseName: "katmer-installer v${version}",
-    assets: ["dist/releases/*"]
+    releaseName: "katmer-installer v${version}"
   },
 
   plugins: {

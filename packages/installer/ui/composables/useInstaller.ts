@@ -17,7 +17,7 @@ export type ConnectionStatus =
   | "disconnected"
   | "error"
 
-const WS_PATH = `ws://${import.meta.env.DEV ? "localhost:3000/" : ""}api`
+const WS_PATH = `ws://${import.meta.env.DEV ? "localhost:3000/" : window.location.host}/api`
 
 function create_client_id(): string {
   const key = "installer_client_id"

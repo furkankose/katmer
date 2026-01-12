@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n"
 import { FormKitIcon } from "@formkit/vue"
-import config from "@app/config"
+import config from "@common/config"
 
 const i18n = useI18n()
 const availableLocales = (config.i18n?.locales ||

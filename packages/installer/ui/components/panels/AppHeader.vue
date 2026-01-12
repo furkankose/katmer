@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from "../ui/Button.vue"
 import { useInstaller } from "@/composables/useInstaller"
-import config from "@app/config"
+import config from "@common/config"
 
 import { computed, ref, watch } from "vue"
 

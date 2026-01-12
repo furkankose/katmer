@@ -11,8 +11,16 @@
     "dev:ui": "vite -l error ./",
     "dev:server": "bun --watch ./server/index.ts"
   },
+  "files": [
+    "ui",
+    "server",
+    "schemas",
+    "common",
+    "types",
+    "cli"
+  ],
   "bin": {
-    "@katmer/installer": "./cli.ts"
+    "@katmer/installer": "./cli/index.ts"
   },
   "exports": {
     "./types": {
