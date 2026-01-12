@@ -2,7 +2,7 @@
   "name": "@katmer/core",
   "module": "index.ts",
   "description": "Manage your infrastructure with ease.",
-  "version": "0.0.3",
+  "version": "0.0.4-alpha.0",
   "main": "index.ts",
   "type": "module",
   "types": "index.ts",
